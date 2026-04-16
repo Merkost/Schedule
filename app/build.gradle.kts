@@ -1,5 +1,13 @@
 import java.util.Properties
 
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val fcmServerKey: String = localProps.getProperty("FCM_SERVER_KEY")
+    ?: System.getenv("FCM_SERVER_KEY")
+    ?: ""
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.parcelize)
@@ -51,10 +59,12 @@ android {
             proguardFiles("proguard-rules.pro", getDefaultProguardFile("proguard-android-optimize.txt"))
             signingConfig = signingConfigs.getByName("release")
             buildConfigField("boolean", "USE_MOCK_REPOS", "false")
+            buildConfigField("String", "FCM_SERVER_KEY", "\"$fcmServerKey\"")
         }
         debug {
             extra["enableCrashlytics"] = false
             buildConfigField("boolean", "USE_MOCK_REPOS", "false")
+            buildConfigField("String", "FCM_SERVER_KEY", "\"$fcmServerKey\"")
         }
     }
 

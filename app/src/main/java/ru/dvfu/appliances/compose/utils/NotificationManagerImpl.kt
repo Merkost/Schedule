@@ -17,6 +17,7 @@ import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.repository.entity.notifications.Notification
 import ru.dvfu.appliances.model.repository.entity.notifications.NotificationData
 import ru.dvfu.appliances.model.repository.entity.notifications.PushNotification
+import ru.dvfu.appliances.model.repository.entity.notifications.NotificationConstants
 import ru.dvfu.appliances.model.repository.entity.notifications.RetrofitInstance
 import ru.dvfu.appliances.model.utils.*
 import ru.dvfu.appliances.model.utils.Constants.NotificationType
@@ -221,7 +222,12 @@ class NotificationManagerImpl(
     }
 
     private suspend fun sendMessage(pushNotification: PushNotification) {
-        RetrofitInstance.api.postNotification(pushNotification)
+        val key = NotificationConstants.SERVER_KEY
+        if (key.isBlank()) return
+        RetrofitInstance.api.postNotification(
+            authorization = "key=$key",
+            notification = pushNotification,
+        )
     }
 
     suspend fun subscribeCurrentUser() {
