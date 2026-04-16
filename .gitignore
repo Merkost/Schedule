@@ -18,3 +18,10 @@
 .cxx
 local.properties
 keystore.properties
+
+# Release signing keystore — never commit
+keystore/
+*.jks
+*.keystore
+.claude/
+.kotlin/
