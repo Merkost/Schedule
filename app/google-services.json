@@ -1,24 +1,65 @@
 {
   "project_info": {
     "project_number": "106372275715",
+    "firebase_url": "https://schedule-4c151-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "schedule-4c151",
     "storage_bucket": "schedule-4c151.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:106372275715:android:9ec772feea251a7de67836",
+        "mobilesdk_app_id": "1:106372275715:android:bfc8df343aceb58ce67836",
         "android_client_info": {
-          "package_name": "ru.students.dvfu"
+          "package_name": "ru.dvfu.appliances"
         }
       },
       "oauth_client": [
         {
-          "client_id": "106372275715-5g70hm8eosmmah3o427j57kl1k6ga1cd.apps.googleusercontent.com",
+          "client_id": "106372275715-0o82ap5mb0802sgkp7g8kbhoc5hvbpgh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "ru.students.dvfu",
-            "certificate_hash": "686be155b7bf47f57f0fdd2d41155aba226b5595"
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "4e0d00aa3c4684c1297e8bce9626a837722d798d"
+          }
+        },
+        {
+          "client_id": "106372275715-39h89tf277cvh6socdsvsn7d3hnpb061.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "0a370734987bdf8cd13bd3a476af07aa20dbd441"
+          }
+        },
+        {
+          "client_id": "106372275715-3vm77dedoc1ls40qbtjnpjd38q5bjdbs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "40a2189d1c48ac28379dec76ea16a80c52f2aaaa"
+          }
+        },
+        {
+          "client_id": "106372275715-9n2qnjk6id16l6ipv3aba0vr26tetvpk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "9f7563dbca81ae4eb8c59c802407adeb984bd3fd"
+          }
+        },
+        {
+          "client_id": "106372275715-mq9bop5fl09t51n5bgd6mpluf6sl4l99.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "b5b0153f6b2f7151d8048417aa1542c270f9b3c6"
+          }
+        },
+        {
+          "client_id": "106372275715-nll18vujg7asaafs0s55m78r3mhiprvd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "3826715f11c9277da334026a74eddb97b2d05e54"
           }
         },
         {
