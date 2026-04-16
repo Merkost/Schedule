@@ -50,6 +50,7 @@ android {
             isShrinkResources = true
             proguardFiles("proguard-rules.pro", getDefaultProguardFile("proguard-android-optimize.txt"))
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("boolean", "USE_MOCK_REPOS", "false")
         }
         debug {
             extra["enableCrashlytics"] = false
