@@ -2,20 +2,24 @@ package ru.dvfu.appliances.compose.components.views
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ui.theme.customColors
 
 @Composable
@@ -23,11 +27,11 @@ fun HeaderText(
     modifier: Modifier = Modifier,
     text: String,
     textAlign: TextAlign = TextAlign.Start,
-    textColor: Color = MaterialTheme.colors.onSurface
+    textColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Text(
         modifier = modifier.padding(8.dp),
-        style = MaterialTheme.typography.h6,
+        style = MaterialTheme.typography.titleLarge,
         textAlign = textAlign,
         color = textColor,
         text = text
@@ -49,12 +53,12 @@ fun PrimaryText(
     fontWeight: FontWeight? = null,
     textAlign: TextAlign? = null,
     text: String,
-    textColor: Color = MaterialTheme.colors.onSurface,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     maxLines: Int = Int.MAX_VALUE
 ) {
     Text(
         modifier = modifier,
-        style = MaterialTheme.typography.h4,
+        style = MaterialTheme.typography.headlineMedium,
         fontSize = 18.sp,
         fontWeight = fontWeight,
         textAlign = textAlign,
@@ -73,11 +77,11 @@ fun PrimaryTextSmall(
     textAlign: TextAlign? = null,
     text: String,
     maxLines: Int = Int.MAX_VALUE,
-    textColor: Color = MaterialTheme.colors.onSurface
+    textColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Text(
         modifier = modifier,
-        style = MaterialTheme.typography.h4,
+        style = MaterialTheme.typography.headlineMedium,
         fontSize = 14.sp,
         fontWeight = fontWeight,
         textAlign = textAlign,
@@ -107,7 +111,7 @@ fun SecondaryText(
     Text(
         textAlign = textAlign,
         modifier = modifier,
-        style = MaterialTheme.typography.body1,
+        style = MaterialTheme.typography.bodyLarge,
         fontSize = 18.sp,
         color = textColor,
         text = text,
@@ -125,7 +129,7 @@ fun SecondaryTextSmall(
     Text(
         textAlign = textAlign,
         modifier = modifier,
-        style = MaterialTheme.typography.body1,
+        style = MaterialTheme.typography.bodyLarge,
         fontSize = 14.sp,
         color = textColor,
         text = text,
@@ -137,7 +141,7 @@ fun SecondaryTextSmall(
 @Composable
 fun SupportText(
     modifier: Modifier = Modifier, text: String,
-    style: TextStyle = MaterialTheme.typography.body1,
+    style: TextStyle = MaterialTheme.typography.bodyLarge,
     maxLines: Int = Int.MAX_VALUE
 ) {
     Text(
@@ -156,15 +160,15 @@ fun DefaultButtonFilled(
     text: String,
     enabled: Boolean = true,
     buttonColors: ButtonColors = ButtonDefaults.buttonColors(
-        backgroundColor = MaterialTheme.colors.primaryVariant,
-        contentColor = MaterialTheme.colors.onPrimary
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimary
     ),
     onClick: () -> Unit
 ) {
     TextButton(
         modifier = modifier,
         enabled = enabled,
-        border = BorderStroke(width = 1.dp, color = MaterialTheme.colors.primaryVariant),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.primaryContainer),
         colors = buttonColors,
         onClick = onClick
     ) {
@@ -190,7 +194,7 @@ fun DefaultButton(
     modifier: Modifier = Modifier,
     icon: Painter? = null,
     text: String,
-    tint: Color = MaterialTheme.colors.primaryVariant,
+    tint: Color = MaterialTheme.colorScheme.primaryContainer,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -234,6 +238,6 @@ fun TextDivider(
             modifier = Modifier.padding(4.dp),
             text = text
         )
-        Divider()
+        HorizontalDivider()
     }
 }

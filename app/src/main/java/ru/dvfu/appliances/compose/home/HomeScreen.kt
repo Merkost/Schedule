@@ -5,7 +5,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
@@ -16,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.parcelize.Parcelize
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.calendars.CalendarType
@@ -37,7 +40,7 @@ fun HomeScreen(
     navController: NavController,
     backPress: () -> Unit,
 ) {
-    val viewModel: WeekCalendarViewModel = getViewModel()
+    val viewModel: WeekCalendarViewModel = koinViewModel()
     val currentUser by viewModel.currentUser.collectAsState()
     val calendarType by viewModel.calendarType.collectAsState()
     val context = LocalContext.current
@@ -131,8 +134,8 @@ fun HomeTopBar(
                     UiState.InProgress -> {
                         IconButton(onClick = {}) {
                             CircularProgressIndicator(
-                                color = MaterialTheme.colors.surface,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp,
                             )
                         }
                     }

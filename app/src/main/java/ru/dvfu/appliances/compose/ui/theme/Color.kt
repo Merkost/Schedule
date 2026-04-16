@@ -2,18 +2,51 @@ package ru.dvfu.appliances.compose.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
+val BrandPrimary = Color(0xFF3E5BDA)
+val BrandPrimaryDark = Color(0xFF1C2F9F)
+val BrandPrimaryLight = Color(0xFFDDE3FF)
+val BrandOnPrimary = Color(0xFFFFFFFF)
+val BrandOnPrimaryContainer = Color(0xFF0A1D7A)
 
-val Green500 = Color(0xFF4CAF50)
-val Red500 = Color(0xFFF44336)
+val BrandSecondary = Color(0xFFFB923C)
+val BrandSecondaryDark = Color(0xFFB45309)
+val BrandSecondaryLight = Color(0xFFFFE4CC)
+val BrandOnSecondary = Color(0xFFFFFFFF)
+val BrandOnSecondaryContainer = Color(0xFF5C2600)
 
+val BrandTertiary = Color(0xFF14B8A6)
+val BrandTertiaryDark = Color(0xFF0F766E)
+val BrandTertiaryLight = Color(0xFFCCF5EE)
+val BrandOnTertiary = Color(0xFFFFFFFF)
+val BrandOnTertiaryContainer = Color(0xFF003D37)
+
+val BrandError = Color(0xFFDC2626)
+val BrandErrorDark = Color(0xFF7F1D1D)
+val BrandErrorLight = Color(0xFFFEE2E2)
+val BrandOnError = Color(0xFFFFFFFF)
+val BrandOnErrorContainer = Color(0xFF410E0B)
+
+val BrandBackground = Color(0xFFFBFAFD)
+val BrandOnBackground = Color(0xFF1C1B1F)
+val BrandSurface = Color(0xFFFFFFFF)
+val BrandOnSurface = Color(0xFF1C1B1F)
+val BrandSurfaceVariant = Color(0xFFEAE9EF)
+val BrandOnSurfaceVariant = Color(0xFF49454F)
+val BrandOutline = Color(0xFF79747E)
+val BrandOutlineVariant = Color(0xFFCAC4D0)
+val BrandScrim = Color(0xFF000000)
+
+val BrandBackgroundDark = Color(0xFF0F1115)
+val BrandOnBackgroundDark = Color(0xFFE6E1E5)
+val BrandSurfaceDark = Color(0xFF161922)
+val BrandOnSurfaceDark = Color(0xFFE6E1E5)
+val BrandSurfaceVariantDark = Color(0xFF2B2E3A)
+val BrandOnSurfaceVariantDark = Color(0xFFC9C5D0)
+val BrandOutlineDark = Color(0xFF948E99)
+val BrandOutlineVariantDark = Color(0xFF49454F)
 
 val pickerColors = listOf(
     null,
-    //Color(0xFF000000),
     Color(0xFFFFFFFF),
     Color(0xFFFAFAFA),
     Color(0x80FF4444),
@@ -32,21 +65,26 @@ val pickerColors = listOf(
     Color(0xFFFFEE58),
     Color(0xFFFFCA28),
     Color(0xFFFFA726),
-    Color(0xFFFF7043)
+    Color(0xFFFF7043),
 )
 
-// Figma colors
-val primaryFigmaColor = Color(0xFF43a047)
-val primaryFigmaLightColor = Color(0xFF76d275)
-val primaryFigmaDarkColor = Color(0xFF00701a)
-val secondaryFigmaColor = Color(0xFFff6d00)
-val secondaryFigmaLightColor = Color(0xFFff9e40)
-val secondaryFigmaDarkColor = Color(0xFFc43c00)
-val primaryFigmaTextColor = Color(0xDE000000)
-val secondaryFigmaTextColor = Color(0x8A000000)
-val supportFigmaTextColor = Color(0x42000000)
-val primaryFigmaBackgroundTint = Color(0xFFFFF7E6)
-val backgroundWhiteColor = Color(0xFFFFFFFF)
-val backgroundGreenColor = Color(0x2043A047)
+val primaryFigmaColor = BrandPrimary
+val primaryFigmaLightColor = BrandPrimaryLight
+val primaryFigmaDarkColor = BrandPrimaryDark
+val secondaryFigmaColor = BrandSecondary
+val secondaryFigmaLightColor = BrandSecondaryLight
+val secondaryFigmaDarkColor = BrandSecondaryDark
+val primaryFigmaTextColor = BrandOnBackground
+val secondaryFigmaTextColor = BrandOnSurfaceVariant
+val supportFigmaTextColor = Color(0x8A1C1B1F)
+val primaryFigmaBackgroundTint = BrandSurfaceVariant
+val backgroundWhiteColor = BrandSurface
+val backgroundGreenColor = BrandTertiaryLight
 
-val Blue500 = Color(0xFF42A5F5)
+val Red500 = BrandError
+val Green500 = BrandTertiary
+val Blue500 = BrandPrimary
+val Purple200 = BrandPrimaryLight
+val Purple500 = BrandPrimary
+val Purple700 = BrandPrimaryDark
+val Teal200 = BrandTertiary

@@ -5,23 +5,28 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.GridItemSpan
-import androidx.compose.foundation.lazy.LazyGridItemSpanScope
-import androidx.compose.foundation.lazy.LazyGridScope
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.debugInspectorInfo
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.placeholder
-import com.google.accompanist.placeholder.material.shimmer
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.ktx.app
+import com.google.firebase.firestore.firestore
+import com.google.firebase.Firebase
+import com.google.firebase.app
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
@@ -45,13 +50,24 @@ fun Modifier.loadingModifier(
     name = "loadingModifier"
     value = enabled
 }) {
-    if (enabled)
-        Modifier.placeholder(
-            true,
-            color = Color.LightGray,
-            shape = CircleShape,
-            highlight = PlaceholderHighlight.shimmer()
-        ) else Modifier
+    if (!enabled) return@composed Modifier
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val progress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1200)),
+        label = "shimmerProgress",
+    )
+    val base = Color.LightGray
+    val highlight = Color.White.copy(alpha = 0.6f)
+    val brush = Brush.linearGradient(
+        colors = listOf(base, highlight, base),
+        start = androidx.compose.ui.geometry.Offset(progress * 400f - 200f, 0f),
+        end = androidx.compose.ui.geometry.Offset(progress * 400f + 200f, 0f),
+    )
+    Modifier
+        .clip(CircleShape)
+        .background(brush)
 }
 
 fun showError(applicationContext: Context, text: String?) {

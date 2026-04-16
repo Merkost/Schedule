@@ -6,7 +6,7 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
-import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.toObject
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope

@@ -5,9 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,14 +64,14 @@ fun BasicEvent(
             Column {
                 Text(
                     text = formattedTime(event.timeStart, event.timeEnd),
-                    style = MaterialTheme.typography.caption,
+                    style = MaterialTheme.typography.labelSmall,
                     maxLines = 2,
                     overflow = TextOverflow.Clip,
                 )
 
                 Text(
                     text = event.appliance.name,
-                    style = MaterialTheme.typography.body1,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -85,7 +84,7 @@ fun BasicEvent(
         if (event.commentary.isNotBlank()) {
             Text(
                 text = event.commentary,
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyMedium,
 
                 overflow = TextOverflow.Ellipsis,
             )

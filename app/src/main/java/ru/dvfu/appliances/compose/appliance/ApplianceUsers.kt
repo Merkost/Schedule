@@ -7,9 +7,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,9 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import de.charlex.compose.RevealDirection
-import de.charlex.compose.RevealSwipe
-import org.koin.androidx.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
+import ru.dvfu.appliances.compose.components.SwipeToDeleteItem
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
@@ -30,21 +29,20 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.isUserSuperuserOrAdmin
 
 
-@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
 fun ApplianceUsers(
     navController: NavController,
     appliance: Appliance,
 ) {
-    val detailsViewModel: ApplianceDetailsViewModel by viewModel()
+    val detailsViewModel: ApplianceDetailsViewModel = koinViewModel()
     val currentUser: User by detailsViewModel.currentUser.collectAsState(User())
 
     val users by detailsViewModel.currentUsers.collectAsState()
 
-    Scaffold(backgroundColor = Color.Transparent) {
+    Scaffold(containerColor = Color.Transparent) { padding ->
 
-        Crossfade(users) { animatedUiState ->
+        Crossfade(users, modifier = Modifier.padding(padding)) { animatedUiState ->
             SwipableUsers(
                 users = animatedUiState,
                 userClicked = { user ->
@@ -67,7 +65,6 @@ fun onAddClick(navController: NavController, appliance: Appliance) {
     )
 }
 
-@ExperimentalMaterialApi
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalAnimationApi
 @Composable
@@ -101,7 +98,6 @@ fun SwipableUsers(
                 item {
                     NoElementsView(
                         mainText = stringResource(R.string.no_users_in_appliance),
-                        //secondaryText = stringResource(R.string.new_place_text),
                         onClickAction = { }
                     )
                 }
@@ -147,35 +143,11 @@ fun NoElementsView(
     }
 }
 
-@ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
 fun ItemSwipableUser(user: User, userClicked: () -> Unit, userDeleted: () -> Unit) {
-
-    RevealSwipe(
-        //modifier = Modifier.padding(vertical = 5.dp),
-        directions = setOf(
-            //RevealDirection.StartToEnd,
-            RevealDirection.EndToStart
-        ),
-        /*hiddenContentStart = {
-            Icon(
-                modifier = Modifier.padding(horizontal = 25.dp),
-                imageVector = Icons.Outlined.Star,
-                contentDescription = null,
-                tint = Color.White
-            )
-        },*/
-        hiddenContentEnd = {
-            Icon(
-                modifier = Modifier.padding(horizontal = 25.dp),
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = null
-            )
-        },
-        onBackgroundEndClick = userDeleted
-    ) {
+    SwipeToDeleteItem(onDelete = userDeleted) {
         ItemUser(user, userClicked)
     }
 }

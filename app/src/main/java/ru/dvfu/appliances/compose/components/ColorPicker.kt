@@ -6,24 +6,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.contentColorFor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.flowlayout.FlowRow
-import com.google.accompanist.flowlayout.MainAxisAlignment
-import com.google.accompanist.flowlayout.SizeMode
 import ru.dvfu.appliances.R
 
 @Composable
@@ -35,10 +31,8 @@ fun ColorPicker(
 ) {
     Column(modifier = modifier) {
         FlowRow(
-            mainAxisAlignment = MainAxisAlignment.Start,
-            mainAxisSize = SizeMode.Wrap,
-            crossAxisSpacing = 4.dp,
-            mainAxisSpacing = 4.dp
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             colors.distinct().forEach { color ->
                 ColorItem(
@@ -80,7 +74,7 @@ fun ColorItem(
                         .background(color)
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colors.onSurface,
+                            color = MaterialTheme.colorScheme.onSurface,
                             shape = CircleShape
                         )
                 } else {
@@ -114,7 +108,7 @@ fun ColorItem(
                 painterResource(R.drawable.ic_color_off_24dp),
                 contentDescription = Icons.Default.Clear.name,
                 modifier = Modifier.align(Alignment.Center),
-                tint = contentColorFor(MaterialTheme.colors.surface)
+                tint = contentColorFor(MaterialTheme.colorScheme.surface)
             )
         }
     }

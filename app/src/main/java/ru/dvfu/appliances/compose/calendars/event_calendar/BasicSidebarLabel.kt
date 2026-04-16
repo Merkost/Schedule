@@ -3,8 +3,8 @@ package ru.dvfu.appliances.compose.calendars.event_calendar
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,7 +26,7 @@ fun BasicSidebarLabel(
         modifier = modifier
             .fillMaxHeight()
             .padding(4.dp),
-        color = if (time.hour == currentTime.hour) MaterialTheme.colors.primary else Color.Unspecified,
+        color = if (time.hour == currentTime.hour) MaterialTheme.colorScheme.primary else Color.Unspecified,
         fontWeight = if (time.hour == currentTime.hour) FontWeight.ExtraBold else null
     )
 }

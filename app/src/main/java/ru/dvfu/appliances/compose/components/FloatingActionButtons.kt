@@ -8,11 +8,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddTask
 import androidx.compose.material.icons.filled.MoreTime
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -61,16 +64,18 @@ fun FabWithMenu(
         }
 
 
-        FloatingActionButton(backgroundColor = Color(0xFFFF8C00),
+        FloatingActionButton(
+            containerColor = Color(0xFFFF8C00),
             onClick = {
-            if (transition.currentState.value == MultiFabState.EXPANDED) {
-                transition.currentState.value = MultiFabState.COLLAPSED
-            } else transition.currentState.value = MultiFabState.EXPANDED
-        }) {
+                if (transition.currentState.value == MultiFabState.EXPANDED) {
+                    transition.currentState.value = MultiFabState.COLLAPSED
+                } else transition.currentState.value = MultiFabState.EXPANDED
+            }
+        ) {
             Icon(
                 imageVector = Icons.Default.Add,
                 modifier = Modifier.rotate(rotation.value),
-                tint = MaterialTheme.colors.onPrimary,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 contentDescription = ""
             )
         }
@@ -95,12 +100,12 @@ fun FabMenu(item: FabMenuItem, modifier: Modifier = Modifier, size: Dp) {
                 .size(FabSize)
                 .padding((FabSize - size) / 2)) {
                 FloatingActionButton(
-                    backgroundColor = MaterialTheme.colors.primary,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     modifier = modifier.size(size),
                     onClick = item.onClick
                 ) {
                     Icon(
-                        tint = MaterialTheme.colors.onPrimary,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         imageVector = item.icon,
                         contentDescription = ""
                     )

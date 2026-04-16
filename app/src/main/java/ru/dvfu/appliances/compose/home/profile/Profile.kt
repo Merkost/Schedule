@@ -5,12 +5,21 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
@@ -33,7 +42,7 @@ import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.ScheduleAppBar
@@ -44,74 +53,58 @@ import ru.dvfu.appliances.model.repository.entity.isAdmin
 import ru.dvfu.appliances.ui.LoginActivity
 
 @InternalCoroutinesApi
-@ExperimentalMaterialApi
 @ExperimentalCoilApi
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Profile(navController: NavController, modifier: Modifier = Modifier, backPress: () -> Unit) {
 
-    val viewModel = getViewModel<ProfileViewModel>()
+    val viewModel = koinViewModel<ProfileViewModel>()
     val currentUser by viewModel.currentUser.collectAsState()
 
     Scaffold(
         topBar = { ProfileTopBar(upPress = backPress) },
-        backgroundColor = Color(0XFFE3DAC9),
-        content = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
+    ) { innerPadding ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 24.dp),
+        ) {
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             ) {
-
-                Card(
-                    elevation = 10.dp,
-                    modifier = Modifier.padding(25.dp),
-                    shape = RoundedCornerShape(25.dp),
-                    backgroundColor = MaterialTheme.colors.surface
-                ) {
-                    Column() {
-                        ProfileUserInfo(currentUser)
-                    }
-
-                }
-                if (currentUser.anonymous.not()) UserButtons(
-                    navController,
-                    currentUser = currentUser
-                )
-
-/*                ColumnButton(Icons.Default.Error, "Выдать ошибку")
-                { throw RuntimeException("Test Crash")  }// Force a crash*/
+                ProfileUserInfo(currentUser)
             }
-        },
-    )
+            Spacer(Modifier.height(24.dp))
+            if (!currentUser.anonymous) UserButtons(navController, currentUser)
+        }
+    }
 }
 
 @InternalCoroutinesApi
-@ExperimentalMaterialApi
 @Composable
 fun UserButtons(navController: NavController, currentUser: User) {
     val context = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 80.dp),
-        verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically)
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-
-        ColumnButton(Icons.Default.Edit, "Редактировать профиль")
-        { navController.navigate(MainDestinations.EDIT_PROFILE) }
-
-        ColumnButton(image = Icons.Default.Notifications, name = "Настройка уведомлений") {
-            goToNotificationsSettings(context)
+        ColumnButton(Icons.Default.Edit, "Редактировать профиль") {
+            navController.navigate(MainDestinations.EDIT_PROFILE)
         }
-
+        ColumnButton(Icons.Default.Notifications, "Настройка уведомлений") {
+            navController.navigate(MainDestinations.SETTINGS_ROUTE)
+        }
         if (currentUser.isAdmin) {
-            ColumnButton(image = Icons.Default.PersonSearch, name = "Список пользователей")
-            { navController.navigate(MainDestinations.USERS_ROUTE) }
+            ColumnButton(Icons.Default.PersonSearch, "Список пользователей") {
+                navController.navigate(MainDestinations.USERS_ROUTE)
+            }
         }
-
     }
 }
 
@@ -123,28 +116,56 @@ fun goToNotificationsSettings(context: Context) {
     context.startActivity(intent)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @InternalCoroutinesApi
 @Composable
 fun LogoutDialog(onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val viewModel = getViewModel<ProfileViewModel>()
+    val viewModel = koinViewModel<ProfileViewModel>()
 
-    DefaultDialog(
-        primaryText = "Выход из аккаунта",
-        secondaryText = "Вы уверены, что хотите выйти из своего аккаунта?",
-        onDismiss = onDismiss,
-        positiveButtonText = stringResource(id = R.string.Yes),
-        negativeButtonText = stringResource(id = R.string.No),
-        onPositiveClick = {
-            scope.launch {
-                viewModel.logoutCurrentUser().collect { isLogout ->
-                    if (isLogout) startLoginActivity(context)
-                }
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Logout,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(32.dp),
+            )
+        },
+        title = {
+            Text(
+                text = "Выход из аккаунта",
+                style = MaterialTheme.typography.headlineSmall,
+            )
+        },
+        text = {
+            Text(
+                text = "Вы уверены, что хотите выйти из своего аккаунта?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        confirmButton = {
+            androidx.compose.material3.Button(
+                onClick = {
+                    scope.launch {
+                        viewModel.logoutCurrentUser().collect { isLogout ->
+                            if (isLogout) startLoginActivity(context)
+                        }
+                    }
+                },
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                ),
+            ) { Text(stringResource(id = R.string.Yes)) }
+        },
+        dismissButton = {
+            androidx.compose.material3.OutlinedButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.No))
             }
         },
-        onNegativeClick = onDismiss
     )
 }
 
@@ -168,53 +189,49 @@ fun ColumnButton(image: ImageVector, name: String, click: () -> Unit) {
 @ExperimentalCoilApi
 @Composable
 fun ProfileUserInfo(user: User) {
-    UserNameAndImage(user)
-}
-
-
-@ExperimentalCoilApi
-@Composable
-fun UserNameAndImage(user: User) {
-    Row(
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
-            .padding(20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (user.userPic.isNullOrEmpty()) {
             Icon(
-                Icons.Default.Person, contentDescription = stringResource(R.string.user_photo),
+                Icons.Default.Person,
+                contentDescription = stringResource(R.string.user_photo),
                 modifier = Modifier
+                    .size(80.dp)
                     .clip(CircleShape)
-                    .size(125.dp),
-                //.align(Alignment.CenterVertically),
-                //tint = secondaryFigmaColor
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(16.dp),
+                tint = MaterialTheme.colorScheme.primary,
             )
         } else {
             Image(
-                painter = rememberImagePainter(user.userPic,
-                    builder = {
-                        crossfade(true)
-                        placeholder(R.drawable.ic_launcher_foreground)
-                        transformations(CircleCropTransformation())
-                    }),
+                painter = rememberImagePainter(user.userPic, builder = {
+                    crossfade(true)
+                    placeholder(R.drawable.ic_launcher_foreground)
+                    transformations(CircleCropTransformation())
+                }),
                 contentDescription = stringResource(R.string.user_photo),
                 modifier = Modifier
-                    .clip(CircleShape)
-                    .size(125.dp)
-                //contentScale = ContentScale.Crop,
+                    .size(80.dp)
+                    .clip(CircleShape),
             )
         }
         Text(
-            text = when (user.anonymous) {
-                true -> stringResource(R.string.anonymous_user)
-                false -> user.userName
-            }, style = MaterialTheme.typography.h6,
+            text = if (user.anonymous) stringResource(R.string.anonymous_user) else user.userName,
+            style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
         )
+        if (user.email.isNotBlank()) {
+            Text(
+                text = user.email,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
@@ -225,7 +242,6 @@ private fun startLoginActivity(context: Context) {
 }
 
 @ExperimentalCoilApi
-@ExperimentalMaterialApi
 @InternalCoroutinesApi
 @Preview("default")
 //@Preview("dark theme", uiMode = Configuration.UI_MODE_NIGHT_YES)

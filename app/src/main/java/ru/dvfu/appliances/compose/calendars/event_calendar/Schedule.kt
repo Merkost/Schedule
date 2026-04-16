@@ -5,7 +5,7 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -154,7 +154,7 @@ fun BasicSchedule(
     val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
     val numMinutes = ChronoUnit.MINUTES.between(minTime, maxTime).toInt() + 1
     val numHours = numMinutes / 60
-    val dividerColor = if (MaterialTheme.colors.isLight) Color.LightGray else Color.DarkGray
+    val dividerColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
     val positionedEvents =
         remember(calendarEvents) { arrangeEvents(splitEvents(calendarEvents.sortedBy(CalendarEvent::timeStart))).filter { it.end > minTime && it.start < maxTime } }
     Layout(

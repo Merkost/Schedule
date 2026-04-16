@@ -2,7 +2,18 @@ package ru.dvfu.appliances.compose.home.booking_list
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SecondaryScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -11,11 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.pagerTabIndicatorOffset
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.compose.components.pagerTabIndicatorOffset
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.Arguments
@@ -61,7 +71,7 @@ sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Uni
         )
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingListTabsView(
     modifier: Modifier = Modifier,
@@ -70,14 +80,13 @@ fun BookingListTabsView(
 ) {
     val scope = rememberCoroutineScope()
 
-    ScrollableTabRow(
+    SecondaryScrollableTabRow(
         modifier = modifier,
-        backgroundColor = MaterialTheme.colors.background,
+        containerColor = MaterialTheme.colorScheme.background,
         selectedTabIndex = pagerState.currentPage,
-        indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
-                color = MaterialTheme.colors.onSurface,
-                modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
+        indicator = {
+            SecondaryIndicator(
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     ) {
@@ -89,7 +98,6 @@ fun BookingListTabsView(
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun BookingTabsContent(
     modifier: Modifier = Modifier,
@@ -100,7 +108,6 @@ fun BookingTabsContent(
         modifier = modifier.fillMaxSize(),
         state = pagerState,
         verticalAlignment = Alignment.Top,
-        count = tabsList.size
     ) { page ->
         tabsList[page].screen()
     }
@@ -212,17 +219,15 @@ fun DeclineBookingButton(
 ) {
     Row(
         modifier = modifier
-            .padding(16.dp)
             .fillMaxWidth()
-            .wrapContentHeight(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End
+            .padding(top = 4.dp),
+        horizontalArrangement = Arrangement.End,
     ) {
-        DefaultButton(
-            text = stringResource(R.string.refuse),
-            tint = Color.Red,
-            onClick = onDeclineClick
-        )
+        OutlinedButton(
+            onClick = onDeclineClick,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+        ) { Text(stringResource(R.string.refuse)) }
     }
 }
 
@@ -230,7 +235,7 @@ fun DeclineBookingButton(
 fun BookingButtons(
     modifier: Modifier = Modifier,
     onApproveClick: (String) -> Unit,
-    onDeclineClick: (String) -> Unit
+    onDeclineClick: (String) -> Unit,
 ) {
     var approveDialogState by remember { mutableStateOf(false) }
     var declineDialogState by remember { mutableStateOf(false) }
@@ -243,7 +248,7 @@ fun BookingButtons(
                 approveDialogState = false
                 onApproveClick(it)
             },
-            newStatus = BookingStatus.APPROVED
+            newStatus = BookingStatus.APPROVED,
         )
     }
 
@@ -252,30 +257,33 @@ fun BookingButtons(
             commentArg = "",
             onCancel = { declineDialogState = false },
             onApplyCommentary = {
-                approveDialogState = false
+                declineDialogState = false
                 onDeclineClick(it)
             },
-            newStatus = BookingStatus.DECLINED
+            newStatus = BookingStatus.DECLINED,
         )
     }
 
     Row(
         modifier = modifier
-            .padding(16.dp)
             .fillMaxWidth()
-            .wrapContentHeight(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(top = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        DefaultButton(
-            text = stringResource(id = R.string.decline),
-            tint = Color.Red,
-            onClick = { declineDialogState = true }
-        )
-        DefaultButton(
-            text = stringResource(id = R.string.approve),
-            onClick = { approveDialogState = true }
-        )
+        OutlinedButton(
+            onClick = { declineDialogState = true },
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+        ) { Text(stringResource(id = R.string.decline)) }
+        Button(
+            onClick = { approveDialogState = true },
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
+        ) { Text(stringResource(id = R.string.approve)) }
     }
 }
 
@@ -302,14 +310,12 @@ fun BookingCommentaryDialog(
         },
         positiveButtonColor = when (newStatus) {
             BookingStatus.DECLINED -> ButtonDefaults.buttonColors(
-                Color.Red, contentColorFor(
-                    backgroundColor = Color.Red
-                )
+                containerColor = Color.Red,
+                contentColor = Color.White,
             )
             BookingStatus.APPROVED -> ButtonDefaults.buttonColors(
-                Color.Green, contentColorFor(
-                    backgroundColor = Color.Green
-                )
+                containerColor = Color.Green,
+                contentColor = Color.Black,
             )
             else -> ButtonDefaults.buttonColors()
         },
@@ -375,66 +381,49 @@ fun EventInfo(
     navController: NavController,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        if (showDateTimeTitle) {
-            TextDivider(text = "Дата и время")
-        }
         BookingTime(
-            // TODO need manage by user:  || canUserManage() (canBeRefused)
             editable = currentUser.canManageEvent(event) || event.canBeRefused(currentUser),
             timeStart = event.timeStart,
             timeEnd = event.timeEnd,
-            onSetNewDateAndTime = {
-                onSetDateAndTime(event, it)
-            }
+            onSetNewDateAndTime = { onSetDateAndTime(event, it) },
         )
-        Spacer(modifier = Modifier.size(8.dp))
-
-        BookingAppliance(event.appliance, onApplianceClick = {
+        BookingAppliance(event.appliance) {
             navController.navigate(
                 MainDestinations.APPLIANCE_ROUTE,
-                Arguments.APPLIANCE to event.appliance
+                Arguments.APPLIANCE to event.appliance,
             )
-        })
-
-        BookingUser(event.user, onUserClick = {
+        }
+        BookingUser(event.user) {
             navController.navigate(
                 MainDestinations.USER_DETAILS_ROUTE,
-                Arguments.USER to event.user
+                Arguments.USER to event.user,
             )
-        })
-
+        }
         BookingCommentary(
             commentary = event.commentary,
             editable = event.user.userId == currentUser.userId && event.status == BookingStatus.NONE,
-            onCommentarySave = { comment ->
-                onCommentarySave(event, comment)
-            }
+            onCommentarySave = { comment -> onCommentarySave(event, comment) },
         )
-
-        Spacer(modifier = Modifier.size(8.dp))
-
         BookingStatus(
             book = event,
             currentUser = currentUser,
             onUserClick = {
                 navController.navigate(
                     MainDestinations.USER_DETAILS_ROUTE,
-                    Arguments.USER to it
+                    Arguments.USER to it,
                 )
             },
             onApprove = onApproveClick,
             onDecline = onDeclineClick,
             onUserRefuse = onUserRefuseClick,
-            onManagerCommentarySave = onManagerCommentarySave
+            onManagerCommentarySave = onManagerCommentarySave,
         )
-        Spacer(modifier = Modifier.size(8.dp))
     }
-
 }
 
 @Composable
@@ -444,7 +433,7 @@ fun BookingItem(content: @Composable () -> Unit) {
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(12.dp),
-        elevation = 8.dp,
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
         content()

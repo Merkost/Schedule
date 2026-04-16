@@ -3,13 +3,15 @@ package ru.dvfu.appliances.compose.calendars
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Card
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,11 +22,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.fastAny
 import io.github.boguszpawlowski.composecalendar.day.DayState
 import io.github.boguszpawlowski.composecalendar.header.MonthState
 import io.github.boguszpawlowski.composecalendar.selection.SelectionState
-import ru.dvfu.appliances.compose.ui.theme.Blue500
 import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
@@ -41,7 +41,7 @@ fun <T : SelectionState> ScheduleCalendarDate(
     onClick: (LocalDate) -> Unit = {},
     modifier: Modifier = Modifier,
     todayDate: LocalDate = LocalDate.now(),
-    selectionColor: Color = MaterialTheme.colors.primaryVariant,
+    selectionColor: Color = MaterialTheme.colorScheme.primaryContainer,
 ) {
     val date = state.date
     val selectionState = state.selectionState
@@ -52,20 +52,26 @@ fun <T : SelectionState> ScheduleCalendarDate(
             .aspectRatio(1f)
             .padding(3.dp),
         shape = CircleShape,
-        elevation = if (state.isFromCurrentMonth) 4.dp else 0.dp,
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (state.isFromCurrentMonth) 4.dp else 0.dp
+        ),
         border =
         if (currentDayEvents.any { it.status == BookingStatus.APPROVED }) BorderStroke(
             2.dp,
             if (currentDayEvents.any { it.user.userId == currentUser.userId && it.status == BookingStatus.APPROVED })
-                MaterialTheme.colors.secondary else MaterialTheme.colors.primary
+                MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
         ) else null,
-        backgroundColor = if (isSelected) selectionColor else MaterialTheme.colors.surface
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) selectionColor else MaterialTheme.colorScheme.surface
+        )
     ) {
         Box(
-            modifier = Modifier.clickable {
-                onClick(date)
-                selectionState.onDateSelected(date)
-            },
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable {
+                    onClick(date)
+                    selectionState.onDateSelected(date)
+                },
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -73,21 +79,14 @@ fun <T : SelectionState> ScheduleCalendarDate(
                 fontWeight = if (date == todayDate) FontWeight.Bold else FontWeight.Normal,
                 fontSize = if (date == todayDate) 16.sp else 14.sp,
             )
-        }
-
-        if (currentDayEvents.any { it.status == BookingStatus.NONE }) {
-
-            val color = Color.LightGray
-            Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = Modifier.padding(bottom = 6.dp)
-            ) {
+            if (currentDayEvents.any { it.status == BookingStatus.NONE }) {
                 Box(
                     modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 4.dp)
                         .clip(CircleShape)
-                        .background(color)
-                        .size(8.dp)
-
+                        .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                        .size(6.dp),
                 )
             }
         }
@@ -102,37 +101,45 @@ fun SchedulerMonthHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 4.dp),
-        horizontalArrangement = Arrangement.Center,
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
             modifier = Modifier.testTag("Decrement"),
-            onClick = { monthState.currentMonth = monthState.currentMonth.minusMonths(1) }
+            onClick = { monthState.currentMonth = monthState.currentMonth.minusMonths(1) },
         ) {
-            Image(
+            Icon(
                 imageVector = Icons.Default.KeyboardArrowLeft,
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
                 contentDescription = "Previous",
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
-        Text(
-            modifier = Modifier.testTag("MonthLabel"),
-            text = monthState.currentMonth.month
-                .getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
-                .lowercase()
-                .replaceFirstChar { it.titlecase() },
-            style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.SemiBold),
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = monthState.currentMonth.year.toString(), style = MaterialTheme.typography.h4)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                modifier = Modifier.testTag("MonthLabel"),
+                text = monthState.currentMonth.month
+                    .getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
+                    .lowercase()
+                    .replaceFirstChar { it.titlecase() },
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = monthState.currentMonth.year.toString(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         IconButton(
             modifier = Modifier.testTag("Increment"),
-            onClick = { monthState.currentMonth = monthState.currentMonth.plusMonths(1) }
+            onClick = { monthState.currentMonth = monthState.currentMonth.plusMonths(1) },
         ) {
-            Image(
+            Icon(
                 imageVector = Icons.Default.KeyboardArrowRight,
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
                 contentDescription = "Next",
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
     }

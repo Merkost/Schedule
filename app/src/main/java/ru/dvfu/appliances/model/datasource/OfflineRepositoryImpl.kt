@@ -1,8 +1,8 @@
 package ru.dvfu.appliances.model.datasource
 
 import com.google.firebase.firestore.Source
-import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.firestore.ktx.toObjects
+import com.google.firebase.firestore.toObject
+import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
