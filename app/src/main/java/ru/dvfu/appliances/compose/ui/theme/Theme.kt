@@ -9,8 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.joesemper.fishing.ui.theme.ScheduleShapes
-import com.joesemper.fishing.ui.theme.ScheduleTypography
 
 private val LightColorScheme = lightColorScheme(
     primary = BrandPrimary,

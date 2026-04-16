@@ -1,4 +1,4 @@
-package com.joesemper.fishing.ui.theme
+package ru.dvfu.appliances.compose.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes

@@ -2,7 +2,6 @@ package ru.dvfu.appliances.model.repository.entity
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import ru.dvfu.appliances.BuildConfig
 import java.time.LocalDateTime
 
 @Parcelize
@@ -24,7 +23,7 @@ val User.isAnonymousOrGuest: Boolean
     get() = role == Roles.GUEST.ordinal || anonymous
 
 fun User.canManageEvent(event: CalendarEvent): Boolean {
-    return ((isAdmin || event.appliance.superuserIds.contains(userId) )
-            && event.timeEnd.isAfter(LocalDateTime.now())/* || BuildConfig.DEBUG*/)
+    return (isAdmin || event.appliance.superuserIds.contains(userId)) &&
+        event.timeEnd.isAfter(LocalDateTime.now())
 }
 

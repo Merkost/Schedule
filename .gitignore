@@ -25,3 +25,6 @@ keystore/
 *.keystore
 .claude/
 .kotlin/
+app/release/
+output-metadata.json
+.idea/kotlinc.xml

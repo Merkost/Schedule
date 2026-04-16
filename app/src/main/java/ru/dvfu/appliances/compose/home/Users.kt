@@ -93,7 +93,7 @@ private fun UsersContent(users: List<User>, onUserClick: (User) -> Unit) {
         grouped.forEach { (role, roleUsers) ->
             item(key = "header_${role.ordinal}") {
                 UsersRoleHeader(
-                    title = stringResource(role.stringRess),
+                    title = stringResource(role.pluralStringRes),
                     count = roleUsers.size,
                 )
             }
