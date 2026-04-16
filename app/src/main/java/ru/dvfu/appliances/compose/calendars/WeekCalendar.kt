@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose.calendars
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -36,7 +37,7 @@ fun EventCalendar(
     val minDate = remember { currentDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 1L) }
     val maxDate = remember { currentDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 7L) }
 
-    SideEffect {
+    LaunchedEffect(minDate, maxDate) {
         viewModel.getWeekEvents(minDate, maxDate)
     }
 
@@ -45,7 +46,7 @@ fun EventCalendar(
     val currentUser by viewModel.currentUser.collectAsState()
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0),
+        contentWindowInsets = WindowInsets.systemBars,
         topBar = {
             HomeTopBar(
                 uiState = uiState,

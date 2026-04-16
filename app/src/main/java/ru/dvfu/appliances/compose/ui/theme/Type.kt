@@ -1,4 +1,4 @@
-package com.joesemper.fishing.ui.theme
+package ru.dvfu.appliances.compose.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

@@ -10,7 +10,6 @@
 
 -keep class ru.dvfu.appliances.model.repository.entity.** { *; }
 -keep class ru.dvfu.appliances.compose.home.SelectedDate { *; }
--keep class ru.dvfu.appliances.compose.calendars.event_calendar.CalendarEvent { *; }
 
 -keep class * implements android.os.Parcelable {
     public static final android.os.Parcelable$Creator *;
