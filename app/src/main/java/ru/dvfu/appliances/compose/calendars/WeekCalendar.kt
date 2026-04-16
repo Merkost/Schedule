@@ -1,12 +1,13 @@
 package ru.dvfu.appliances.compose.calendars
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -32,12 +33,8 @@ fun EventCalendar(
     verticalScrollState: ScrollState,
 ) {
     val currentDate = remember { LocalDate.now() }
-    //val debugDate = remember { LocalDate.of(2022, 5, 3) }
     val minDate = remember { currentDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 1L) }
     val maxDate = remember { currentDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 7L) }
-
-    //val debugMinDate = remember { debugDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 1L) }
-    //val debugMaxDate = remember { debugDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 7L) }
 
     SideEffect {
         viewModel.getWeekEvents(minDate, maxDate)
@@ -46,10 +43,9 @@ fun EventCalendar(
     val uiState by viewModel.uiState.collectAsState()
     val events by viewModel.weekEvents.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
-
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0),
         topBar = {
             HomeTopBar(
                 uiState = uiState,

@@ -9,10 +9,23 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -25,9 +38,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.*
@@ -51,11 +64,10 @@ import java.util.*
 @OptIn(
     androidx.compose.foundation.ExperimentalFoundationApi::class,
     androidx.compose.animation.ExperimentalAnimationApi::class,
-    com.google.accompanist.pager.ExperimentalPagerApi::class
 )
 @Composable
 fun BookingList(navController: NavController) {
-    val viewModel: BookingListViewModel = getViewModel()
+    val viewModel: BookingListViewModel = koinViewModel()
     val currentUser = viewModel.currentUser.collectAsState()
     val viewState by viewModel.viewState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
@@ -63,7 +75,7 @@ fun BookingList(navController: NavController) {
     if (uiState is UiState.InProgress) ModalLoadingDialog()
 
     val bookingTabs = remember { mutableStateListOf<BookingTabItem>() }
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { bookingTabs.size }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -71,8 +83,8 @@ fun BookingList(navController: NavController) {
             ScheduleAppBar(
                 title = stringResource(R.string.bookings),
                 backClick = { navController.popBackStack() })
-        }) {
-        Crossfade(targetState = viewState) { state ->
+        }) { padding ->
+        Crossfade(targetState = viewState, modifier = Modifier.padding(padding)) { state ->
             when (state) {
                 is ViewState.Error -> {
                     Text(text = "Error")
@@ -99,6 +111,7 @@ fun BookingList(navController: NavController) {
                     }
 
 
+                    if (bookingTabs.isNotEmpty()) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Top,
@@ -114,7 +127,7 @@ fun BookingList(navController: NavController) {
                             tabsList = bookingTabs,
                             pagerState = pagerState
                         )
-
+                    }
                     }
                 }
             }
@@ -172,11 +185,14 @@ private fun initTabs(
 fun BookingListHeader(stringResource: String) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
 
-        Card(border = BorderStroke(2.dp, Color.Black), shape = RoundedCornerShape(10.dp)) {
+        Card(
+            border = BorderStroke(2.dp, Color.Black),
+            shape = RoundedCornerShape(10.dp),
+        ) {
             Text(
                 stringResource, modifier = Modifier
                     .padding(4.dp)
-                    .padding(horizontal = 10.dp), style = MaterialTheme.typography.h6
+                    .padding(horizontal = 10.dp), style = MaterialTheme.typography.titleLarge
             )
         }
     }
@@ -205,7 +221,7 @@ fun BookingStatus(
     onUserRefuse: ((CalendarEvent, String) -> Unit),
     onManagerCommentarySave: (CalendarEvent, String) -> Unit
 ) {
-    Divider()
+    HorizontalDivider()
     Spacer(modifier = Modifier.size(12.dp))
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -256,44 +272,64 @@ fun BookStatus(
     book: CalendarEvent,
     currentUser: User,
     onCommentarySave: (CalendarEvent, String) -> Unit,
-    onUserClick: (User) -> Unit
+    onUserClick: (User) -> Unit,
 ) {
-    Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        TextButton(
-            onClick = {}, enabled = false
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = book.status.color.copy(alpha = 0.12f)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
-            Text(
-                text = book.status.getName(),
-                color = book.status.color,
-                style = MaterialTheme.typography.h6
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            Icon(book.status.icon, "status", tint = book.status.color)
-
-        }
-        Text(text = book.managedTime?.toDateAndTime ?: "")
-    }
-
-    if (book.status != BookingStatus.NONE) {
-        book.managedUser?.let {
-            BookingUser(
-                user = book.managedUser,
-                shouldShowHeader = false
-            ) { onUserClick(it) }
-        }
-        if (book.managerCommentary.isNotEmpty()) {
-            BookingCommentary(
-                commentary = book.managerCommentary,
-                header = stringResource(id = R.string.manager_commentary),
-                editable = currentUser.canManageEvent(book),
-                onCommentarySave = {
-                    onCommentarySave(book, it)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Icon(
+                    imageVector = book.status.icon,
+                    contentDescription = null,
+                    tint = book.status.color,
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = book.status.getName(),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = book.status.color,
+                    )
+                    book.managedTime?.let {
+                        Text(
+                            text = it.toDateAndTime,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
-            )
+            }
+        }
+
+        if (book.status != BookingStatus.NONE) {
+            book.managedUser?.let {
+                BookingUser(
+                    user = it,
+                    shouldShowHeader = false,
+                    header = stringResource(R.string.manager_commentary),
+                ) { onUserClick(it) }
+            }
+            if (book.managerCommentary.isNotEmpty()) {
+                BookingCommentary(
+                    commentary = book.managerCommentary,
+                    header = stringResource(id = R.string.manager_commentary),
+                    editable = currentUser.canManageEvent(book),
+                    onCommentarySave = { onCommentarySave(book, it) },
+                )
+            }
         }
     }
 }
@@ -306,10 +342,7 @@ fun BookingCommentary(
     editable: Boolean,
     onCommentarySave: (String) -> Unit,
 ) {
-
-    var commentaryDialog by remember {
-        mutableStateOf(false)
-    }
+    var commentaryDialog by remember { mutableStateOf(false) }
 
     if (commentaryDialog) {
         BookingCommentaryDialog(
@@ -318,50 +351,50 @@ fun BookingCommentary(
                 onCommentarySave(it)
                 commentaryDialog = false
             },
-            onCancel = { commentaryDialog = false }
+            onCancel = { commentaryDialog = false },
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+    if (commentary.isBlank() && !editable) return
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        //TextDivider(text = header)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (commentary.isNotBlank()) {
-                CommentaryTextField(
-                    text = commentary,
-                    onTextChanged = {},
-                    readOnly = true,
-                    modifier = Modifier
-                        .weight(1f, false)
-                        .padding(horizontal = 8.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = header,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            }
-            if (editable) {
-                if (commentary.isNotBlank()) {
-                    IconButton(
-                        onClick = { commentaryDialog = true },
-                    ) {
-                        Icon(Icons.Default.Edit, "")
-                    }
-                } else {
-                    Button(
-                        shape = CircleShape,
-                        onClick = { commentaryDialog = true }) {
-                        Text(text = "Добавить комментарий")
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Icon(Icons.Default.Edit, "")
+                if (editable) {
+                    IconButton(onClick = { commentaryDialog = true }) {
+                        Icon(
+                            imageVector = if (commentary.isBlank()) Icons.Default.Add else Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
                     }
                 }
             }
+            Text(
+                text = commentary.ifBlank { stringResource(R.string.not_necessary) },
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (commentary.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                else MaterialTheme.colorScheme.onSurface,
+            )
         }
     }
 }
@@ -373,53 +406,55 @@ fun BookingTime(
     editable: Boolean = false,
     timeStart: LocalDateTime,
     timeEnd: LocalDateTime,
-    onSetNewDateAndTime: ((EventDateAndTime) -> Unit)? = null
+    onSetNewDateAndTime: ((EventDateAndTime) -> Unit)? = null,
 ) {
     var dialogState by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Spacer(
+        Row(
             modifier = Modifier
-                .padding(8.dp)
-                .size(24.dp)
-        )
-
-        Column(
-            modifier = Modifier
-                .weight(6f),
-            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            PrimaryText(
-                text = timeStart.toLocalDate().format(TimeConstants.FULL_DATE_FORMAT),
-                textColor = MaterialTheme.colors.onSurface.copy(0.6f)
-            )
-            Card(elevation = 6.dp, shape = CircleShape) {
-                Text(
-                    text = formattedTime(timeStart, timeEnd),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.h6,
-                    modifier = Modifier.padding(10.dp)
-                )
-            }
-        }
-
-        IconButton(
-            onClick = { dialogState = !dialogState }, modifier = Modifier.weight(1f),
-            enabled = editable
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Icon(
-                Icons.Default.Edit,
+                imageVector = Icons.Default.Schedule,
                 contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(28.dp),
             )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = formattedTime(timeStart, timeEnd),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                Text(
+                    text = timeStart.toLocalDate().format(TimeConstants.FULL_DATE_FORMAT),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                )
+            }
+            if (editable) {
+                IconButton(onClick = { dialogState = !dialogState }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.edit_booking_date_and_time),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
+            }
         }
-
     }
 
     if (dialogState) {
@@ -505,59 +540,14 @@ fun BookingTime(
 fun BookingAppliance(
     appliance: Appliance,
     shouldShowHeader: Boolean = true,
-    onApplianceClick: () -> Unit
+    onApplianceClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(2.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        if (shouldShowHeader) {
-            TextDivider(text = stringResource(id = R.string.appliance))
-        }
-
-        InvisibleCardClickable(onClick = onApplianceClick) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(10.dp)
-                    .fillMaxWidth()
-                //.padding(horizontal = 10.dp)
-            ) {
-                ApplianceImage(
-                    appliance,
-                    modifier = Modifier
-                        .height(48.dp)
-                        .aspectRatio(1f)
-                        .fillMaxWidth(0.20f),
-                )
-                ApplianceName(
-                    appliance = appliance, modifier = Modifier.fillMaxWidth(0.80f)
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun InvisibleCardClickable(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    function: @Composable () -> Unit
-) {
-    Card(
-        modifier = modifier,
-        onClick = onClick,
-        elevation = 0.dp,
-        shape = RoundedCornerShape(10.dp)
-    ) {
-        function()
-    }
+    DetailRow(
+        leading = { ApplianceImage(appliance, modifier = Modifier.size(40.dp)) },
+        title = appliance.name,
+        subtitle = if (appliance.description.isNotBlank()) appliance.description else stringResource(R.string.appliance),
+        onClick = onApplianceClick,
+    )
 }
 
 @Composable
@@ -565,50 +555,62 @@ fun BookingUser(
     user: User,
     shouldShowHeader: Boolean = true,
     header: String = stringResource(id = R.string.user),
-    onUserClick: () -> Unit
+    onUserClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(2.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+    DetailRow(
+        leading = { UserImage(modifier = Modifier.size(40.dp), user = user) },
+        title = if (user.userName.isBlank()) stringResource(R.string.anonymous_user) else user.userName,
+        subtitle = user.email.takeIf { it.isNotBlank() } ?: header,
+        onClick = onUserClick,
+    )
+}
+
+@Composable
+private fun DetailRow(
+    leading: @Composable () -> Unit,
+    title: String,
+    subtitle: String?,
+    onClick: () -> Unit,
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        if (shouldShowHeader) {
-            TextDivider(text = header)
-        }
-        InvisibleCardClickable(onClick = onUserClick) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(10.dp)
-                    .fillMaxWidth()
-            ) {
-                UserImage(
-                    modifier = Modifier
-                        .height(48.dp)
-                        .aspectRatio(1f)
-                        .fillMaxWidth(0.20f),
-                    user = user
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            leading()
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Column(
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth(0.80f)
-                ) {
+                if (!subtitle.isNullOrBlank()) {
                     Text(
-                        user.userName,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
-                    Text(user.email)
                 }
             }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

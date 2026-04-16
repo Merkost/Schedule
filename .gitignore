@@ -4,6 +4,7 @@
 /keystore
 /keystore.properties
 /local.properties
+.kotlin
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml

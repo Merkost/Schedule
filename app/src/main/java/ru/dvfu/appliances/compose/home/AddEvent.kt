@@ -1,12 +1,27 @@
 package ru.dvfu.appliances.compose.home
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,14 +29,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
-import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
@@ -35,50 +47,44 @@ import ru.dvfu.appliances.model.utils.toHoursAndMinutes
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
-    val today = remember { LocalDate.now() }
-    val viewModel: AddEventViewModel = getViewModel(parameters = {
-        parametersOf(if (BuildConfig.DEBUG) selectedDate else {
-            selectedDate.takeIf { it.isAfter(today) } ?: today
-        })
-    })
+    val viewModel: AddEventViewModel = koinViewModel { parametersOf(selectedDate) }
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState) {
-        when (uiState) {
-            is UiState.Success -> {
-                upPress()
-            }
-            else -> {}
-        }
+        if (uiState is UiState.Success) upPress()
     }
 
     if (uiState is UiState.InProgress) ModalLoadingDialog()
 
-    Scaffold(topBar = {
-        ScheduleAppBar(
-            title = stringResource(id = R.string.new_event),
-            backClick = upPress
-        )
-    },
+    Scaffold(
+        topBar = {
+            ScheduleAppBar(
+                title = stringResource(id = R.string.new_event),
+                backClick = upPress,
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.padding(bottom = 70.dp),
-                onClick = { if (uiState != UiState.Success) viewModel.addEvent() }) {
-                Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
+                onClick = { if (uiState != UiState.Success) viewModel.addEvent() },
+                containerColor = MaterialTheme.colorScheme.primary,
+            ) {
+                Icon(Icons.Default.Check, contentDescription = null)
             }
-        }) {
+        },
+    ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(30.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(state = scrollState, enabled = true)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(innerPadding)
+                .verticalScroll(scrollState)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
             DateAndTime(
                 date = viewModel.date.value,
@@ -92,38 +98,45 @@ fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
             )
             Commentary(
                 commentary = viewModel.commentary.value,
-                onCommentarySet = viewModel::onCommentarySet
+                onCommentarySet = viewModel::onCommentarySet,
             )
-
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),
-                onApplianceSelected = viewModel::onApplianceSelected
+                onApplianceSelected = viewModel::onApplianceSelected,
             )
             AutoApproveToggle(
                 viewModel.autoApproveToggleEnabled.collectAsState().value,
                 viewModel.autoApproveToggle.collectAsState().value,
-                viewModel::onAutoApproveToggleChanged
+                viewModel::onAutoApproveToggleChanged,
             )
-            Spacer(modifier = Modifier.size(150.dp))
+            Spacer(Modifier.height(80.dp))
         }
     }
 }
 
 @Composable
 fun AutoApproveToggle(shouldBeShown: Boolean, value: Boolean, onValueChange: (Boolean) -> Unit) {
-    AnimatedVisibility(visible = shouldBeShown,
-    enter = fadeIn(),
-    exit = fadeOut()) {
-        Row(
-            modifier = Modifier
-                .padding(4.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+    AnimatedVisibility(visible = shouldBeShown, enter = fadeIn(), exit = fadeOut()) {
+        Card(
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
-            Text(text = "Автоматически одобрить событие")
-            Checkbox(checked = value, onCheckedChange = onValueChange)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "Автоматически одобрить событие",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                Checkbox(checked = value, onCheckedChange = onValueChange)
+            }
         }
     }
 }
@@ -132,113 +145,120 @@ fun AutoApproveToggle(shouldBeShown: Boolean, value: Boolean, onValueChange: (Bo
 fun Commentary(
     modifier: Modifier = Modifier,
     commentary: String,
-    onCommentarySet: (String) -> Unit
+    onCommentarySet: (String) -> Unit,
 ) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        PrimaryText(
-            text = stringResource(id = R.string.commentary),
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = commentary, onValueChange = onCommentarySet,
-            textStyle = TextStyle(color = MaterialTheme.colors.onSurface, fontSize = 16.sp),
-        )
-    }
+    OutlinedTextField(
+        modifier = modifier.fillMaxWidth(),
+        value = commentary,
+        onValueChange = onCommentarySet,
+        label = { Text(stringResource(id = R.string.commentary)) },
+        minLines = 2,
+        maxLines = 4,
+        shape = RoundedCornerShape(12.dp),
+    )
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun ChooseAppliance(
     appliancesState: ViewState<List<Appliance>>,
     selectedAppliance: State<Appliance?>,
-    onApplianceSelected: (Appliance) -> Unit
+    onApplianceSelected: (Appliance) -> Unit,
 ) {
     when (appliancesState) {
+        is ViewState.Error -> {}
         is ViewState.Success -> {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 PrimaryText(
                     text = stringResource(id = R.string.choose_appliance),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
-                ApplianceSelection(radioOptions = appliancesState.data,
+                ApplianceSelection(
+                    radioOptions = appliancesState.data,
                     currentOption = selectedAppliance,
-                    onSelectedItem = {
-                        onApplianceSelected(it)
-                    })
+                    onSelectedItem = onApplianceSelected,
+                )
             }
         }
         is ViewState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                contentAlignment = Alignment.Center,
+            ) {
                 CircularProgressIndicator()
             }
         }
     }
-
 }
 
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
 @Composable
 fun ItemApplianceSelectable(
     appliance: Appliance,
     isSelected: Boolean,
-    applianceClicked: () -> Unit
+    applianceClicked: () -> Unit,
 ) {
-    val border = animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colors.primary else Color.White.copy(0f)
+    val containerColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.surfaceVariant,
+        label = "applianceCardColor",
     )
-    val selectedColor = animateColorAsState(
-        targetValue = if (isSelected) Color.LightGray else MaterialTheme.colors.surface
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary
+        else Color.Transparent,
+        label = "applianceBorderColor",
     )
-    val borderModifier =
-        if (isSelected) Modifier.border(2.dp, border.value, CircleShape) else Modifier.border(
-            1.dp,
-            Color.Black,
-            CircleShape
-        )
-    MyCard(
-        onClick = applianceClicked, modifier = Modifier,
-        backgroundColor = selectedColor.value
+
+    Card(
+        onClick = applianceClicked,
+        modifier = Modifier
+            .width(130.dp)
+            .then(
+                if (isSelected) Modifier.border(2.dp, borderColor, RoundedCornerShape(16.dp))
+                else Modifier
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
-            verticalArrangement = Arrangement.SpaceEvenly,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .height(180.dp)
-                .width(120.dp)
-                .padding(5.dp)
-
+                .fillMaxWidth()
+                .padding(12.dp),
         ) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .requiredSize(100.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
-                    .background(Color(appliance.color))
-                    .then(borderModifier),
+                    .background(Color(appliance.color).copy(alpha = 0.15f)),
             ) {
-                //Crossfade(targetState = isSelected) {
                 if (isSelected) {
-                    Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
                 } else {
                     Text(
-                        if (appliance.name.isEmpty()) ""
-                        else appliance.name.first().uppercase(),
+                        text = if (appliance.name.isEmpty()) "" else appliance.name.first().uppercase(),
                         maxLines = 1,
                         fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.h4,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color(appliance.color).let { c ->
+                            if (c == Color.White || c.alpha < 0.1f) MaterialTheme.colorScheme.primary else c
+                        },
                     )
                 }
-                //}
             }
             Text(
-                appliance.name,
-                maxLines = 1,
+                text = appliance.name,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.Normal,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -256,7 +276,6 @@ fun DateAndTime(
     isDurationError: Boolean = false,
 ) {
     val context = LocalContext.current
-
     val dateSetState = remember { mutableStateOf(false) }
     val timeSetStartState = remember { mutableStateOf(false) }
     val timeSetEndState = remember { mutableStateOf(false) }
@@ -267,93 +286,79 @@ fun DateAndTime(
         }
     }
     onTimeStartSet?.let {
-        if (timeSetStartState.value) TimePicker(
-            context, timeStart,
-            onTimeSet = onTimeStartSet
-        ) { timeSetStartState.value = false }
+        if (timeSetStartState.value) TimePicker(context, timeStart, onTimeSet = onTimeStartSet) {
+            timeSetStartState.value = false
+        }
     }
     onTimeEndSet?.let {
-        if (timeSetEndState.value) TimePicker(
-            context, timeEnd,
-            onTimeSet = onTimeEndSet,
-        ) { timeSetEndState.value = false }
+        if (timeSetEndState.value) TimePicker(context, timeEnd, onTimeSet = onTimeEndSet) {
+            timeSetEndState.value = false
+        }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         PrimaryText(
             text = stringResource(id = R.string.date_and_time),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
-
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-
+        OutlinedTextField(
+            value = date.format(FULL_DATE_FORMAT),
+            onValueChange = {},
+            label = { Text(stringResource(R.string.date)) },
+            readOnly = true,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            trailingIcon = {
+                onDateSet?.let {
+                    IconButton(onClick = { dateSetState.value = true }) {
+                        Icon(Icons.Default.Today, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    }
+                }
+            },
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
-                value = date.format(FULL_DATE_FORMAT),
+                value = timeStart.toHoursAndMinutes(),
                 onValueChange = {},
-                label = { Text(text = stringResource(R.string.date)) },
+                label = { Text(stringResource(R.string.time_start)) },
                 readOnly = true,
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
                 trailingIcon = {
-                    onDateSet?.let {
-                        IconButton(onClick = {
-                            dateSetState.value = true
-                        }) {
-                            Icon(
-                                Icons.Default.Today,
-                                tint = MaterialTheme.colors.primary,
-                                contentDescription = stringResource(R.string.date)
-                            )
+                    onTimeStartSet?.let {
+                        IconButton(onClick = { timeSetStartState.value = true }) {
+                            Icon(Icons.Default.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         }
                     }
-                })
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
-                OutlinedTextField(
-                    value = timeStart.toHoursAndMinutes(),
-                    onValueChange = {},
-                    label = { Text(text = stringResource(R.string.time_start)) },
-                    readOnly = true,
-                    modifier = Modifier.weight(1f),
-                    trailingIcon = {
-                        onTimeStartSet?.let {
-                            IconButton(onClick = {
-                                timeSetStartState.value = true
-                            }) {
-                                Icon(
-                                    Icons.Default.AccessTime,
-                                    tint = MaterialTheme.colors.primary,
-                                    contentDescription = stringResource(R.string.time)
-                                )
-                            }
-                        }
-                    })
-                OutlinedTextField(
-                    value = timeEnd.toHoursAndMinutes(),
-                    onValueChange = {},
-                    label = { Text(text = stringResource(R.string.time_end)) },
-                    readOnly = true,
-                    modifier = Modifier.weight(1f),
-                    trailingIcon = {
-                        onTimeEndSet?.let {
-                            IconButton(onClick = {
-                                timeSetEndState.value = true
-                            }) {
-                                Icon(
-                                    Icons.Default.AccessTime,
-                                    tint = MaterialTheme.colors.primary,
-                                    contentDescription = stringResource(R.string.time)
-                                )
-                            }
-                        }
-                    })
-            }
-            val textTint by animateColorAsState(
-                if (isDurationError) Color.Red
-                else MaterialTheme.colors.onSurface
+                },
             )
-            duration?.let {
-                Text(text = "Продолжительность: $duration", color = textTint)
-            }
+            OutlinedTextField(
+                value = timeEnd.toHoursAndMinutes(),
+                onValueChange = {},
+                label = { Text(stringResource(R.string.time_end)) },
+                readOnly = true,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                trailingIcon = {
+                    onTimeEndSet?.let {
+                        IconButton(onClick = { timeSetEndState.value = true }) {
+                            Icon(Icons.Default.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                },
+            )
+        }
+        duration?.let {
+            val durationColor by animateColorAsState(
+                targetValue = if (isDurationError) MaterialTheme.colorScheme.error
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+                label = "durationColor",
+            )
+            Text(
+                text = "Продолжительность: $duration",
+                style = MaterialTheme.typography.bodySmall,
+                color = durationColor,
+            )
         }
     }
 }

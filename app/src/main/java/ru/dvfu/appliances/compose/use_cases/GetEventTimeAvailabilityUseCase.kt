@@ -1,7 +1,7 @@
 package ru.dvfu.appliances.compose.use_cases
 
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.ktx.app
+import com.google.firebase.Firebase
+import com.google.firebase.app
 import kotlinx.coroutines.flow.flow
 import ru.dvfu.appliances.compose.utils.AvailabilityState
 import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime

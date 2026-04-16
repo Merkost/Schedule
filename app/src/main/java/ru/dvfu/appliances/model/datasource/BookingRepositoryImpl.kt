@@ -7,8 +7,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.firestore.ktx.toObjects
+import com.google.firebase.firestore.toObject
+import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose

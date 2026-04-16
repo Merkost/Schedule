@@ -2,17 +2,26 @@ package ru.dvfu.appliances.compose.calendars
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,13 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
-import io.github.boguszpawlowski.composecalendar.selection.DynamicSelectionState
-import io.github.boguszpawlowski.composecalendar.selection.SelectionMode
-import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
-import ru.dvfu.appliances.compose.appliance.NoElementsView
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.home.HomeTopBar
@@ -48,7 +53,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MonthWeekCalendar(
     viewModel: WeekCalendarViewModel,
@@ -56,36 +60,52 @@ fun MonthWeekCalendar(
     onEventClick: (CalendarEvent) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
     val currentDate by viewModel.currentDate.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
     val managingUiState by viewModel.managingUiState.collectAsState()
     val dayEvents = viewModel.dayEvents
     val scrollState = rememberScrollState()
 
-    val backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+    var pinnedDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
 
     val calendarState = rememberSelectableCalendarState(
-        initialSelection = listOf(currentDate),
-        onSelectionChanged = viewModel::onDateSelectionChanged
+        initialSelection = emptyList(),
+        onSelectionChanged = { selection ->
+            viewModel.onDateSelectionChanged(selection)
+            val next = selection.firstOrNull()
+            pinnedDate = if (next != null && next == pinnedDate) null else next
+        },
     )
 
-    BackHandler(backdropScaffoldState.isConcealed || calendarState.monthState.currentMonth != YearMonth.now()) {
-        if (backdropScaffoldState.isConcealed) {
-            coroutineScope.launch {
-                backdropScaffoldState.animateTo(BackdropValue.Revealed)
-            }
-        } else { calendarState.monthState.currentMonth = YearMonth.now() }
+    BackHandler(pinnedDate != null || calendarState.monthState.currentMonth != YearMonth.now()) {
+        if (pinnedDate != null) {
+            pinnedDate = null
+            calendarState.selectionState.selection = emptyList()
+        } else {
+            calendarState.monthState.currentMonth = YearMonth.now()
+        }
     }
 
     LaunchedEffect(calendarState.monthState.currentMonth) {
         viewModel.onMonthChanged(calendarState.monthState.currentMonth)
     }
 
-    if (managingUiState is UiState.InProgress) { ModalLoadingDialog() }
+    if (managingUiState is UiState.InProgress) {
+        ModalLoadingDialog()
+    }
 
     Scaffold(
-        floatingActionButtonPosition = FabPosition.Center,
+        topBar = {
+            HomeTopBar(
+                uiState = uiState,
+                onBookingListOpen = {
+                    navController.navigate(MainDestinations.BOOKING_LIST)
+                },
+                onCalendarSelected = viewModel::setCalendarType,
+                onRetry = { viewModel.onMonthChanged(calendarState.monthState.currentMonth) }
+            )
+        },
+        floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             if (!currentUser.isAnonymousOrGuest) {
                 ExtendedFloatingActionButton(
@@ -95,103 +115,53 @@ fun MonthWeekCalendar(
                             Arguments.DATE to SelectedDate(currentDate)
                         )
                     },
-                    text = {
-                        Text(text = stringResource(id = R.string.new_event))
-                    })
-            }
-        },
-    ) { it ->
-        BackdropScaffold(
-            appBar = {
-                HomeTopBar(
-                    uiState = uiState,
-                    onBookingListOpen = {
-                        navController.navigate(MainDestinations.BOOKING_LIST)
-                    },
-                    onCalendarSelected = viewModel::setCalendarType,
-                    onRetry = { viewModel.onMonthChanged(calendarState.monthState.currentMonth) }
-                )
-            },
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it),
-            scaffoldState = backdropScaffoldState,
-            backLayerBackgroundColor = MaterialTheme.colors.surface,
-            frontLayerElevation = 16.dp,
-            frontLayerScrimColor = MaterialTheme.colors.surface.copy(alpha = 0f),
-            frontLayerBackgroundColor = Color(0XFFE3DAC9),
-            backLayerContent = {
-                SelectableCalendar(
-                    modifier = Modifier.padding(8.dp),
-                    calendarState = calendarState,
-                    dayContent = { dayState ->
-                        ScheduleCalendarDate(
-                            currentUser = currentUser,
-                            state = dayState,
-                            currentDayEvents = (dayEvents[dayState.date] as? EventsState.Loaded)?.events.orEmpty()
-                                .filter { it.status != BookingStatus.DECLINED && it.appliance.active }
-                        )
-                    },
-                    monthHeader = { SchedulerMonthHeader(it) }
-                )
-            },
-            frontLayerContent = {
-                dayEvents[currentDate]?.let { state ->
-                    Crossfade(state) { eventsState ->
-                        Column(
-                            modifier = Modifier
-                                .verticalScroll(scrollState)
-                                .padding(8.dp)
-                                .padding(bottom = 150.dp)
-                        ) {
-                            when (eventsState) {
-                                is EventsState.Loaded -> {
-                                    if (eventsState.events.isEmpty()) {
-                                        NoElementsView(mainText = "Нет событий на выбранный день") {}
-                                    }
-                                    eventsState.events.forEach { event ->
-                                        EventView(
-                                            onEventClick = onEventClick,
-                                            uiState = uiState,
-                                            event = event,
-                                            currentUser = currentUser,
-                                            onApproveClick = viewModel::onApproveClick,
-                                            onDeclineClick = viewModel::onDeclineClick
-                                        )
-                                    }
-                                }
-                                EventsState.Loading -> {
-                                    (0..2).forEach {
-                                        EventView(
-                                            childModifier = Modifier.loadingModifier(),
-                                            uiState = uiState,
-                                            event = CalendarEvent(
-                                                appliance = Appliance(
-                                                    name = "Appliance",
-                                                    color = Color.White.copy(0f).hashCode()
-                                                ),
-                                                date = LocalDate.now(),
-                                                timeCreated = LocalDateTime.now(),
-                                                timeStart = LocalDateTime.now(),
-                                                timeEnd = LocalDateTime.now(),
-                                                status = BookingStatus.APPROVED
-                                            ),
-                                            currentUser = User(),
-                                            onEventClick = {},
-                                            onApproveClick = { _, _ -> },
-                                            onDeclineClick = { _, _ -> })
-                                    }
-                                }
-                            }
-                        }
-                    }
+                ) {
+                    Text(text = stringResource(id = R.string.new_event))
                 }
             }
-        )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            SelectableCalendar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                calendarState = calendarState,
+                dayContent = { dayState ->
+                    ScheduleCalendarDate(
+                        currentUser = currentUser,
+                        state = dayState,
+                        currentDayEvents = (dayEvents[dayState.date] as? EventsState.Loaded)?.events.orEmpty()
+                            .filter { it.status != BookingStatus.DECLINED && it.appliance.active }
+                    )
+                },
+                monthHeader = { SchedulerMonthHeader(it) }
+            )
+
+            EventsPanel(
+                pinnedDate = pinnedDate,
+                currentMonth = calendarState.monthState.currentMonth,
+                dayEvents = dayEvents,
+                uiState = uiState,
+                currentUser = currentUser,
+                scrollState = scrollState,
+                onClearSelection = {
+                    pinnedDate = null
+                    calendarState.selectionState.selection = emptyList()
+                },
+                onEventClick = onEventClick,
+                onApproveClick = viewModel::onApproveClick,
+                onDeclineClick = viewModel::onDeclineClick,
+            )
+        }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EventView(
     modifier: Modifier = Modifier,
@@ -204,8 +174,8 @@ fun EventView(
     currentUser: User
 ) {
     val contentAlpha = when (event.status) {
-        BookingStatus.DECLINED -> ContentAlpha.disabled
-        else -> ContentAlpha.high
+        BookingStatus.DECLINED -> 0.38f
+        else -> 1f
     }
 
     var approveDialogState by remember { mutableStateOf(false) }
@@ -235,116 +205,114 @@ fun EventView(
         )
     }
 
-    CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
-        Row(
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                .padding(vertical = 4.dp)
+                .width(12.dp)
+                .fillMaxHeight()
+                .clip(CircleShape)
+                .background(
+                    color = Color(event.appliance.color).copy(alpha = contentAlpha),
+                    CircleShape
+                )
+                .then(childModifier)
+        )
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(4.dp)
+                .clipToBounds()
+                .then(childModifier),
+            onClick = { onEventClick(event) }
         ) {
-
-            Box(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .width(12.dp)
-                    .fillMaxHeight()
-                    .clip(CircleShape)
-                    .background(
-                        color = Color(event.appliance.color).copy(alpha = LocalContentAlpha.current),
-                        CircleShape
-                    )
-                    .then(childModifier)
-            )
-            Card(
-                elevation = 0.dp,
-                shape = RoundedCornerShape(8.dp),
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(4.dp)
-                    .clipToBounds()
-                    .then(childModifier),
-                onClick = { onEventClick(event) }
-            ) {
-                Column(Modifier.padding(6.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
+            Column(Modifier.padding(6.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(1.dp),
+                        modifier = Modifier.weight(1f, false)
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(1.dp),
-                            modifier = Modifier.weight(1f, false)
-                        ) {
-                            Text(
-                                text = formattedTime(event.timeStart, event.timeEnd),
-                                style = MaterialTheme.typography.caption,
-                                maxLines = 2,
-                                overflow = TextOverflow.Clip,
-                                modifier = childModifier
-                            )
-                            Text(
-                                text = event.appliance.name,
-                                style = MaterialTheme.typography.body1,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = childModifier
-                            )
-
-                        }
-                        if (event.status == BookingStatus.NONE && currentUser.canManageEvent(event)) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier.padding(start = 4.dp)
-                            ) {
-                                OutlinedButton(
-                                    onClick = { declineDialogState = true },
-                                    shape = CircleShape,
-                                    enabled = uiState !is UiState.InProgress
-                                ) {
-                                    Icon(Icons.Default.Close, "")
-                                }
-                                OutlinedButton(
-                                    onClick = { approveDialogState = true },
-                                    shape = CircleShape,
-                                    enabled = uiState !is UiState.InProgress
-                                ) {
-                                    Icon(Icons.Default.Done, "")
-                                }
-                            }
-                        } else {
-                            IconButtonWithoutOnClick(modifier = Modifier.padding(start = 4.dp)) {
-                                Icon(event.status.icon, "status", tint = event.status.color)
-                            }
-                        }
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Icon(Icons.Default.AccountCircle, "")
                         Text(
-                            text = event.user.userName,
-                            style = MaterialTheme.typography.body1,
-                            //fontWeight = FontWeight.Bold,
+                            text = formattedTime(event.timeStart, event.timeEnd),
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 2,
+                            overflow = TextOverflow.Clip,
+                            modifier = childModifier
+                        )
+                        Text(
+                            text = event.appliance.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = childModifier
                         )
-                    }
 
-                    if (event.commentary.isNotBlank()) {
-                        Text(
-                            text = event.commentary,
-                            style = MaterialTheme.typography.body2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = childModifier
-                        )
+                    }
+                    if (event.status == BookingStatus.NONE && currentUser.canManageEvent(event)) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(start = 4.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = { declineDialogState = true },
+                                shape = CircleShape,
+                                enabled = uiState !is UiState.InProgress
+                            ) {
+                                Icon(Icons.Default.Close, "")
+                            }
+                            OutlinedButton(
+                                onClick = { approveDialogState = true },
+                                shape = CircleShape,
+                                enabled = uiState !is UiState.InProgress
+                            ) {
+                                Icon(Icons.Default.Done, "")
+                            }
+                        }
+                    } else {
+                        IconButtonWithoutOnClick(modifier = Modifier.padding(start = 4.dp)) {
+                            Icon(event.status.icon, "status", tint = event.status.color)
+                        }
                     }
                 }
 
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Icon(Icons.Default.AccountCircle, "")
+                    Text(
+                        text = event.user.userName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = childModifier
+                    )
+                }
+
+                if (event.commentary.isNotBlank()) {
+                    Text(
+                        text = event.commentary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = childModifier
+                    )
+                }
             }
+
         }
     }
 }
@@ -359,4 +327,252 @@ fun IconButtonWithoutOnClick(modifier: Modifier = Modifier, function: @Composabl
     }
 }
 
+@Composable
+private fun ColumnScope.EventsPanel(
+    pinnedDate: LocalDate?,
+    currentMonth: YearMonth,
+    dayEvents: Map<LocalDate, EventsState>,
+    uiState: UiState,
+    currentUser: User,
+    scrollState: androidx.compose.foundation.ScrollState,
+    onClearSelection: () -> Unit,
+    onEventClick: (CalendarEvent) -> Unit,
+    onApproveClick: (CalendarEvent, String) -> Unit,
+    onDeclineClick: (CalendarEvent, String) -> Unit,
+) = EventsPanelImpl(
+    pinnedDate, currentMonth, dayEvents, uiState, currentUser, scrollState,
+    onClearSelection, onEventClick, onApproveClick, onDeclineClick,
+    Modifier.weight(1f),
+)
 
+@Composable
+private fun EventsPanelImpl(
+    pinnedDate: LocalDate?,
+    currentMonth: YearMonth,
+    dayEvents: Map<LocalDate, EventsState>,
+    uiState: UiState,
+    currentUser: User,
+    scrollState: androidx.compose.foundation.ScrollState,
+    onClearSelection: () -> Unit,
+    onEventClick: (CalendarEvent) -> Unit,
+    onApproveClick: (CalendarEvent, String) -> Unit,
+    onDeclineClick: (CalendarEvent, String) -> Unit,
+    weightModifier: Modifier,
+) {
+    val monthEvents: List<Pair<LocalDate, List<CalendarEvent>>> = dayEvents
+        .asSequence()
+        .filter { (date, _) -> YearMonth.from(date) == currentMonth }
+        .mapNotNull { (date, state) ->
+            val events = (state as? EventsState.Loaded)?.events
+                ?.filter { it.status != BookingStatus.DECLINED && it.appliance.active }
+                ?.sortedBy { it.timeStart }
+            if (events.isNullOrEmpty()) null else date to events
+        }
+        .sortedBy { it.first }
+        .toList()
+
+    val dayState = pinnedDate?.let { dayEvents[it] }
+    val isLoading = dayState is EventsState.Loading ||
+        (pinnedDate == null && dayEvents.values.any { it is EventsState.Loading } && monthEvents.isEmpty())
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(weightModifier)
+            .animateContentSize(),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = if (pinnedDate != null) {
+                    pinnedDate.format(java.time.format.DateTimeFormatter.ofPattern("d MMMM", java.util.Locale.getDefault()))
+                } else {
+                    currentMonth.format(java.time.format.DateTimeFormatter.ofPattern("LLLL", java.util.Locale.getDefault()))
+                        .replaceFirstChar { it.titlecase() } + " — все события"
+                },
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            if (pinnedDate != null) {
+                androidx.compose.material3.TextButton(onClick = onClearSelection) {
+                    Text("Весь месяц")
+                }
+            }
+        }
+
+        Crossfade(targetState = Triple(pinnedDate, isLoading, monthEvents.size), label = "eventsCrossfade") { _ ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 100.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                when {
+                    isLoading -> repeat(3) { ShimmerEventPlaceholder() }
+                    pinnedDate != null -> {
+                        val events = (dayState as? EventsState.Loaded)?.events.orEmpty()
+                        if (events.isEmpty()) {
+                            EventsEmptyState("Нет событий на выбранный день")
+                        } else {
+                            events.forEach { event ->
+                                EventView(
+                                    onEventClick = onEventClick,
+                                    uiState = uiState,
+                                    event = event,
+                                    currentUser = currentUser,
+                                    onApproveClick = onApproveClick,
+                                    onDeclineClick = onDeclineClick,
+                                )
+                            }
+                        }
+                    }
+                    else -> {
+                        if (monthEvents.isEmpty()) {
+                            EventsEmptyState("В этом месяце нет событий")
+                        } else {
+                            monthEvents.forEach { (date, events) ->
+                                EventDateHeader(date)
+                                events.forEach { event ->
+                                    EventView(
+                                        onEventClick = onEventClick,
+                                        uiState = uiState,
+                                        event = event,
+                                        currentUser = currentUser,
+                                        onApproveClick = onApproveClick,
+                                        onDeclineClick = onDeclineClick,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EventDateHeader(date: LocalDate) {
+    val locale = java.util.Locale.getDefault()
+    val isToday = date == LocalDate.now()
+    val dayOfWeek = date.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT_STANDALONE, locale).replaceFirstChar { it.titlecase() }
+    val dayOfMonth = date.dayOfMonth
+    val monthName = date.month.getDisplayName(java.time.format.TextStyle.SHORT_STANDALONE, locale).lowercase()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(if (isToday) MaterialTheme.colorScheme.primary else Color.Transparent)
+                .then(if (!isToday) Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.surface) else Modifier),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = dayOfMonth.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isToday) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        Column {
+            Text(
+                text = dayOfWeek,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = monthName,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun EventsEmptyState(message: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = null,
+            modifier = Modifier.size(48.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun ShimmerEventPlaceholder() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .width(12.dp)
+                .fillMaxHeight()
+                .clip(CircleShape)
+                .loadingModifier(),
+        )
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(72.dp)
+                .padding(4.dp),
+        ) {
+            Column(
+                modifier = Modifier.padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.4f)
+                        .height(12.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .loadingModifier(),
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(16.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .loadingModifier(),
+                )
+            }
+        }
+    }
+}

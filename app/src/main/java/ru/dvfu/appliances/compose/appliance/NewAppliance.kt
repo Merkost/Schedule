@@ -1,166 +1,258 @@
 package ru.dvfu.appliances.compose.appliance
 
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
+import org.koin.compose.koinInject
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
-import ru.dvfu.appliances.compose.SubtitleWithIcon
 import ru.dvfu.appliances.compose.components.ColorPicker
 import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
 import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
-import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
-import ru.dvfu.appliances.ui.BaseViewState
-import ru.dvfu.appliances.ui.ViewState
 
 @OptIn(ExperimentalComposeUiApi::class)
-@ExperimentalMaterialApi
 @Composable
 fun NewAppliance(backPressed: () -> Unit) {
-    val viewModel: NewApplianceViewModel = get()
+    val viewModel: NewApplianceViewModel = koinInject()
     val uiState by viewModel.uiState.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
-
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    val (selectedColor, onColorSelected) = remember { mutableStateOf(pickerColors[0]) }
+    val keyboard = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = uiState) {
-        if (uiState is UiState.Success) { backPressed() }
+    val (selectedColor, onColorSelected) = remember { mutableStateOf<Color?>(pickerColors[0]) }
+
+    LaunchedEffect(uiState) {
+        if (uiState is UiState.Success) backPressed()
     }
 
-    if (uiState is UiState.InProgress) { ModalLoadingDialog() }
+    if (uiState is UiState.InProgress) ModalLoadingDialog()
+
+    val title = viewModel.title.value
+    val canSave = title.isNotBlank()
 
     Scaffold(
-        topBar = { ScheduleAppBar(title = "Новое устройство", backClick = backPressed) },
-        floatingActionButton = {
-            NewApplianceFab {
-                if (!viewModel.createNewAppliance())
-                    Toast.makeText(
-                        context.applicationContext,
-                        "Название не заполнено!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-            }
+        topBar = {
+            ScheduleAppBar(
+                title = stringResource(R.string.new_appliance_title),
+                backClick = backPressed,
+            )
         },
-    ) {
-        val scrollState = rememberScrollState()
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    keyboard?.hide()
+                    if (!viewModel.createNewAppliance()) {
+                        Toast.makeText(
+                            context.applicationContext,
+                            context.getString(R.string.appliance_title_required),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    }
+                },
+                icon = { Icon(Icons.Default.Check, contentDescription = null) },
+                text = { Text(stringResource(R.string.save)) },
+                expanded = canSave,
+                modifier = Modifier.animateContentSize(),
+            )
+        },
+    ) { padding ->
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(30.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .verticalScroll(state = scrollState, enabled = true),
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            ApplianceNameSet(viewModel.title, viewModel.description)
+            AppliancePreviewCard(
+                name = title,
+                color = selectedColor,
+            )
 
-            Column {
-                Text(
-                    stringResource(id = R.string.pick_color),
-                    style = MaterialTheme.typography.h6,
-                    modifier = Modifier.padding(12.dp)
-                )
-                Divider(thickness = 1.dp, color = MaterialTheme.colors.onPrimary)
-                ColorPicker(
-                    pickerColors, selectedColor,
-                    onColorSelected.apply {
-                        viewModel.selectedColor.value = selectedColor
+            FormSection(stringResource(R.string.appliance_basics)) {
+                OutlinedTextField(
+                    value = viewModel.title.value,
+                    onValueChange = { viewModel.title.value = it },
+                    label = { Text(stringResource(R.string.main_name)) },
+                    singleLine = true,
+                    isError = title.isBlank(),
+                    supportingText = {
+                        if (title.isBlank()) Text(stringResource(R.string.appliance_title_required))
                     },
-                    modifier = Modifier.padding(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = viewModel.description.value,
+                    onValueChange = { viewModel.description.value = it },
+                    label = { Text(stringResource(R.string.appliance_description_label)) },
+                    minLines = 2,
+                    maxLines = 5,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            FormSection(stringResource(R.string.appliance_color_label)) {
+                ColorPicker(
+                    colors = pickerColors,
+                    selectedColor = selectedColor,
+                    onColorSelected = { color ->
+                        onColorSelected(color)
+                        viewModel.selectedColor.value = color
+                    },
+                )
+            }
+
+            Spacer(Modifier.height(72.dp))
+        }
+    }
+}
+
+@Composable
+private fun FormSection(label: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 4.dp),
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                content = content,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppliancePreviewCard(name: String, color: Color?) {
+    val tint = color ?: MaterialTheme.colorScheme.primary
+    val hasColor = color != null && color.alpha >= 0.1f
+    val textColor = when {
+        !hasColor -> MaterialTheme.colorScheme.primary
+        tint.luminance() > 0.6f -> MaterialTheme.colorScheme.onSurface
+        else -> tint
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(tint.copy(alpha = if (hasColor) 0.18f else 0.12f))
+                    .border(1.5.dp, tint.copy(alpha = 0.45f), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = name.firstOrNull()?.uppercase() ?: "?",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor,
+                )
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = stringResource(R.string.appliance_preview),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = name.ifBlank { stringResource(R.string.main_name) },
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (name.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    else MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
     }
 }
 
-@ExperimentalMaterialApi
 @Composable
-fun NewApplianceFab(
-    onFabClicked: () -> Unit
-) {
-    FloatingActionButton(
-        modifier = Modifier.animateContentSize(), onClick = onFabClicked,
+fun NewApplianceFab(onFabClicked: () -> Unit) {
+    androidx.compose.material3.FloatingActionButton(
+        modifier = Modifier.animateContentSize(),
+        onClick = onFabClicked,
     ) {
-        Icon(
-            Icons.Default.Check,
-            contentDescription = stringResource(R.string.add_new_appliance),
-        )
+        Icon(Icons.Default.Check, contentDescription = stringResource(R.string.add_new_appliance))
     }
-}
-
-@Composable
-fun ApplianceNameSet(titleState: MutableState<String>, descriptionState: MutableState<String>) {
-
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        SubtitleWithIcon(Modifier, Icons.Default.Menu, "Устройство")
-        OutlinedTextField(
-            singleLine = true,
-            value = titleState.value,
-            onValueChange = {
-                titleState.value = it
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged {},
-            label = { Text(text = stringResource(id = R.string.main_name)) },
-            isError = titleState.value.isEmpty()
-        )
-        OutlinedTextField(
-            singleLine = false,
-            value = descriptionState.value,
-            onValueChange = {
-                descriptionState.value = it
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged {},
-            label = { Text(text = "Описание") },
-        )
-    }
-
 }
 
 @Composable
 fun ErrorDialog(errorDialog: MutableState<Boolean>) {
-    val viewModel: NewApplianceViewModel = get()
-    val context = LocalContext.current
+    val viewModel: NewApplianceViewModel = koinInject()
     AlertDialog(
-        title = { Text("Произошла ошибка!") },
-        text = { Text("Проверьте интернет соединение и попробуйте еще раз.") },
+        title = { Text(stringResource(R.string.error_generic_title)) },
+        text = { Text(stringResource(R.string.error_generic_description)) },
         onDismissRequest = { errorDialog.value = false },
         confirmButton = {
             OutlinedButton(
                 onClick = { viewModel.createNewAppliance() },
-                content = { Text(stringResource(R.string.try_again)) })
-        }, dismissButton = {
+                content = { Text(stringResource(R.string.try_again)) },
+            )
+        },
+        dismissButton = {
             OutlinedButton(
                 onClick = { errorDialog.value = false },
-                content = { Text(stringResource(R.string.cancel)) })
-        }
+                content = { Text(stringResource(R.string.cancel)) },
+            )
+        },
     )
 }
-
-

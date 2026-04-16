@@ -1,75 +1,66 @@
 package ru.dvfu.appliances.compose.appliance
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
-
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircleOutline
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.PeopleAlt
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
-import kotlinx.coroutines.delay
-import org.koin.androidx.compose.getViewModel
-import org.koin.androidx.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.R
-
-import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.viewmodels.AddUserViewModel
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
+import ru.dvfu.appliances.compose.viewmodels.AddUserViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.ViewState
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
-)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AddUsersToAppliance(
     navController: NavController,
     appliance: Appliance,
-    areSuperUsers: Boolean = false
+    areSuperUsers: Boolean = false,
 ) {
-    val viewModel: AddUserViewModel by viewModel(parameters = { parametersOf(areSuperUsers, appliance) })
+    val viewModel: AddUserViewModel = koinViewModel(parameters = { parametersOf(areSuperUsers, appliance) })
     val uiState by viewModel.uiState.collectAsState()
     val usersState by viewModel.usersState.collectAsState()
-    val context = LocalContext.current
 
     val applianceUsers by remember {
         mutableStateOf(if (areSuperUsers) appliance.superuserIds else appliance.userIds)
@@ -83,33 +74,56 @@ fun AddUsersToAppliance(
 
     val selectedUsers = remember { mutableStateListOf<User>() }
 
-    Scaffold(topBar = {
-        ScheduleAppBar(
-            title = if (areSuperUsers) stringResource(id = R.string.add_superuser)
-            else stringResource(id = R.string.add_user), backClick = navController::popBackStack
-        )
-    },
+    Scaffold(
+        topBar = {
+            ScheduleAppBar(
+                title = if (areSuperUsers) stringResource(R.string.add_superuser)
+                else stringResource(R.string.add_user),
+                backClick = navController::popBackStack,
+            )
+        },
         floatingActionButton = {
-            FabWithLoading(showLoading = false,
-                onClick = { viewModel.addToAppliance(appliance, selectedUsers) }) {
-                Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
-            }
-        }) {
-        AnimatedVisibility(visible = usersState is ViewState.Loading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+            ExtendedFloatingActionButton(
+                onClick = { viewModel.addToAppliance(appliance, selectedUsers) },
+                expanded = selectedUsers.isNotEmpty(),
+                icon = { Icon(Icons.Default.Check, contentDescription = null) },
+                text = {
+                    Text(
+                        text = stringResource(R.string.users_selected_count, selectedUsers.size),
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
+    ) { padding ->
+        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+            Crossfade(targetState = usersState, label = "addUsersList") { state ->
+                when (state) {
+                    is ViewState.Loading -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    is ViewState.Success -> {
+                        UsersWithSelection(
+                            users = state.data,
+                            applianceUsers = applianceUsers,
+                            selectedUsers = selectedUsers,
+                            addUser = { selectedUsers.add(it) },
+                            removeUser = { selectedUsers.remove(it) },
+                        )
+                    }
+                    is ViewState.Error -> {
+                        EmptyState(
+                            icon = Icons.Outlined.PeopleAlt,
+                            message = stringResource(R.string.error_occured),
+                        )
+                    }
+                }
             }
         }
-        AnimatedVisibility(visible = usersState is ViewState.Success) {
-            val users = (usersState as ViewState.Success).data
-            UsersWithSelection(
-                users = users,
-                applianceUsers,
-                addUser = { selectedUsers.add(it) },
-                removeUser = { selectedUsers.remove(it) })
-        }
-
-
     }
 }
 
@@ -117,113 +131,182 @@ fun AddUsersToAppliance(
 fun FabWithLoading(showLoading: Boolean, onClick: () -> Unit, content: @Composable () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
-        backgroundColor = MaterialTheme.colors.secondary,
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
     ) {
-        Crossfade(targetState = showLoading) {
-            if (it) {
-                CircularProgressIndicator()
-            } else content.invoke()
+        Crossfade(targetState = showLoading, label = "fabLoading") {
+            if (it) CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+            else content()
         }
     }
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun UsersWithSelection(
     users: List<User>,
     applianceUsers: List<String>,
+    selectedUsers: List<User>,
     addUser: (User) -> Unit,
     removeUser: (User) -> Unit,
 ) {
+    val usersToShow = remember(users, applianceUsers) {
+        users.filter { !applianceUsers.contains(it.userId) }
+    }
+
+    if (usersToShow.isEmpty()) {
+        EmptyState(
+            icon = Icons.Outlined.PeopleAlt,
+            message = stringResource(R.string.no_users_to_add),
+        )
+        return
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(10.dp)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        val usersToShow = users.filter { !applianceUsers.contains(it.userId) }
-
-        usersToShow.ifEmpty {
-            item { NoUsersView() }
-        }
-        items(usersToShow) { user ->
-            var isSelected by remember { mutableStateOf(false) }
-
+        items(usersToShow, key = { it.userId }) { user ->
+            val isSelected = selectedUsers.any { it.userId == user.userId }
             ItemUserWithSelection(user, isSelected) {
-                isSelected = !isSelected
-                if (isSelected) addUser(user)
-                else removeUser(user)
+                if (isSelected) removeUser(user) else addUser(user)
             }
         }
+        item { Spacer(Modifier.height(80.dp)) }
+    }
+}
+
+@Composable
+fun EmptyState(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    message: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(56.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
 @Composable
 fun NoUsersView() {
-    Text(text = "Нет пользователей")
+    EmptyState(icon = Icons.Outlined.PeopleAlt, message = stringResource(R.string.no_users_to_add))
 }
 
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Unit) {
-    MyCard(
-        onClick = userClicked, modifier = Modifier
-            .requiredHeight(80.dp)
-            .fillMaxWidth(),
-        backgroundColor = if (isSelected) Color.LightGray else MaterialTheme.colors.surface
+    val containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+    else MaterialTheme.colorScheme.surfaceVariant
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary
+    else Color.Transparent
+
+    Card(
+        onClick = userClicked,
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (isSelected) Modifier.border(2.dp, borderColor, RoundedCornerShape(16.dp)) else Modifier),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            UserImage(modifier = Modifier.size(50.dp), user)
-            Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxHeight().padding(horizontal = 8.dp)
-            ) {
-                Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1,
-                    overflow = TextOverflow.Ellipsis)
-                Text(user.email)
-            }
-            Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
-                if (isSelected) {
-                    Icon(
-                        Icons.Default.CheckCircleOutline,
-                        "",
-                        modifier = Modifier.size(20.dp)
+            UserImage(modifier = Modifier.size(44.dp), user = user)
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = user.userName.ifBlank { stringResource(R.string.anonymous_user) },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (user.email.isNotBlank()) {
+                    Text(
+                        text = user.email,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
+            SelectionIndicator(isSelected)
+        }
+    }
+}
 
+@Composable
+private fun SelectionIndicator(isSelected: Boolean) {
+    Box(
+        modifier = Modifier
+            .size(24.dp)
+            .clip(CircleShape)
+            .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+            .border(
+                width = 2.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.outline,
+                shape = CircleShape,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        AnimatedVisibility(visible = isSelected, enter = fadeIn(), exit = fadeOut()) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(16.dp),
+            )
         }
     }
 }
 
 @Composable
 fun UserImage(modifier: Modifier, user: User) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center,
+    ) {
         if (user.userPic.isEmpty()) {
             Icon(
-                Icons.Default.Person, "",
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .fillMaxSize()
+                imageVector = Icons.Outlined.Person,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxSize().padding(8.dp),
             )
         } else {
             Image(
-                painter = rememberImagePainter(user.userPic,
-                    builder = {
-                        crossfade(true)
-                        placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
-                        transformations(CircleCropTransformation())
-                    }),
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentDescription = stringResource(ru.dvfu.appliances.R.string.user_photo),
+                painter = rememberImagePainter(user.userPic, builder = {
+                    crossfade(true)
+                    placeholder(R.drawable.ic_launcher_foreground)
+                    transformations(CircleCropTransformation())
+                }),
+                modifier = Modifier.fillMaxSize(),
+                contentDescription = stringResource(R.string.user_photo),
             )
         }
     }

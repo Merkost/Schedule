@@ -1,14 +1,25 @@
 package ru.dvfu.appliances.compose
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,53 +29,46 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.navigationBarsWithImePadding
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.model.repository.entity.User
 
 @Composable
 fun MyCardNoPadding(content: @Composable () -> Unit) {
     Card(
-        elevation = 4.dp, shape = MaterialTheme.shapes.large,
-        modifier = Modifier.fillMaxWidth(), content = content
-    )
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    ) { content() }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MyCard(
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colors.surface,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     onClick: () -> Unit = {},
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Card(
-        elevation = 8.dp, modifier = modifier
+        onClick = onClick,
+        modifier = modifier
             .fillMaxWidth()
-            .padding(4.dp), content = content,
-        backgroundColor = backgroundColor,
-        shape = RoundedCornerShape(12.dp), onClick = onClick
-    )
+            .padding(4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+    ) { content() }
 }
 
 @Composable
 fun SubtitleWithIcon(modifier: Modifier = Modifier, icon: ImageVector, text: String) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Spacer(Modifier.size(8.dp))
-        Icon(
-            icon,
-            contentDescription = text,
-            //tint = pr,
-            modifier = Modifier.size(30.dp)
-        )
+        Icon(icon, contentDescription = text, modifier = Modifier.size(30.dp))
         Spacer(Modifier.size(8.dp))
         Text(text)
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleAppBar(
     title: String = "",
@@ -75,169 +79,39 @@ fun ScheduleAppBar(
     actionAdd: Boolean = false,
     addClick: () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    elevation: Dp = 2.dp
+    elevation: Dp = 0.dp,
 ) {
-
-    var navBack: @Composable (() -> Unit)? = null
-    if (backClick != null) {
-        navBack = {
-            IconButton(onClick = backClick) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
-                )
-            }
-        }
-    }
-
     TopAppBar(
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = {
-            navBack?.let { it() }
+            if (backClick != null) {
+                IconButton(onClick = backClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back),
+                    )
+                }
+            }
             navigationIcon()
         },
         actions = {
             if (actionDelete) {
-                IconButton(
-                    onClick = deleteClick
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = stringResource(R.string.delete),
-                        tint = Color.White
-                    )
+                IconButton(onClick = deleteClick) {
+                    Icon(Icons.Filled.Delete, stringResource(R.string.delete))
                 }
             }
             if (actionAdd) {
-                IconButton(
-                    onClick = addClick
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = stringResource(R.string.add),
-                        tint = Color.White
-                    )
+                IconButton(onClick = addClick) {
+                    Icon(Icons.Filled.Add, stringResource(R.string.add))
                 }
             }
             actions()
         },
-        elevation = elevation
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+        ),
     )
 }
-
-/*
-@Composable
-fun UserProfile(user: User?) {
-    user?.let { nutNullUser ->
-        Crossfade(nutNullUser, animationSpec = tween(500)) { animatedUser ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = rememberImagePainter(
-                        data = animatedUser.userPic,
-                        builder = {
-                            transformations(CircleCropTransformation())
-                            //crossfade(500)
-                        }
-                    ),
-                    contentDescription = stringResource(R.string.fisher),
-                    modifier = Modifier.padding(9.dp),
-                )
-                Column(verticalArrangement = Arrangement.Center) {
-                    Text(
-                        animatedUser.userName.split(" ")[0],
-                        fontWeight = FontWeight.Bold,
-                        fontSize = MaterialTheme.typography.button.fontSize
-                    )
-                    Text(
-                        "@" + stringResource(R.string.fisher),
-                        fontSize = MaterialTheme.typography.caption.fontSize
-                    )
-                }
-            }
-        }
-    } ?: Row(verticalAlignment = Alignment.CenterVertically) {
-        Image(
-            painter = painterResource(R.drawable.ic_fisher),
-            contentDescription = stringResource(R.string.fisher),
-            Modifier.fillMaxHeight().padding(10.dp)
-        )
-        Column(verticalArrangement = Arrangement.Center) {
-            Text(
-                stringResource(R.string.fisher),
-                fontWeight = FontWeight.Bold,
-                fontSize = MaterialTheme.typography.button.fontSize
-            )
-            Text(
-                "@" + stringResource(R.string.fisher),
-                fontSize = MaterialTheme.typography.caption.fontSize
-            )
-        }
-    }
-}
-
-@Composable
-fun PlaceInfo(user: User?, place: UserMapMarker, placeClicked: (UserMapMarker) -> Unit) {
-    MyCardNoPadding {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp).padding(horizontal = 5.dp).clickable { placeClicked(place) }
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .height(50.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Default.Place, stringResource(R.string.place), tint = secondaryFigmaColor)
-                Spacer(modifier = Modifier.width(150.dp))
-                UserProfile(user)
-            }
-            Text(place.title, fontWeight = FontWeight.Bold)
-            if (!place.description.isNullOrEmpty()) Text(place.description!!)
-            Spacer(modifier = Modifier.size(8.dp))
-        }
-    }
-}
-
-@Composable
-fun CatchInfo(catch: UserCatch, user: User?) {
-    MyCardNoPadding {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp).padding(horizontal = 5.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth().height(50.dp)
-            ) {
-                Text(
-                    catch.title,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-                Row( modifier = Modifier
-                    .padding(horizontal = 10.dp).fillMaxHeight()) {
-                UserProfile(user) }
-            }
-            if (!catch.description.isNullOrEmpty()) Text(
-                catch.description, modifier = Modifier.fillMaxWidth(),
-                fontSize = MaterialTheme.typography.button.fontSize
-            )
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(catch.time, fontSize = MaterialTheme.typography.caption.fontSize)
-                Text(catch.date, fontSize = MaterialTheme.typography.caption.fontSize)
-            }
-        }
-    }
-}*/

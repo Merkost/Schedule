@@ -1,7 +1,7 @@
 package ru.dvfu.appliances.di
 
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.firestore
+import com.google.firebase.Firebase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -56,9 +56,6 @@ val application = module {
 
     single { MyFirebaseMessagingService() }
     single { FirebaseMessagingViewModel(usersRepository = get()) }
-    /*scope<MyFirebaseMessagingService> {
-        scoped { FirebaseMessagingViewModel(usersRepository = get()) }
-    }*/
 
     single { Logger() }
     single { SnackbarManager }

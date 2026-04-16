@@ -1,80 +1,94 @@
 package ru.dvfu.appliances.compose.home.profile
 
 import android.annotation.SuppressLint
-import android.app.DatePickerDialog
-import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.components.DatePicker
-import ru.dvfu.appliances.compose.components.GrayText
 import ru.dvfu.appliances.compose.components.toDate
-import ru.dvfu.appliances.compose.ui.theme.customColors
-import ru.dvfu.appliances.compose.viewmodels.EditProfileViewModel
-import ru.dvfu.appliances.compose.components.views.DefaultButton
-import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
+import ru.dvfu.appliances.compose.viewmodels.EditProfileViewModel
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.showError
 import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.util.*
-
 
 @SuppressLint("UnrememberedMutableState")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfile(onBack: () -> Unit) {
     val context = LocalContext.current
-    val viewModel: EditProfileViewModel = getViewModel()
+    val viewModel: EditProfileViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
     val isChanged by viewModel.isChanged.collectAsState()
     val scrollState = rememberScrollState()
 
     var resetDialog by remember { mutableStateOf(false) }
-    if (resetDialog) ResetDialog(
-        onDismiss = { resetDialog = false },
-        onReset = viewModel::resetChanges
-    )
+    if (resetDialog) {
+        ResetDialog(
+            onDismiss = { resetDialog = false },
+            onReset = viewModel::resetChanges,
+        )
+    }
 
     var datePickerShown by remember { mutableStateOf(false) }
     if (datePickerShown) {
-        DatePicker(context,
+        DatePicker(
+            context = context,
             date = currentUser.birthday.takeIf { it != 0L }?.toLocalDate()
                 ?: LocalDate.now().minusYears(18),
-            onDismiss = { datePickerShown = false }, onDateSet = {
-                viewModel.birthdaySelected(it.toMillis)
-            })
+            minDate = LocalDate.of(1900, 1, 1),
+            onDismiss = { datePickerShown = false },
+            onDateSet = { viewModel.birthdaySelected(it.toMillis) },
+        )
     }
 
     LaunchedEffect(uiState) {
@@ -88,183 +102,271 @@ fun EditProfile(onBack: () -> Unit) {
     if (uiState is ViewState.Loading) ModalLoadingDialog()
 
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         topBar = {
-            val elevation by animateDpAsState(targetValue = if (scrollState.value > 0) 4.dp else 0.dp)
             EditProfileTopAppBar(
-                elevation,
                 isChanged = isChanged,
                 onReset = { resetDialog = true },
-                onBack = onBack
+                onBack = onBack,
             )
         },
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.SpaceBetween.also { Arrangement.spacedBy(12.dp) }
-        ) {
+    ) { innerPadding ->
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(18.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
+                EditUserPhotoCard(currentUser)
 
-                Spacer(modifier = Modifier.size(16.dp))
-                EditUserPhoto(
-                    modifier = Modifier.size(100.dp),
-                    currentUser = currentUser,
-                    hintText = stringResource(id = R.string.user_photo)
-                )
-
-
-                EditProfileTextFieldWithHeader(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = currentUser.userName,
-                    onValueChange = viewModel::onNameChange,
-                    hintText = stringResource(id = R.string.name_hint)
-                )
-
-                EditProfileTextFieldWithHeader(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = currentUser.email,
-                    onValueChange = {},
-                    hintText = stringResource(id = R.string.email_hint),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(onDone = {}),
-                    icon = Icons.Default.Email,
-                    readOnly = true,
-                )
-
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    GrayText(text = stringResource(id = R.string.birthday_hint))
-                    Row(
+                EditFieldCard(
+                    icon = Icons.Outlined.Person,
+                    label = stringResource(R.string.name_hint),
+                ) {
+                    OutlinedTextField(
+                        value = currentUser.userName,
+                        onValueChange = viewModel::onNameChange,
+                        singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        Icon(
-                            Icons.Default.EditCalendar,
-                            Icons.Default.EditCalendar.name
-                        )
-                        if (currentUser.birthday == 0L) {
-                            Text(
-                                modifier = Modifier.clickable {
-                                    datePickerShown = true
-                                },
-                                text = stringResource(id = R.string.birthday_set),
-                                color = MaterialTheme.customColors.secondaryTextColor
-                            )
-                        } else {
-                            Text(
-                                modifier = Modifier.clickable {
-                                    datePickerShown = true
-                                },
-                                text = currentUser.birthday.toDate(),
-                                fontSize = 16.sp
-                            )
-                        }
-                    }
+                        shape = RoundedCornerShape(12.dp),
+                    )
                 }
+
+                EditFieldCard(
+                    icon = Icons.Outlined.Email,
+                    label = stringResource(R.string.email_hint),
+                ) {
+                    OutlinedTextField(
+                        value = currentUser.email,
+                        onValueChange = {},
+                        readOnly = true,
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Done,
+                        ),
+                        keyboardActions = KeyboardActions(onDone = {}),
+                    )
+                }
+
+                BirthdayCard(
+                    birthday = currentUser.birthday,
+                    onClick = { datePickerShown = true },
+                )
+
+                Spacer(Modifier.height(80.dp))
             }
 
-
-            AnimatedVisibility(visible = isChanged) {
-                DefaultButton(
+            AnimatedVisibility(
+                visible = isChanged,
+                enter = slideInVertically { it } + fadeIn(),
+                exit = slideOutVertically { it } + fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter),
+            ) {
+                Button(
+                    onClick = viewModel::updateProfile,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(30.dp),
-                    text = stringResource(id = R.string.save),
-                    enabled = true,
-                    onClick = viewModel::updateProfile
-                )
+                        .padding(16.dp)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.save),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun EditUserPhoto(modifier: Modifier = Modifier, currentUser: User, hintText: String) {
-    Column(modifier = Modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        GrayText(text = hintText)
-        UserImage(
-            modifier = modifier,
-            user = currentUser
-        )
+private fun EditUserPhotoCard(currentUser: User) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            UserImage(
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                user = currentUser,
+            )
+            Text(
+                text = stringResource(R.string.user_photo),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
+@Composable
+private fun EditFieldCard(
+    icon: ImageVector,
+    label: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp),
+                )
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            content()
+        }
+    }
+}
 
-@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun BirthdayCard(birthday: Long, onClick: () -> Unit) {
+    val isSet = birthday != 0L
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.CalendarMonth,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.birthday_hint),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = if (isSet) birthday.toDate() else stringResource(R.string.birthday_set),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (isSet) MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.EditCalendar,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+    }
+}
+
 @Composable
 fun ResetDialog(onDismiss: () -> Unit, onReset: () -> Unit) {
-    DefaultDialog(
-        primaryText = stringResource(id = R.string.reset_dialog),
-        secondaryText = stringResource(id = R.string.reset_dialog_secondary),
-        positiveButtonText = stringResource(id = R.string.yes),
-        negativeButtonText = stringResource(id = R.string.no),
-        onPositiveClick = { onReset(); onDismiss() },
-        onNegativeClick = onDismiss,
-        onDismiss = onDismiss
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.RestartAlt,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(32.dp),
+            )
+        },
+        title = {
+            Text(
+                text = stringResource(id = R.string.reset_dialog),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.reset_dialog_secondary),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { onReset(); onDismiss() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                ),
+            ) { Text(stringResource(id = R.string.yes)) }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.no))
+            }
+        },
     )
 }
 
 @Composable
-fun EditProfileTextFieldWithHeader(
-    modifier: Modifier = Modifier,
-    value: String,
-    onValueChange: (String) -> Unit,
-    hintText: String,
-    readOnly: Boolean = false,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    icon: ImageVector? = null,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        GrayText(text = hintText)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            icon?.let { Icon(icon, icon.name) }
-            BasicTextField(modifier = modifier, value = value,
-                onValueChange = onValueChange,
-                textStyle = TextStyle(
-                    color = MaterialTheme.colors.onSurface,
-                    fontSize = 16.sp
-                ),
-                readOnly = readOnly,
-                keyboardOptions = keyboardOptions,
-                keyboardActions = keyboardActions,
-                cursorBrush = SolidColor(MaterialTheme.colors.onSurface),
-                decorationBox = {
-                    Column {
-                        it()
-                        if (!readOnly) Divider(modifier = Modifier.fillMaxWidth())
-                    }
-                })
-        }
-    }
-
-}
-
-@Composable
 fun EditProfileTopAppBar(
-    elevation: Dp,
     isChanged: Boolean,
     onReset: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     ScheduleAppBar(
         title = stringResource(id = R.string.profile_edit),
         backClick = onBack,
-        elevation = elevation,
         actions = {
-            AnimatedVisibility(isChanged) {
+            AnimatedVisibility(
+                visible = isChanged,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
                 IconButton(onClick = onReset) {
-                    Icon(Icons.Default.RestartAlt, Icons.Default.RestartAlt.name)
+                    Icon(
+                        imageVector = Icons.Default.RestartAlt,
+                        contentDescription = stringResource(R.string.reset_dialog),
+                    )
                 }
             }
-        })
+        },
+    )
 }

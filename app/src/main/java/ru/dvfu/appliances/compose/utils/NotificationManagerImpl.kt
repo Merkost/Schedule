@@ -1,9 +1,9 @@
 package ru.dvfu.appliances.compose.utils
 
 import androidx.lifecycle.*
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.ktx.app
-import com.google.firebase.messaging.ktx.messaging
+import com.google.firebase.Firebase
+import com.google.firebase.app
+import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.single

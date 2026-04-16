@@ -3,8 +3,8 @@ package ru.dvfu.appliances.model.utils
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.firestore
+import com.google.firebase.Firebase
 
 class RepositoryCollections(private val cloudFirestore: FirebaseFirestore) {
 

@@ -1,34 +1,57 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
-
--keep class ru.dvfu.appliances.** { *; }
-
 -keepattributes *Annotation*
+-keepattributes Signature
+-keepattributes Exceptions
+-keepattributes InnerClasses
+-keepattributes EnclosingMethod
 -keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
+
 -keep public class * extends java.lang.Exception
 
-# Also, for faster builds with proguard, you can exclude crashlytics by adding the following code -
--keep class com.crashlytics.** { *; }
--keep class com.google.firebase.** { *; }
--keep class com.google.android.gms.** { *; }
+-keep class ru.dvfu.appliances.model.repository.entity.** { *; }
+-keep class ru.dvfu.appliances.compose.home.SelectedDate { *; }
+-keep class ru.dvfu.appliances.compose.calendars.event_calendar.CalendarEvent { *; }
 
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+
+-keepclasseswithmembers interface * {
+    @retrofit2.http.* <methods>;
+}
+-keep,allowobfuscation,allowshrinking interface retrofit2.Call
+-keep,allowobfuscation,allowshrinking class retrofit2.Response
+-dontwarn retrofit2.**
+-dontwarn okhttp3.**
+-dontwarn okio.**
+
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+-dontwarn sun.misc.**
+
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembers class kotlinx.coroutines.** {
+    volatile <fields>;
+}
+-dontwarn kotlinx.coroutines.**
+
+-keep class org.koin.** { *; }
+-keepnames class * extends org.koin.core.module.Module
+
+-keep class com.google.firebase.** { *; }
+-keep class com.crashlytics.** { *; }
+-keep class com.google.android.gms.** { *; }
 -dontwarn com.crashlytics.**
+
+-keep class androidx.compose.runtime.** { *; }
+
+-keep class com.airbnb.lottie.** { *; }
+-dontwarn com.airbnb.lottie.**
+
+-dontwarn org.bouncycastle.jsse.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**

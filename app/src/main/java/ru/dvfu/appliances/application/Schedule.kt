@@ -11,7 +11,10 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import ru.dvfu.appliances.BuildConfig
-import ru.dvfu.appliances.di.*
+import ru.dvfu.appliances.di.application
+import ru.dvfu.appliances.di.mainActivity
+import ru.dvfu.appliances.di.mockRepositoryModule
+import ru.dvfu.appliances.di.repositoryModule
 import ru.dvfu.appliances.model.utils.Constants
 
 class Schedule : Application() {
@@ -20,15 +23,14 @@ class Schedule : Application() {
         super.onCreate()
 
         startKoin {
-            // Koin Android logger
             androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
-            //inject Android context
             androidContext(this@Schedule)
+            val repoModule = if (BuildConfig.USE_MOCK_REPOS) mockRepositoryModule else repositoryModule
             modules(
                 listOf(
                     application,
                     mainActivity,
-                    repositoryModule
+                    repoModule
                 )
             )
         }
@@ -40,7 +42,7 @@ class Schedule : Application() {
     private fun createNotificationChannels() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        Constants.NotificationType.values().forEach { notificationType ->
+        Constants.NotificationType.entries.forEach { notificationType ->
             val notificationChannel = NotificationChannel(
                 notificationType.channelId, notificationType.title,
                 NotificationManager.IMPORTANCE_DEFAULT
