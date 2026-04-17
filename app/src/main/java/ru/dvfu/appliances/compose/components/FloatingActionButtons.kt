@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -65,7 +64,8 @@ fun FabWithMenu(
 
 
         FloatingActionButton(
-            containerColor = Color(0xFFFF8C00),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             onClick = {
                 if (transition.currentState.value == MultiFabState.EXPANDED) {
                     transition.currentState.value = MultiFabState.COLLAPSED
@@ -75,7 +75,6 @@ fun FabWithMenu(
             Icon(
                 imageVector = Icons.Default.Add,
                 modifier = Modifier.rotate(rotation.value),
-                tint = MaterialTheme.colorScheme.onPrimary,
                 contentDescription = ""
             )
         }
@@ -94,18 +93,18 @@ fun FabMenu(item: FabMenuItem, modifier: Modifier = Modifier, size: Dp) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.clip(RoundedCornerShape(8.dp))
         ) {
-            Text(item.text, color = Color.White)
+            Text(item.text, color = MaterialTheme.colorScheme.onSurface)
 
             Box(modifier = Modifier
                 .size(FabSize)
                 .padding((FabSize - size) / 2)) {
                 FloatingActionButton(
                     containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                     modifier = modifier.size(size),
                     onClick = item.onClick
                 ) {
                     Icon(
-                        tint = MaterialTheme.colorScheme.onPrimary,
                         imageVector = item.icon,
                         contentDescription = ""
                     )

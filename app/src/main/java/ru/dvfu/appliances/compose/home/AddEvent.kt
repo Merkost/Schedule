@@ -41,6 +41,7 @@ import ru.dvfu.appliances.compose.components.*
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.components.views.PrimaryText
+import ru.dvfu.appliances.compose.ui.theme.readableOrFallback
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.utils.TimeConstants.FULL_DATE_FORMAT
 import ru.dvfu.appliances.model.utils.toHoursAndMinutes
@@ -242,14 +243,14 @@ fun ItemApplianceSelectable(
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 } else {
+                    val surface = MaterialTheme.colorScheme.surface
+                    val fallback = MaterialTheme.colorScheme.primary
                     Text(
                         text = if (appliance.name.isEmpty()) "" else appliance.name.first().uppercase(),
                         maxLines = 1,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color(appliance.color).let { c ->
-                            if (c == Color.White || c.alpha < 0.1f) MaterialTheme.colorScheme.primary else c
-                        },
+                        color = Color(appliance.color).readableOrFallback(surface, fallback),
                     )
                 }
             }

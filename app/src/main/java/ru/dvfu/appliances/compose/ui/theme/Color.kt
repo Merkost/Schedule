@@ -45,6 +45,13 @@ val BrandOnSurfaceVariantDark = Color(0xFFC9C5D0)
 val BrandOutlineDark = Color(0xFF948E99)
 val BrandOutlineVariantDark = Color(0xFF49454F)
 
+val BrandSecondaryForDark = Color(0xFFFFB77A)
+val BrandOnSecondaryForDark = Color(0xFF4A1D00)
+val BrandSecondaryContainerForDark = Color(0xFF6B2E00)
+val BrandOnSecondaryContainerForDark = Color(0xFFFFDCBE)
+val BrandOnTertiaryForDark = Color(0xFF00332E)
+val BrandTertiaryContainerForDark = Color(0xFF004D44)
+
 val pickerColors = listOf(
     null,
     Color(0xFFFFFFFF),

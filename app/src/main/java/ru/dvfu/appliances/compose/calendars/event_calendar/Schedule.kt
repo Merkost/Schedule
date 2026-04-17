@@ -5,14 +5,13 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -79,7 +78,7 @@ fun Schedule(
                 )
             }
         }
-        Column(modifier = modifier) {
+        Column(modifier = Modifier.fillMaxSize()) {
             ScheduleHeader(
                 minDate = minDate,
                 maxDate = maxDate,
@@ -154,7 +153,8 @@ fun BasicSchedule(
     val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
     val numMinutes = ChronoUnit.MINUTES.between(minTime, maxTime).toInt() + 1
     val numHours = numMinutes / 60
-    val dividerColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
+    val dividerColor = MaterialTheme.colorScheme.outlineVariant
+    val nowMarkerColor = MaterialTheme.colorScheme.primary
     val positionedEvents =
         remember(calendarEvents) { arrangeEvents(splitEvents(calendarEvents.sortedBy(CalendarEvent::timeStart))).filter { it.end > minTime && it.start < maxTime } }
     Layout(
@@ -193,7 +193,7 @@ fun BasicSchedule(
                 }
 
                 drawLine(
-                    Color.Blue,
+                    nowMarkerColor,
                     start = Offset(
                         (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(),
                         (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
@@ -209,7 +209,7 @@ fun BasicSchedule(
             .drawWithContent {
                 this.drawContent()
                 drawCircle(
-                    Color.Blue,
+                    nowMarkerColor,
                     center = Offset(
                         (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(),
                         (currentTime.hour - minTime.hour) * hourHeight.toPx() + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
@@ -218,7 +218,7 @@ fun BasicSchedule(
                 )
 
                 drawCircle(
-                    Color.Blue,
+                    nowMarkerColor,
                     center = Offset(
                         (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(),
                         (currentTime.hour - minTime.hour) * hourHeight.toPx() + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())

@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import ru.dvfu.appliances.compose.ui.theme.readableOn
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.utils.formattedTime
 
@@ -32,6 +33,8 @@ fun BasicEvent(
         if (positionedEvent.splitType == SplitType.Start || positionedEvent.splitType == SplitType.Both) 0.dp else 4.dp
     val bottomRadius =
         if (positionedEvent.splitType == SplitType.End || positionedEvent.splitType == SplitType.Both) 0.dp else 4.dp
+    val backgroundColor = Color(event.appliance.color)
+    val contentColor = readableOn(backgroundColor)
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -42,7 +45,7 @@ fun BasicEvent(
             )
             .clipToBounds()
             .background(
-                color = Color(event.appliance.color),
+                color = backgroundColor,
                 shape = RoundedCornerShape(
                     topStart = topRadius,
                     topEnd = topRadius,
@@ -65,6 +68,7 @@ fun BasicEvent(
                 Text(
                     text = formattedTime(event.timeStart, event.timeEnd),
                     style = MaterialTheme.typography.labelSmall,
+                    color = contentColor,
                     maxLines = 2,
                     overflow = TextOverflow.Clip,
                 )
@@ -72,12 +76,12 @@ fun BasicEvent(
                 Text(
                     text = event.appliance.name,
                     style = MaterialTheme.typography.bodyLarge,
+                    color = contentColor,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            //Icon(event.status.icon, "status")
         }
 
 
@@ -85,7 +89,7 @@ fun BasicEvent(
             Text(
                 text = event.commentary,
                 style = MaterialTheme.typography.bodyMedium,
-
+                color = contentColor,
                 overflow = TextOverflow.Ellipsis,
             )
         }

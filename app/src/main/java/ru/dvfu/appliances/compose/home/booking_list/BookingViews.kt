@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -310,12 +309,12 @@ fun BookingCommentaryDialog(
         },
         positiveButtonColor = when (newStatus) {
             BookingStatus.DECLINED -> ButtonDefaults.buttonColors(
-                containerColor = Color.Red,
-                contentColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError,
             )
             BookingStatus.APPROVED -> ButtonDefaults.buttonColors(
-                containerColor = Color.Green,
-                contentColor = Color.Black,
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                contentColor = MaterialTheme.colorScheme.onTertiary,
             )
             else -> ButtonDefaults.buttonColors()
         },
@@ -356,7 +355,7 @@ fun BookingCommentaryDialog(
                 modifier = Modifier,
                 text = "${symbolsCount.value}/$maxSymbols",
                 textColor = if (isError.value) {
-                    Color.Red
+                    MaterialTheme.colorScheme.error
                 } else {
                     MaterialTheme.customColors.secondaryTextColor
                 }
