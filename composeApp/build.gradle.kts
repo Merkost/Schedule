@@ -87,6 +87,13 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
 
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.serialization.kotlinx.json)
+
+            implementation(libs.androidx.datastore.preferences.core)
+
             implementation(libs.jetbrains.navigation.compose)
             implementation(libs.jetbrains.lifecycle.viewmodel)
             implementation(libs.jetbrains.lifecycle.viewmodel.compose)
@@ -120,7 +127,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.viewmodel.ktx)
             implementation(libs.androidx.lifecycle.livedata.ktx)
-            implementation(libs.androidx.datastore.preferences)
+
+            implementation(libs.ktor.client.okhttp)
 
             implementation(dependencies.platform(libs.androidx.compose.bom))
             implementation(libs.androidx.compose.ui.tooling)
@@ -138,11 +146,6 @@ kotlin {
             implementation(libs.glide)
             implementation(libs.coil.compose)
 
-            implementation(libs.retrofit)
-            implementation(libs.retrofit.converter.gson)
-            implementation(libs.okhttp.logging.interceptor)
-            implementation(libs.gson)
-
             implementation(dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.messaging)
             implementation(libs.firebase.analytics)
@@ -159,8 +162,12 @@ kotlin {
             implementation(libs.lottie.compose)
             implementation(libs.compose.calendar)
         }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.ktor.client.mock)
         }
     }
 }
