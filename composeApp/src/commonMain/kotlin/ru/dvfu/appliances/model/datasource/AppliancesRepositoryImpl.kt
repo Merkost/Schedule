@@ -1,6 +1,6 @@
 package ru.dvfu.appliances.model.datasource
 
-import co.touchlab.kermit.Logger
+import org.kimplify.cedar.Cedar
 import dev.gitlive.firebase.firestore.Direction
 import dev.gitlive.firebase.firestore.where
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +16,7 @@ class AppliancesRepositoryImpl(
     private val collections: FirestoreCollections,
 ) : AppliancesRepository {
 
-    private val log = Logger.withTag("AppliancesRepo")
+    private val log = Cedar.tag("AppliancesRepo")
 
     override suspend fun deleteUserFromAppliance(userIdToDelete: String, from: Appliance): Result<Unit> =
         runCatching {
@@ -36,18 +36,18 @@ class AppliancesRepositoryImpl(
         collections.appliances()
             .where { "userIds".contains(userId) }
             .snapshots
-            .onStart { log.d { "getUserAppliances subscribed userId=$userId" } }
+            .onStart { log.d("getUserAppliances subscribed userId=$userId") }
             .map { qs ->
                 val list = qs.documents.mapNotNull { d ->
                     runCatching { d.data<Appliance>() }
-                        .onFailure { log.e(it) { "getUserAppliances deser failed docId=${d.id}" } }
+                        .onFailure { log.e("getUserAppliances deser failed docId=${d.id}", it) }
                         .getOrNull()
                 }
-                log.d { "getUserAppliances emit count=${list.size}" }
+                log.d("getUserAppliances emit count=${list.size}")
                 list
             }
             .catch { e ->
-                log.e(e) { "getUserAppliances flow failed userId=$userId" }
+                log.e("getUserAppliances flow failed userId=$userId", e)
                 emit(emptyList())
             }
 
@@ -60,18 +60,18 @@ class AppliancesRepositoryImpl(
         collections.appliances()
             .where { "superuserIds".contains(userId) }
             .snapshots
-            .onStart { log.d { "getSuperUserAppliances subscribed userId=$userId" } }
+            .onStart { log.d("getSuperUserAppliances subscribed userId=$userId") }
             .map { qs ->
                 val list = qs.documents.mapNotNull { d ->
                     runCatching { d.data<Appliance>() }
-                        .onFailure { log.e(it) { "getSuperUserAppliances deser failed docId=${d.id}" } }
+                        .onFailure { log.e("getSuperUserAppliances deser failed docId=${d.id}", it) }
                         .getOrNull()
                 }
-                log.d { "getSuperUserAppliances emit count=${list.size}" }
+                log.d("getSuperUserAppliances emit count=${list.size}")
                 list
             }
             .catch { e ->
-                log.e(e) { "getSuperUserAppliances flow failed userId=$userId" }
+                log.e("getSuperUserAppliances flow failed userId=$userId", e)
                 emit(emptyList())
             }
 
@@ -102,27 +102,27 @@ class AppliancesRepositoryImpl(
         collections.appliances().document(applianceId).snapshots
             .map { snap ->
                 runCatching { snap.data<Appliance>() }
-                    .onFailure { log.e(it) { "getAppliance deser failed applianceId=$applianceId" } }
+                    .onFailure { log.e("getAppliance deser failed applianceId=$applianceId", it) }
             }
             .catch { e ->
-                log.e(e) { "getAppliance flow failed applianceId=$applianceId" }
+                log.e("getAppliance flow failed applianceId=$applianceId", e)
                 emit(Result.failure(e))
             }
 
     override suspend fun getAppliances(): Flow<List<Appliance>> =
         collections.appliances().snapshots
-            .onStart { log.d { "getAppliances subscribed" } }
+            .onStart { log.d("getAppliances subscribed") }
             .map { qs ->
                 val list = qs.documents.mapNotNull { d ->
                     runCatching { d.data<Appliance>() }
-                        .onFailure { log.e(it) { "getAppliances deser failed docId=${d.id}" } }
+                        .onFailure { log.e("getAppliances deser failed docId=${d.id}", it) }
                         .getOrNull()
                 }
-                log.d { "getAppliances emit count=${list.size}" }
+                log.d("getAppliances emit count=${list.size}")
                 list
             }
             .catch { e ->
-                log.e(e) { "getAppliances flow failed" }
+                log.e("getAppliances flow failed", e)
                 emit(emptyList())
             }
 
@@ -131,12 +131,12 @@ class AppliancesRepositoryImpl(
             val docs = collections.appliances().get().documents
             val list = docs.mapNotNull { d ->
                 runCatching { d.data<Appliance>() }
-                    .onFailure { log.e(it) { "getAppliancesOneTime deser failed docId=${d.id}" } }
+                    .onFailure { log.e("getAppliancesOneTime deser failed docId=${d.id}", it) }
                     .getOrNull()
             }
-            log.d { "getAppliancesOneTime got count=${list.size}/${docs.size}" }
+            log.d("getAppliancesOneTime got count=${list.size}/${docs.size}")
             list
-        }.onFailure { log.e(it) { "getAppliancesOneTime failed" } }
+        }.onFailure { log.e("getAppliancesOneTime failed", it) }
 
     override suspend fun addAppliance(appliance: Appliance): Result<Unit> =
         runCatching {

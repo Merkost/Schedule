@@ -103,7 +103,6 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
 
             implementation(libs.kmpnotifier)
-            implementation(libs.kermit)
 
             implementation(libs.gitlive.firebase.auth)
             implementation(libs.gitlive.firebase.firestore)
@@ -132,8 +131,6 @@ kotlin {
             implementation(libs.androidx.splashscreen)
             implementation(libs.androidx.preference.ktx)
 
-            implementation(libs.androidx.navigation.fragment.ktx)
-            implementation(libs.androidx.navigation.ui.ktx)
 
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.viewmodel.ktx)

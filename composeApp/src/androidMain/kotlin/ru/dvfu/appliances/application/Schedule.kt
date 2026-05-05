@@ -7,6 +7,8 @@ import android.content.Context
 import android.graphics.Color
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.mmk.kmpnotifier.notification.NotifierManager
+import org.kimplify.cedar.Cedar
+import org.kimplify.cedar.ConsoleTree
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +34,7 @@ class Schedule : Application() {
     override fun onCreate() {
         super.onCreate()
         AppDebug.init(this)
+        Cedar.plant(ConsoleTree)
 
         startKoin {
             androidLogger(if (AppDebug.isDebug) Level.ERROR else Level.NONE)

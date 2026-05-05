@@ -69,12 +69,14 @@ fun MonthWeekCalendar(
 
     val calendarState = rememberSelectableCalendarState(
         initialSelection = emptyList(),
-        onSelectionChanged = { selection ->
-            viewModel.onDateSelectionChanged(selection)
-            val next = selection.firstOrNull()
-            pinnedDate = if (next != null && next == pinnedDate) null else next
-        },
     )
+
+    LaunchedEffect(calendarState.selectionState.selection) {
+        val selection = calendarState.selectionState.selection
+        viewModel.onDateSelectionChanged(selection)
+        val next = selection.firstOrNull()
+        pinnedDate = if (next != null && next == pinnedDate) null else next
+    }
 
     BackHandler(pinnedDate != null || calendarState.monthState.currentMonth != YearMonth.now()) {
         if (pinnedDate != null) {

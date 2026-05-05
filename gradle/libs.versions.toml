@@ -1,49 +1,46 @@
 [versions]
-agp = "9.0.1"
-kotlin = "2.3.20"
+agp = "9.2.0"
+kotlin = "2.3.21"
 googleServices = "4.4.4"
 crashlyticsPlugin = "3.0.7"
 firebasePerfPlugin = "2.0.2"
 
 compileSdk = "37"
 minSdk = "26"
-targetSdk = "36"
+targetSdk = "37"
 versionCode = "7"
 versionName = "1.1.0"
 jvmTarget = "21"
 javaVersion = "VERSION_21"
 composeMultiplatform = "1.10.3"
-kotlinxDatetime = "0.6.1"
-kotlinxSerializationJson = "1.8.1"
-jetbrainsNavigation = "2.9.0-alpha17"
-jetbrainsLifecycle = "2.9.6"
-constraintlayoutMultiplatform = "0.5.1"
+kotlinxDatetime = "0.7.1"
+kotlinxSerializationJson = "1.11.0"
+jetbrainsNavigation = "2.9.2"
+jetbrainsLifecycle = "2.10.0"
+constraintlayoutMultiplatform = "0.7.0"
 
 coreKtx = "1.18.0"
 appcompat = "1.7.1"
 material = "1.13.0"
 constraintlayoutView = "2.2.1"
-navigationFragment = "2.9.7"
 preference = "1.2.1"
 splashScreen = "1.2.0"
 activityCompose = "1.13.0"
 lifecycle = "2.10.0"
-datastore = "1.1.2"
-ktor = "3.1.3"
-composeBom = "2026.03.01"
+datastore = "1.2.1"
+ktor = "3.4.3"
+composeBom = "2026.04.01"
 constraintlayoutCompose = "1.1.1"
-navigationCompose = "2.9.7"
+navigationCompose = "2.9.8"
 coroutines = "1.10.2"
 firebaseBom = "34.12.0"
 playServicesAuth = "21.5.1"
 gitliveFirebase = "2.4.0"
 koin = "4.2.1"
-accompanist = "0.36.0"
-composeCalendar = "0.4.2"
+accompanist = "0.37.3"
+composeCalendar = "1.4.0"
 coil = "2.7.0"
 kmpnotifier = "1.6.1"
-leakcanary = "2.14"
-kermit = "2.0.4"
 junit = "4.13.2"
 androidxTestCore = "1.7.0"
 androidxTestRunner = "1.7.0"
@@ -64,8 +61,6 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
-androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
 
@@ -139,8 +134,6 @@ ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "k
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
-leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTestCore" }

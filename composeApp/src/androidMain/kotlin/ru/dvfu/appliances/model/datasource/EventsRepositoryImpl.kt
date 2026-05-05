@@ -1,6 +1,6 @@
 package ru.dvfu.appliances.model.datasource
 
-import co.touchlab.kermit.Logger
+import org.kimplify.cedar.Cedar
 import dev.gitlive.firebase.firestore.where
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -22,16 +22,16 @@ class EventsRepositoryImpl(
     private val notificationManager: NotificationManager,
 ) : EventsRepository {
 
-    private val log = Logger.withTag("EventsRepo")
+    private val log = Cedar.tag("EventsRepo")
 
     private fun decodeEvents(docs: List<dev.gitlive.firebase.firestore.DocumentSnapshot>, where: String): List<Event> {
         val out = mutableListOf<Event>()
         docs.forEach { d ->
             runCatching { out += d.data<Event>() }
-                .onFailure { log.e(it) { "decode Event failed in $where docId=${d.id}" } }
+                .onFailure { log.e("decode Event failed in $where docId=${d.id}", it) }
         }
         if (out.size != docs.size) {
-            log.e { "decode partial in $where: ${out.size}/${docs.size} docs decoded" }
+            log.e("decode partial in $where: ${out.size}/${docs.size} docs decoded")
         }
         return out
     }
@@ -71,24 +71,24 @@ class EventsRepositoryImpl(
         collections.events().document(eventId).snapshots
             .map { snap ->
                 if (snap.exists) runCatching { snap.data<Event>() }
-                    .onFailure { log.e(it) { "getEventById deser failed eventId=$eventId" } }
+                    .onFailure { log.e("getEventById deser failed eventId=$eventId", it) }
                 else Result.failure(NoSuchElementException("Event $eventId not found"))
             }
             .catch { e ->
-                log.e(e) { "getEventById flow failed eventId=$eventId" }
+                log.e("getEventById flow failed eventId=$eventId", e)
                 emit(Result.failure(e))
             }
 
     override suspend fun getAllEvents(): Flow<List<Event>> =
         collections.events().snapshots
-            .onStart { log.d { "getAllEvents subscribed" } }
+            .onStart { log.d("getAllEvents subscribed") }
             .map { qs ->
                 val list = decodeEvents(qs.documents, "getAllEvents")
-                log.d { "getAllEvents emit count=${list.size}" }
+                log.d("getAllEvents emit count=${list.size}")
                 list
             }
             .catch { e ->
-                log.e(e) { "getAllEvents flow failed" }
+                log.e("getAllEvents flow failed", e)
                 emit(emptyList())
             }
 
@@ -96,14 +96,14 @@ class EventsRepositoryImpl(
         collections.events()
             .where { "date" equalTo date.toMillis }
             .snapshots
-            .onStart { log.d { "getAllEventsForDay subscribed date=$date" } }
+            .onStart { log.d("getAllEventsForDay subscribed date=$date") }
             .map { qs ->
                 val list = decodeEvents(qs.documents, "getAllEventsForDay")
-                log.d { "getAllEventsForDay emit count=${list.size} date=$date" }
+                log.d("getAllEventsForDay emit count=${list.size} date=$date")
                 list
             }
             .catch { e ->
-                log.e(e) { "getAllEventsForDay flow failed date=$date" }
+                log.e("getAllEventsForDay flow failed date=$date", e)
                 emit(emptyList())
             }
 
@@ -116,7 +116,7 @@ class EventsRepositoryImpl(
                 .get()
                 .documents
             decodeEvents(docs, "getApplianceEventsAfterTime")
-        }.onFailure { log.e(it) { "getApplianceEventsAfterTime failed applianceId=$applianceId" } }
+        }.onFailure { log.e("getApplianceEventsAfterTime failed applianceId=$applianceId", it) }
 
     override suspend fun getApplianceDateEvents(applianceId: String, date: LocalDate): Result<List<Event>> =
         runCatching {
@@ -127,7 +127,7 @@ class EventsRepositoryImpl(
                 .get()
                 .documents
             decodeEvents(docs, "getApplianceDateEvents")
-        }.onFailure { log.e(it) { "getApplianceDateEvents failed applianceId=$applianceId date=$date" } }
+        }.onFailure { log.e("getApplianceDateEvents failed applianceId=$applianceId date=$date", it) }
 
     override suspend fun getAllEventsWithPeriod(dateStart: LocalDate, dateEnd: LocalDate): Result<List<Event>> =
         runCatching {
@@ -138,9 +138,9 @@ class EventsRepositoryImpl(
                 .get()
                 .documents
             val list = decodeEvents(docs, "getAllEventsWithPeriod")
-            log.d { "getAllEventsWithPeriod result count=${list.size} period=$dateStart..$dateEnd" }
+            log.d("getAllEventsWithPeriod result count=${list.size} period=$dateStart..$dateEnd")
             list
-        }.onFailure { log.e(it) { "getAllEventsWithPeriod failed period=$dateStart..$dateEnd" } }
+        }.onFailure { log.e("getAllEventsWithPeriod failed period=$dateStart..$dateEnd", it) }
 
     override suspend fun deleteAllApplianceEvents(id: String): Result<Unit> = runCatching {
         val events = collections.events()

@@ -1,6 +1,6 @@
 package ru.dvfu.appliances.model.datasource
 
-import co.touchlab.kermit.Logger
+import org.kimplify.cedar.Cedar
 import com.mmk.kmpnotifier.notification.NotifierManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
@@ -28,24 +28,24 @@ class FirebaseUsersRepositoryImpl(
     private val userDatastore: UserDatastore,
 ) : UsersRepository {
 
-    private val log = Logger.withTag("UsersRepo")
+    private val log = Cedar.tag("UsersRepo")
 
     override suspend fun getUsers(): Flow<List<User>> =
         collections.users().snapshots
             .map { qs ->
                 val list = qs.documents.map { it.data<User>() }
-                log.d { "getUsers emit count=${list.size}" }
+                log.d("getUsers emit count=${list.size}")
                 list
             }
             .catch { e ->
-                log.e(e) { "getUsers failed" }
+                log.e("getUsers failed", e)
                 emit(emptyList())
             }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val currentUser: Flow<User?>
         get() = Firebase.auth.authStateChanged
-            .onEach { fb -> log.d { "authStateChanged uid=${fb?.uid}" } }
+            .onEach { fb -> log.d("authStateChanged uid=${fb?.uid}") }
             .flatMapLatest { fbUser ->
                 if (fbUser == null) {
                     flowOf(null)
@@ -55,16 +55,16 @@ class FirebaseUsersRepositoryImpl(
                         .map { snap ->
                             if (snap.exists) {
                                 runCatching { snap.data<User>() }
-                                    .onFailure { log.e(it) { "currentUser deser failed for uid=${fbUser.uid}" } }
+                                    .onFailure { log.e("currentUser deser failed for uid=${fbUser.uid}", it) }
                                     .getOrDefault(fallback)
                             } else {
-                                log.d { "currentUser doc missing for uid=${fbUser.uid}, using auth fallback" }
+                                log.d("currentUser doc missing for uid=${fbUser.uid}, using auth fallback")
                                 fallback
                             }
                         }
-                        .onEach { u -> log.d { "currentUser emit uid=${u?.userId} role=${u?.role} name=${u?.userName}" } }
+                        .onEach { u -> log.d("currentUser emit uid=${u?.userId} role=${u?.role} name=${u?.userName}") }
                         .catch { e ->
-                            log.e(e) { "currentUser snapshots failed for uid=${fbUser.uid}, falling back to auth user" }
+                            log.e("currentUser snapshots failed for uid=${fbUser.uid}, falling back to auth user", e)
                             emit(fallback)
                         }
                 }
@@ -83,18 +83,18 @@ class FirebaseUsersRepositoryImpl(
             val existing = collections.users().document(user.userId).get()
             if (existing.exists) {
                 val userFromDb = runCatching { existing.data<User>() }
-                    .onFailure { log.e(it) { "addNewUser deser existing user failed uid=${user.userId}" } }
+                    .onFailure { log.e("addNewUser deser existing user failed uid=${user.userId}", it) }
                     .getOrDefault(user)
-                log.d { "addNewUser found existing uid=${userFromDb.userId} role=${userFromDb.role}" }
+                log.d("addNewUser found existing uid=${userFromDb.userId} role=${userFromDb.role}")
                 userDatastore.saveUser(userFromDb)
                 uploadMessagingToken(userFromDb.userId)
             } else {
-                log.d { "addNewUser creating new user uid=${user.userId}" }
+                log.d("addNewUser creating new user uid=${user.userId}")
                 collections.users().document(user.userId).set(user)
                 userDatastore.saveUser(user)
                 uploadMessagingToken(user.userId)
             }
-        }.onFailure { log.e(it) { "addNewUser failed uid=${user.userId}" } }
+        }.onFailure { log.e("addNewUser failed uid=${user.userId}", it) }
         flow.tryEmit(Progress.Complete)
         return flow
     }

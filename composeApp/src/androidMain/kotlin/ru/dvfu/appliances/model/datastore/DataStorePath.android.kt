@@ -1,7 +1,7 @@
 package ru.dvfu.appliances.model.datastore
 
 import android.content.Context
-import co.touchlab.kermit.Logger
+import org.kimplify.cedar.Cedar
 import org.koin.core.context.GlobalContext
 
 actual fun dataStorePath(filename: String): String {
@@ -14,7 +14,7 @@ actual fun dataStorePath(filename: String): String {
                 legacyFile.copyTo(newFile, overwrite = false)
                 legacyFile.delete()
             }.onFailure {
-                Logger.withTag("DataStorePath").e(it) { "Failed to migrate legacy datastore file $legacyFile" }
+                Cedar.tag("DataStorePath").e("Failed to migrate legacy datastore file $legacyFile", it)
             }
         }
     }
