@@ -45,7 +45,7 @@ val repositoryModule = module {
             notificationManager = get()
         )
     }
-    single<AppliancesRepository> { AppliancesRepositoryImpl(dbCollections = get()) }
+    single<AppliancesRepository> { AppliancesRepositoryImpl(collections = get()) }
     single<BookingRepository> { BookingRepositoryImpl(dbCollections = get()) }
     single<UsersRepository> {
         FirebaseUsersRepositoryImpl(androidContext(), dbCollections = get(), userDatastore = get())
