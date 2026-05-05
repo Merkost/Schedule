@@ -45,7 +45,7 @@ fun EventCalendar(
     val currentUser by viewModel.currentUser.collectAsState()
 
     Scaffold(
-        contentWindowInsets = WindowInsets.systemBars,
+        contentWindowInsets = WindowInsets(0),
         topBar = {
             HomeTopBar(
                 uiState = uiState,

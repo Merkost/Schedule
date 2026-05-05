@@ -45,7 +45,10 @@ class EditProfileViewModel(
 
     private fun loadCurrentUser() {
         viewModelScope.launch {
-            val user = userDatastore.getCurrentUser.first()
+            val cached = userDatastore.getCurrentUser.first()
+            val user = if (cached.userId != "0") cached
+            else userRepository.currentUser
+                .first { it != null && it.userId != "0" } ?: cached
             _bdUser.value = user
             _currentUser.value = user
         }

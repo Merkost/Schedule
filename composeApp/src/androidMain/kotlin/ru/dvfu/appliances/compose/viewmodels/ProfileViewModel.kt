@@ -28,7 +28,17 @@ class ProfileViewModel(
     fun getCurrentUser() {
         viewModelScope.launch {
             userDatastore.getCurrentUser.collect {
-                _currentUser.value = it
+                if (_currentUser.value.userId == "0" || it.userId != "0") {
+                    _currentUser.value = it
+                }
+            }
+        }
+        viewModelScope.launch {
+            usersRepository.currentUser.collect { user ->
+                if (user != null && user.userId != "0") {
+                    _currentUser.value = user
+                    userDatastore.saveUser(user)
+                }
             }
         }
     }
