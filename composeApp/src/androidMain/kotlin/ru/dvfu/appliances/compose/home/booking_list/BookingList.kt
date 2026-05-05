@@ -200,7 +200,11 @@ private fun BookingSegments(
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
                 label = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(tab.titleRes))
+                        Text(
+                            text = stringResource(tab.titleRes),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                         if (tab.count > 0) {
                             Spacer(Modifier.width(6.dp))
                             Badge { Text(tab.count.toString()) }
@@ -492,6 +496,7 @@ fun BookingTime(
         var dialogDate by remember { mutableStateOf(timeStart.toLocalDate()) }
         var dialogTimeStart by remember { mutableStateOf(timeStart.toLocalTime()) }
         var dialogTimeEnd by remember { mutableStateOf(timeEnd.toLocalTime()) }
+        val bookingAlreadyStarted = remember { timeStart.isBefore(LocalDateTime.now()) }
         val isError by remember(dialogTimeStart, dialogTimeEnd) {
             mutableStateOf(
                 dialogTimeEnd.isBefore(dialogTimeStart) || Duration.between(
@@ -545,20 +550,8 @@ fun BookingTime(
                     timeStart = dialogTimeStart,
                     timeEnd = dialogTimeEnd,
                     duration = duration,
-                    onDateSet = if (dialogTimeStart.atDate(dialogDate)
-                            .isBefore(LocalDateTime.now())
-                    ) {
-                        null
-                    } else {
-                        { dialogDate = it }
-                    },
-                    onTimeStartSet = if (dialogTimeStart.atDate(dialogDate)
-                            .isBefore(LocalDateTime.now())
-                    ) {
-                        null
-                    } else {
-                        { dialogTimeStart = it }
-                    },
+                    onDateSet = if (bookingAlreadyStarted) null else { d -> dialogDate = d },
+                    onTimeStartSet = if (bookingAlreadyStarted) null else { t -> dialogTimeStart = t },
                     onTimeEndSet = { dialogTimeEnd = it },
                     isDurationError = isError,
                 )

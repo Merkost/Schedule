@@ -239,6 +239,13 @@ fun ProfileUserInfo(user: User) {
 }
 
 private fun startLoginActivity(context: Context) {
+    val googleClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(
+        context,
+        com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
+            com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
+        ).requestEmail().build(),
+    )
+    googleClient.signOut()
     val intent = Intent(context, LoginActivity::class.java)
     context.startActivity(intent)
     (context as Activity).finish()

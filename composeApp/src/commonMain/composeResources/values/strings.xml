@@ -108,7 +108,7 @@
     <string name="app_exit_message">Нажмите еще раз, чтобы выйти</string>
     <string name="my_requests">My requests</string>
     <string name="managed_by">Managed by</string>
-    <string name="past_bookings">Past bookings</string>
+    <string name="past_bookings">Past</string>
     <string name="declined_by_user">Declined by user</string>
     <string name="status_changed">Booking status changed</string>
     <string name="edit_booking_date_and_time">Edit booking date and time</string>
@@ -129,8 +129,8 @@
     <string name="booking">Бронирование</string>
     <string name="add_users_failed">Не удалось добавить пользователей</string>
     <string name="not_ready_yet">В процессе разработки</string>
-    <string name="my_bookings">My bookings</string>
-    <string name="booking_requests">Booking requests</string>
+    <string name="my_bookings">Mine</string>
+    <string name="booking_requests">Pending</string>
     <string name="past_day_error">Невозможно создать событие на прошедший день</string>
     <string name="appliance_enabled">Прибор включен</string>
     <string name="appliance_disabled">Прибор выключен</string>
