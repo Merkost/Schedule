@@ -17,7 +17,6 @@ kotlinxDatetime = "0.6.1"
 kotlinxSerializationJson = "1.8.1"
 jetbrainsNavigation = "2.9.0-alpha17"
 jetbrainsLifecycle = "2.9.6"
-composeRuntimeJb = "1.10.3"
 constraintlayoutMultiplatform = "0.5.1"
 
 coreKtx = "1.18.0"
@@ -26,7 +25,6 @@ material = "1.13.0"
 constraintlayoutView = "2.2.1"
 navigationFragment = "2.9.7"
 preference = "1.2.1"
-work = "2.11.2"
 splashScreen = "1.2.0"
 activityCompose = "1.13.0"
 lifecycle = "2.10.0"
@@ -44,7 +42,6 @@ accompanist = "0.36.0"
 composeCalendar = "0.4.2"
 coil = "2.7.0"
 kmpnotifier = "1.6.1"
-lottieCompose = "6.7.1"
 leakcanary = "2.14"
 junit = "4.13.2"
 androidxTestCore = "1.7.0"
@@ -58,7 +55,6 @@ androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx"
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "splashScreen" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preference" }
-androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutView" }
 google-material = { module = "com.google.android.material:material", version.ref = "material" }
 
@@ -118,7 +114,6 @@ koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-android-compat = { module = "io.insert-koin:koin-android-compat", version.ref = "koin" }
-koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
@@ -128,16 +123,8 @@ jetbrains-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifec
 jetbrains-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "jetbrainsLifecycle" }
 constraintlayout-compose-multiplatform = { module = "tech.annexflow.compose:constraintlayout-compose-multiplatform", version.ref = "constraintlayoutMultiplatform" }
 
-jb-compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeRuntimeJb" }
-jb-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeRuntimeJb" }
-jb-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeRuntimeJb" }
-jb-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeRuntimeJb" }
-jb-compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version = "1.7.3" }
-jb-compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeRuntimeJb" }
-
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
-lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
 compose-calendar = { module = "io.github.boguszpawlowski.composecalendar:composecalendar", version.ref = "composeCalendar" }
 
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }

@@ -130,7 +130,6 @@ kotlin {
             implementation(libs.androidx.constraintlayout)
             implementation(libs.androidx.splashscreen)
             implementation(libs.androidx.preference.ktx)
-            implementation(libs.androidx.work.runtime.ktx)
 
             implementation(libs.androidx.navigation.fragment.ktx)
             implementation(libs.androidx.navigation.ui.ktx)
@@ -149,7 +148,6 @@ kotlin {
 
             implementation(libs.koin.android)
             implementation(libs.koin.android.compat)
-            implementation(libs.koin.androidx.workmanager)
             implementation(libs.koin.androidx.compose)
 
             implementation(libs.accompanist.permissions)
@@ -168,7 +166,6 @@ kotlin {
             implementation(libs.firebase.inappmessaging.display)
             implementation(libs.play.services.auth)
 
-            implementation(libs.lottie.compose)
             implementation(libs.compose.calendar)
         }
         iosMain.dependencies {
