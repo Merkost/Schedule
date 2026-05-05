@@ -15,6 +15,8 @@ import ru.dvfu.appliances.AppDebug
 import ru.dvfu.appliances.di.application
 import ru.dvfu.appliances.di.mainActivity
 import ru.dvfu.appliances.di.mockRepositoryModule
+import ru.dvfu.appliances.di.networkModule
+import ru.dvfu.appliances.di.platformModule
 import ru.dvfu.appliances.di.repositoryModule
 import ru.dvfu.appliances.model.utils.Constants
 
@@ -30,6 +32,8 @@ class Schedule : Application() {
             val repoModule = if (AppBuildConfig.USE_MOCK_REPOS) mockRepositoryModule else repositoryModule
             modules(
                 listOf(
+                    platformModule(),
+                    networkModule,
                     application,
                     mainActivity,
                     repoModule

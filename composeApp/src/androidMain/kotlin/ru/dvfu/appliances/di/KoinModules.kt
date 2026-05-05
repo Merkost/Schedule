@@ -51,7 +51,7 @@ val repositoryModule = module {
 }
 
 val application = module {
-    single<UserDatastore> { UserDatastoreImpl(androidContext()) }
+    single<UserDatastore> { UserDatastoreImpl() }
     viewModel { MainViewModel() }
 
     single { MyFirebaseMessagingService() }
@@ -65,7 +65,8 @@ val application = module {
             userDatastore = get(),
             usersRepository = get(),
             getUserUseCase = get(),
-            getApplianceUseCase = get()
+            getApplianceUseCase = get(),
+            notificationApi = get(),
         )
     }
 

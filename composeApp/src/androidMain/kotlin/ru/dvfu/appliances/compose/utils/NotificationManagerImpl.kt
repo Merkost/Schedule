@@ -18,16 +18,16 @@ import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.repository.entity.notifications.Notification
 import ru.dvfu.appliances.model.repository.entity.notifications.NotificationData
 import ru.dvfu.appliances.model.repository.entity.notifications.PushNotification
-import ru.dvfu.appliances.model.repository.entity.notifications.NotificationConstants
-import ru.dvfu.appliances.model.repository.entity.notifications.RetrofitInstance
 import ru.dvfu.appliances.model.utils.*
 import ru.dvfu.appliances.model.utils.Constants.NotificationType
+import ru.dvfu.appliances.network.NotificationApi
 
 class NotificationManagerImpl(
     private val userDatastore: UserDatastore,
     private val usersRepository: UsersRepository,
     private val getUserUseCase: GetUserUseCase,
     private val getApplianceUseCase: GetApplianceUseCase,
+    private val notificationApi: NotificationApi,
 ) : NotificationManager, LifecycleEventObserver {
 
     private val job = SupervisorJob()
@@ -66,7 +66,7 @@ class NotificationManagerImpl(
                         title = "Прибор \"${appliance.name}\" был удален",
                         body = "Также были отменены все бронирования на нем"
                     ),
-                    data = NotificationData(NotificationType.APPLIANCE)
+                    data = NotificationData(NotificationType.APPLIANCE.name)
                 )
             )
         }
@@ -83,7 +83,7 @@ class NotificationManagerImpl(
                         body = formattedDateTime(event.date, event.timeStart, event.timeEnd)
                                 + ", ${event.status.getName().uppercase()}"
                     ),
-                    data = NotificationData(NotificationType.MY_EVENT)
+                    data = NotificationData(NotificationType.MY_EVENT.name)
                 )
             )
     }
@@ -99,7 +99,7 @@ class NotificationManagerImpl(
                         title = "Отменено бронирование на прибор \"${event.appliance.name}\"",
                         body = formattedDateTime(event.date, event.timeStart, event.timeEnd)
                     ),
-                    data = NotificationData(NotificationType.MY_EVENT)
+                    data = NotificationData(NotificationType.MY_EVENT.name)
                 )
             )
         }
@@ -125,7 +125,7 @@ class NotificationManagerImpl(
                                     newEvent.timeEnd.toLocalDateTime()
                                 )
                             ),
-                            data = NotificationData(NotificationType.NEW_EVENT)
+                            data = NotificationData(NotificationType.NEW_EVENT.name)
                         )
                     )
 
@@ -158,7 +158,7 @@ class NotificationManagerImpl(
                         status = newStatus
                     ),
                 ),
-                data = NotificationData(NotificationType.MY_EVENT)
+                data = NotificationData(NotificationType.MY_EVENT.name)
             )
         )
     }
@@ -200,8 +200,8 @@ class NotificationManagerImpl(
                     ),
                     data = NotificationData(
                         when (it) {
-                            event.user.msgToken -> NotificationType.MY_EVENT
-                            else -> NotificationType.EVENT
+                            event.user.msgToken -> NotificationType.MY_EVENT.name
+                            else -> NotificationType.EVENT.name
                         }
                     )
                 )
@@ -217,18 +217,13 @@ class NotificationManagerImpl(
                     title = "Ваша роль изменена",
                     body = "Теперь вы \"${org.jetbrains.compose.resources.getString(role.stringRes)}\""
                 ),
-                data = NotificationData(NotificationType.DEFAULT)
+                data = NotificationData(NotificationType.DEFAULT.name)
             )
         )
     }
 
     private suspend fun sendMessage(pushNotification: PushNotification) {
-        val key = NotificationConstants.SERVER_KEY
-        if (key.isBlank()) return
-        RetrofitInstance.api.postNotification(
-            authorization = "key=$key",
-            notification = pushNotification,
-        )
+        notificationApi.postNotification(pushNotification)
     }
 
     suspend fun subscribeCurrentUser() {

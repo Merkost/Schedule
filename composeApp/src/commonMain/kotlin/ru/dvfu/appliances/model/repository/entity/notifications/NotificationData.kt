@@ -1,7 +1,10 @@
 package ru.dvfu.appliances.model.repository.entity.notifications
 
-import ru.dvfu.appliances.model.utils.Constants
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class NotificationData(
-    val notificationType: Constants.NotificationType = Constants.NotificationType.DEFAULT
+    @SerialName("notificationType")
+    val notificationType: String = "DEFAULT",
 )
