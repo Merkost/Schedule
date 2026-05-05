@@ -38,7 +38,7 @@ val repositoryModule = module {
     single<OfflineRepository> { OfflineRepositoryImpl(collections = get()) }
     single<RepositoryCollections> { RepositoryCollections(Firebase.firestore) }
 
-    single<Repository> { CloudFirestoreDatabaseImpl(dbCollections = get()) }
+    single<Repository> { CloudFirestoreDatabaseImpl(collections = get()) }
     single<EventsRepository> {
         EventsRepositoryImpl(
             dbCollections = get(),
