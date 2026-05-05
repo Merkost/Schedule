@@ -2,6 +2,9 @@ package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.generated.resources.Res
@@ -61,10 +64,11 @@ class BookingListViewModel(
             _viewState.value = ViewState.Loading
 
             eventsRepository.getAllEvents().collect { events ->
-
-                val calendarEvents = events
-                    .map { it.toCalendarEvent(getUserUseCase, getApplianceUseCase) }
-                    .sortedBy { it.date }
+                val calendarEvents = coroutineScope {
+                    events.map { event ->
+                        async { event.toCalendarEvent(getUserUseCase, getApplianceUseCase) }
+                    }.awaitAll()
+                }.sortedBy { it.date }
 
                 _viewState.value = ViewState.Success(calendarEvents)
             }
