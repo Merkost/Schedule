@@ -29,11 +29,13 @@ import ru.dvfu.appliances.model.datasource.deprecated.CloudFirestoreDatabaseImpl
 import ru.dvfu.appliances.model.datastore.UserDatastoreImpl
 import ru.dvfu.appliances.model.repository.*
 import ru.dvfu.appliances.model.repository.OfflineRepository
+import ru.dvfu.appliances.model.utils.FirestoreCollections
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 
 val repositoryModule = module {
 
-    single<OfflineRepository> { OfflineRepositoryImpl(dbCollections = get()) }
+    single<FirestoreCollections> { FirestoreCollections() }
+    single<OfflineRepository> { OfflineRepositoryImpl(collections = get()) }
     single<RepositoryCollections> { RepositoryCollections(Firebase.firestore) }
 
     single<Repository> { CloudFirestoreDatabaseImpl(dbCollections = get()) }
