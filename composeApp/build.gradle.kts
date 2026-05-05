@@ -166,7 +166,6 @@ kotlin {
             implementation(libs.firebase.database)
             implementation(libs.firebase.storage)
             implementation(libs.firebase.inappmessaging.display)
-            implementation(libs.firebase.ui.auth)
             implementation(libs.play.services.auth)
 
             implementation(libs.lottie.compose)

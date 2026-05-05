@@ -38,7 +38,6 @@ navigationCompose = "2.9.7"
 coroutines = "1.10.2"
 firebaseBom = "34.12.0"
 playServicesAuth = "21.5.1"
-firebaseUiAuth = "9.1.1"
 gitliveFirebase = "2.4.0"
 koin = "4.2.1"
 accompanist = "0.36.0"
@@ -103,7 +102,6 @@ firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-database = { module = "com.google.firebase:firebase-database" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 firebase-inappmessaging-display = { module = "com.google.firebase:firebase-inappmessaging-display" }
-firebase-ui-auth = { module = "com.firebaseui:firebase-ui-auth", version.ref = "firebaseUiAuth" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 
 gitlive-firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "gitliveFirebase" }

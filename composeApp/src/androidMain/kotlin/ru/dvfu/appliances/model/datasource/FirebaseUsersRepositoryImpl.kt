@@ -2,7 +2,6 @@ package ru.dvfu.appliances.model.datasource
 
 import android.content.Context
 import android.util.Log
-import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
@@ -174,10 +173,8 @@ class FirebaseUsersRepositoryImpl(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun logoutCurrentUser() = callbackFlow {
-        //userDatastore.saveUser(User())
-        AuthUI.getInstance().signOut(context).addOnSuccessListener {
-            trySend(true)
-        }
+        FirebaseAuth.getInstance().signOut()
+        trySend(true)
         awaitClose {}
     }
 
