@@ -60,14 +60,12 @@ fun ColorItem(
             .clickable(onClick = onClick)
     ) {
         if (color != null) {
-            // Transparent background pattern
             Box(
                 modifier = Modifier
                     .width(20.dp)
                     .fillMaxHeight()
                     .background(grey400)
             )
-            // Color indicator
             val colorModifier =
                 if (color.luminance() < 0.1 || color.luminance() > 0.9) {
                     Modifier
@@ -104,7 +102,6 @@ fun ColorItem(
                         .background(if (isSystemInDarkTheme()) whiteAlpha20 else blackAlpha20)
                 )
             }
-            // Color null indicator
             Icon(
                 painterResource(Res.drawable.ic_color_off_24dp),
                 contentDescription = Icons.Default.Clear.name,

@@ -23,7 +23,6 @@ fun FullscreenLoading() {
 fun GrayText(text: String, modifier: Modifier = Modifier) {
     Text(
         modifier = modifier,
-        //style = MaterialTheme.typography.h4,
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
         textAlign = TextAlign.Start,

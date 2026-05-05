@@ -1,6 +1,5 @@
 package ru.dvfu.appliances.compose.home
 
-import android.os.Parcelable
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
@@ -18,7 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
@@ -35,7 +33,6 @@ import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.canManageEvent
 import ru.dvfu.appliances.model.utils.Constants.TIME_TO_EXIT
 import ru.dvfu.appliances.model.utils.showToast
-import java.time.LocalDate
 
 @Composable
 fun HomeScreen(
@@ -87,9 +84,6 @@ fun HomeScreen(
         }
     }
 }
-
-@Parcelize
-data class SelectedDate(val value: LocalDate = LocalDate.now()) : Parcelable
 
 @Composable
 fun BackPressHandler(

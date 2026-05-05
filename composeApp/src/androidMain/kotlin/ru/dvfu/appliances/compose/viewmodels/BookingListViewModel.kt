@@ -136,9 +136,7 @@ class BookingListViewModel(
                 event = event,
                 newComment = managerCommentary
             ).single().fold(
-                onSuccess = {
-                    // TODO:  /*_eventsList.value = _eventsList.value.copy(managerCommentary = comment)*/
-                    },
+                onSuccess = { },
                 onFailure = { SnackbarManager.showMessage(Res.string.error_occured) }
             )
             _uiState.value = UiState.Success
@@ -165,36 +163,8 @@ class BookingListViewModel(
                     SnackbarManager.showMessage(Res.string.time_not_free)
                 }
             }
-
-        /*.fold(
-                onSuccess = {
-                    SnackbarManager.showMessage(Res.string.event_time_updated)
-                },
-                onFailure = {
-                    SnackbarManager.showMessage(Res.string.book_decline_failed)
-                }
-            )*/
         }
     }
-
-//    private fun couldManageBooks(user: User, book: UiBooking): Boolean {
-//        return user.isAdmin() || book.appliance?.superuserIds?.contains(user.userId) == true
-//    }
-
-//    fun deleteBooking(idToDelete: String) {
-//        viewModelScope.launch {
-//            bookingRepository.deleteBooking(idToDelete).fold(
-//                onSuccess = {
-//                    val newBookingsList =
-//                        _bookingList.value.filter { it.id != idToDelete }.toMutableList()
-//                    _bookingList.value = newBookingsList
-//                },
-//                onFailure = {
-//                    SnackbarManager.showMessage(Res.string.event_delete_failed)
-//                }
-//            )
-//        }
-//    }
 
 }
 

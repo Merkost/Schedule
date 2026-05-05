@@ -42,7 +42,6 @@ val repositoryModule = module {
         )
     }
     single<AppliancesRepository> { AppliancesRepositoryImpl(collections = get()) }
-    single<BookingRepository> { BookingRepositoryImpl(collections = get()) }
     single<UsersRepository> {
         FirebaseUsersRepositoryImpl(collections = get(), userDatastore = get())
     }
