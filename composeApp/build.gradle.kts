@@ -104,6 +104,15 @@ kotlin {
 
             implementation(libs.kmpnotifier)
 
+            implementation(libs.gitlive.firebase.auth)
+            implementation(libs.gitlive.firebase.firestore)
+            implementation(libs.gitlive.firebase.database)
+            implementation(libs.gitlive.firebase.storage)
+            implementation(libs.gitlive.firebase.analytics)
+            implementation(libs.gitlive.firebase.crashlytics)
+            implementation(libs.gitlive.firebase.config)
+            implementation(libs.gitlive.firebase.common)
+
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
