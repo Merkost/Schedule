@@ -1,5 +1,8 @@
 package ru.dvfu.appliances.compose
 
+import ru.dvfu.appliances.navigation.Arguments
+import ru.dvfu.appliances.navigation.MainDestinations
+
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

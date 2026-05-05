@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.compose.Arguments
-import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.navigation.Arguments
+import ru.dvfu.appliances.navigation.MainDestinations
 import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance

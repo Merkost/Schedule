@@ -12,8 +12,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import ru.dvfu.appliances.compose.Arguments
-import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.navigation.Arguments
+import ru.dvfu.appliances.navigation.MainDestinations
 import ru.dvfu.appliances.compose.calendars.event_calendar.Schedule
 import ru.dvfu.appliances.compose.home.HomeTopBar
 import ru.dvfu.appliances.compose.home.SelectedDate

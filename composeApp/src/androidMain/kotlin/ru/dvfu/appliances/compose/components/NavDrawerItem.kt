@@ -5,7 +5,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.stringResource
 import ru.dvfu.appliances.compose.HomeSections
-import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.navigation.MainDestinations
 
 sealed class NavDrawerItem(val route: String, val icon: ImageVector, val title: String) {
     object EventCalendar : NavDrawerItem(MainDestinations.HOME_ROUTE, Icons.Default.Home, "Home")

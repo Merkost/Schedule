@@ -45,6 +45,8 @@ import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.*
+import ru.dvfu.appliances.navigation.Arguments
+import ru.dvfu.appliances.navigation.MainDestinations
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.components.UiState

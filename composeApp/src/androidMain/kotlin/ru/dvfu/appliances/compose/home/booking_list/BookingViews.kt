@@ -29,8 +29,8 @@ import ru.dvfu.appliances.compose.components.pagerTabIndicatorOffset
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
-import ru.dvfu.appliances.compose.Arguments
-import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.navigation.Arguments
+import ru.dvfu.appliances.navigation.MainDestinations
 import ru.dvfu.appliances.compose.components.views.*
 import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.ui.theme.customColors
