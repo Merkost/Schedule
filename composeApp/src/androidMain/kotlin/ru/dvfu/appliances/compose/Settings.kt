@@ -41,11 +41,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 
 @Composable
 fun Settings(navController: NavController, upPress: () -> Unit) {
@@ -57,7 +58,7 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
     var darkTheme by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { ScheduleAppBar(stringResource(R.string.settings), backClick = upPress) },
+        topBar = { ScheduleAppBar(stringResource(Res.string.settings), backClick = upPress) },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -67,19 +68,19 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            SettingsSection(title = stringResource(R.string.notifications)) {
+            SettingsSection(title = stringResource(Res.string.notifications)) {
                 SettingsToggleRow(
                     icon = Icons.Outlined.NotificationsActive,
-                    title = stringResource(R.string.notifications_enable),
-                    subtitle = stringResource(R.string.notifications_enable_subtitle),
+                    title = stringResource(Res.string.notifications_enable),
+                    subtitle = stringResource(Res.string.notifications_enable_subtitle),
                     checked = notificationsEnabled,
                     onCheckedChange = { notificationsEnabled = it },
                 )
                 SettingsDivider()
                 SettingsToggleRow(
                     icon = Icons.Outlined.Event,
-                    title = stringResource(R.string.notifications_booking_updates),
-                    subtitle = stringResource(R.string.notifications_booking_updates_subtitle),
+                    title = stringResource(Res.string.notifications_booking_updates),
+                    subtitle = stringResource(Res.string.notifications_booking_updates_subtitle),
                     checked = bookingUpdatesEnabled,
                     onCheckedChange = { bookingUpdatesEnabled = it },
                     enabled = notificationsEnabled,
@@ -87,8 +88,8 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                 SettingsDivider()
                 SettingsToggleRow(
                     icon = Icons.Outlined.Notifications,
-                    title = stringResource(R.string.notifications_reminders),
-                    subtitle = stringResource(R.string.notifications_reminders_subtitle),
+                    title = stringResource(Res.string.notifications_reminders),
+                    subtitle = stringResource(Res.string.notifications_reminders_subtitle),
                     checked = remindersEnabled,
                     onCheckedChange = { remindersEnabled = it },
                     enabled = notificationsEnabled,
@@ -96,17 +97,17 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                 SettingsDivider()
                 SettingsLinkRow(
                     icon = Icons.AutoMirrored.Filled.OpenInNew,
-                    title = stringResource(R.string.open_system_settings),
-                    subtitle = stringResource(R.string.open_system_settings_subtitle),
+                    title = stringResource(Res.string.open_system_settings),
+                    subtitle = stringResource(Res.string.open_system_settings_subtitle),
                     onClick = { goToNotificationsSettings(context) },
                 )
             }
 
-            SettingsSection(title = stringResource(R.string.appearance)) {
+            SettingsSection(title = stringResource(Res.string.appearance)) {
                 SettingsToggleRow(
                     icon = Icons.Outlined.DarkMode,
-                    title = stringResource(R.string.dark_theme),
-                    subtitle = stringResource(R.string.dark_theme_subtitle),
+                    title = stringResource(Res.string.dark_theme),
+                    subtitle = stringResource(Res.string.dark_theme_subtitle),
                     checked = darkTheme,
                     onCheckedChange = { darkTheme = it },
                 )

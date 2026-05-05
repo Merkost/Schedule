@@ -32,7 +32,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -41,7 +41,8 @@ import androidx.navigation.NavController
 import androidx.compose.foundation.pager.rememberPagerState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.appliance.LoadingItem
@@ -81,7 +82,7 @@ fun BookingList(navController: NavController) {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             ScheduleAppBar(
-                title = stringResource(R.string.bookings),
+                title = stringResource(Res.string.bookings),
                 backClick = { navController.popBackStack() })
         }) { padding ->
         Crossfade(targetState = viewState, modifier = Modifier.padding(padding)) { state ->
@@ -207,7 +208,7 @@ fun NoBookingsView(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PrimaryText(text = stringResource(id = R.string.no_books))
+        PrimaryText(text = stringResource(Res.string.no_books))
     }
 }
 
@@ -239,7 +240,7 @@ fun BookingStatus(
                         onUserClick(it)
                     }
                     if (book.canBeRefused(currentUser)) {
-                        val declineComment = stringResource(id = R.string.declined_by_user)
+                        val declineComment = stringResource(Res.string.declined_by_user)
                         DeclineBookingButton(
                             onDeclineClick = { onUserRefuse(book, declineComment) }
                         )
@@ -319,13 +320,13 @@ fun BookStatus(
                 BookingUser(
                     user = it,
                     shouldShowHeader = false,
-                    header = stringResource(R.string.manager_commentary),
+                    header = stringResource(Res.string.manager_commentary),
                 ) { onUserClick(it) }
             }
             if (book.managerCommentary.isNotEmpty()) {
                 BookingCommentary(
                     commentary = book.managerCommentary,
-                    header = stringResource(id = R.string.manager_commentary),
+                    header = stringResource(Res.string.manager_commentary),
                     editable = currentUser.canManageEvent(book),
                     onCommentarySave = { onCommentarySave(book, it) },
                 )
@@ -337,7 +338,7 @@ fun BookStatus(
 @Composable
 fun BookingCommentary(
     modifier: Modifier = Modifier,
-    header: String = stringResource(id = R.string.commentary),
+    header: String = stringResource(Res.string.commentary),
     commentary: String,
     editable: Boolean,
     onCommentarySave: (String) -> Unit,
@@ -390,7 +391,7 @@ fun BookingCommentary(
                 }
             }
             Text(
-                text = commentary.ifBlank { stringResource(R.string.not_necessary) },
+                text = commentary.ifBlank { stringResource(Res.string.not_necessary) },
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (commentary.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 else MaterialTheme.colorScheme.onSurface,
@@ -449,7 +450,7 @@ fun BookingTime(
                 IconButton(onClick = { dialogState = !dialogState }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.edit_booking_date_and_time),
+                        contentDescription = stringResource(Res.string.edit_booking_date_and_time),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
@@ -481,12 +482,12 @@ fun BookingTime(
         }
 
         DefaultDialog(
-            positiveButtonText = stringResource(id = R.string.apply),
-            neutralButtonText = stringResource(id = R.string.cancel),
+            positiveButtonText = stringResource(Res.string.apply),
+            neutralButtonText = stringResource(Res.string.cancel),
             onDismiss = { dialogState = false },
             onPositiveClick = {
                 if (isError) {
-                    SnackbarManager.showMessage(R.string.time_end_is_before_start)
+                    SnackbarManager.showMessage(Res.string.time_end_is_before_start)
                 } else {
                     dialogState = false
                     if (onSetNewDateAndTime != null) {
@@ -545,7 +546,7 @@ fun BookingAppliance(
     DetailRow(
         leading = { ApplianceImage(appliance, modifier = Modifier.size(40.dp)) },
         title = appliance.name,
-        subtitle = if (appliance.description.isNotBlank()) appliance.description else stringResource(R.string.appliance),
+        subtitle = if (appliance.description.isNotBlank()) appliance.description else stringResource(Res.string.appliance),
         onClick = onApplianceClick,
     )
 }
@@ -554,12 +555,12 @@ fun BookingAppliance(
 fun BookingUser(
     user: User,
     shouldShowHeader: Boolean = true,
-    header: String = stringResource(id = R.string.user),
+    header: String = stringResource(Res.string.user),
     onUserClick: () -> Unit,
 ) {
     DetailRow(
         leading = { UserImage(modifier = Modifier.size(40.dp), user = user) },
-        title = if (user.userName.isBlank()) stringResource(R.string.anonymous_user) else user.userName,
+        title = if (user.userName.isBlank()) stringResource(Res.string.anonymous_user) else user.userName,
         subtitle = user.email.takeIf { it.isNotBlank() } ?: header,
         onClick = onUserClick,
     )

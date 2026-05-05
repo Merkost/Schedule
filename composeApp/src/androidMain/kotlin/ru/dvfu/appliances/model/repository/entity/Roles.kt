@@ -1,12 +1,15 @@
 package ru.dvfu.appliances.model.repository.entity
 
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.model.utils.StringOperation
 
-enum class Roles(override val stringRes: Int, val pluralStringRes: Int): StringOperation {
-    GUEST(R.string.guest, R.string.guests),
-    USER(R.string.user, R.string.users),
-    ADMIN(R.string.admin, R.string.admins);
+import org.jetbrains.compose.resources.StringResource
+
+enum class Roles(override val stringRes: StringResource, val pluralStringRes: StringResource): StringOperation {
+    GUEST(Res.string.guest, Res.string.guests),
+    USER(Res.string.user, Res.string.users),
+    ADMIN(Res.string.admin, Res.string.admins);
 
     fun isAdmin(): Boolean {
         return when(this) {

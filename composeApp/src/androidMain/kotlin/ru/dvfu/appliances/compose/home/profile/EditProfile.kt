@@ -40,13 +40,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.components.DatePicker
@@ -123,7 +124,7 @@ fun EditProfile(onBack: () -> Unit) {
 
                 EditFieldCard(
                     icon = Icons.Outlined.Person,
-                    label = stringResource(R.string.name_hint),
+                    label = stringResource(Res.string.name_hint),
                 ) {
                     OutlinedTextField(
                         value = currentUser.userName,
@@ -136,7 +137,7 @@ fun EditProfile(onBack: () -> Unit) {
 
                 EditFieldCard(
                     icon = Icons.Outlined.Email,
-                    label = stringResource(R.string.email_hint),
+                    label = stringResource(Res.string.email_hint),
                 ) {
                     OutlinedTextField(
                         value = currentUser.email,
@@ -180,7 +181,7 @@ fun EditProfile(onBack: () -> Unit) {
                     ),
                 ) {
                     Text(
-                        text = stringResource(id = R.string.save),
+                        text = stringResource(Res.string.save),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -213,7 +214,7 @@ private fun EditUserPhotoCard(currentUser: User) {
                 user = currentUser,
             )
             Text(
-                text = stringResource(R.string.user_photo),
+                text = stringResource(Res.string.user_photo),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -283,12 +284,12 @@ private fun BirthdayCard(birthday: Long, onClick: () -> Unit) {
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.birthday_hint),
+                    text = stringResource(Res.string.birthday_hint),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = if (isSet) birthday.toDate() else stringResource(R.string.birthday_set),
+                    text = if (isSet) birthday.toDate() else stringResource(Res.string.birthday_set),
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isSet) MaterialTheme.colorScheme.onSurface
                     else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
@@ -317,13 +318,13 @@ fun ResetDialog(onDismiss: () -> Unit, onReset: () -> Unit) {
         },
         title = {
             Text(
-                text = stringResource(id = R.string.reset_dialog),
+                text = stringResource(Res.string.reset_dialog),
                 style = MaterialTheme.typography.headlineSmall,
             )
         },
         text = {
             Text(
-                text = stringResource(id = R.string.reset_dialog_secondary),
+                text = stringResource(Res.string.reset_dialog_secondary),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -335,11 +336,11 @@ fun ResetDialog(onDismiss: () -> Unit, onReset: () -> Unit) {
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
                 ),
-            ) { Text(stringResource(id = R.string.yes)) }
+            ) { Text(stringResource(Res.string.yes)) }
         },
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.no))
+                Text(stringResource(Res.string.no))
             }
         },
     )
@@ -352,7 +353,7 @@ fun EditProfileTopAppBar(
     onBack: () -> Unit,
 ) {
     ScheduleAppBar(
-        title = stringResource(id = R.string.profile_edit),
+        title = stringResource(Res.string.profile_edit),
         backClick = onBack,
         actions = {
             AnimatedVisibility(
@@ -363,7 +364,7 @@ fun EditProfileTopAppBar(
                 IconButton(onClick = onReset) {
                     Icon(
                         imageVector = Icons.Default.RestartAlt,
-                        contentDescription = stringResource(R.string.reset_dialog),
+                        contentDescription = stringResource(Res.string.reset_dialog),
                     )
                 }
             }

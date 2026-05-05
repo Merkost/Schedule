@@ -115,10 +115,10 @@ class UpdateTimeUseCase(
                         LocalTime.now().plusMinutes(10)
                     ) -> {
                         _timeEndChangeState.value = UiState.Error
-                        SnackbarManager.showMessage(R.string.time_end_is_before_now)
+                        SnackbarManager.showMessage(Res.string.time_end_is_before_now)
                     }
                     newTime.isBefore(event.value.timeStart.toLocalTime()) -> {
-                        SnackbarManager.showMessage(R.string.time_end_is_before_start)
+                        SnackbarManager.showMessage(Res.string.time_end_is_before_start)
                     }
                     else -> saveNewTimeEnd(newLocalTime)
                 }
@@ -133,11 +133,11 @@ class UpdateTimeUseCase(
                         AvailabilityState.Available -> saveNewTimeEnd(newLocalTime)
                         AvailabilityState.Error -> {
                             _timeEndChangeState.value = UiState.Error
-                            SnackbarManager.showMessage(R.string.new_event_time_end_failed)
+                            SnackbarManager.showMessage(Res.string.new_event_time_end_failed)
                         }
                         AvailabilityState.NotAvailable -> {
                             _timeEndChangeState.value = UiState.Error
-                            SnackbarManager.showMessage(R.string.time_not_free)
+                            SnackbarManager.showMessage(Res.string.time_not_free)
                         }
                     }
                 }
@@ -157,10 +157,10 @@ class UpdateTimeUseCase(
                         LocalTime.now().plusMinutes(10)
                     ) -> {
                         _timeEndChangeState.value = UiState.Error
-                        SnackbarManager.showMessage(R.string.time_end_is_before_now)
+                        SnackbarManager.showMessage(Res.string.time_end_is_before_now)
                     }
                     newTime.isBefore(event.value.timeStart.toLocalTime()) -> {
-                        SnackbarManager.showMessage(R.string.time_end_is_before_start)
+                        SnackbarManager.showMessage(Res.string.time_end_is_before_start)
                     }
                     else -> saveNewTimeEnd(newLocalDateTime)
                 }
@@ -175,11 +175,11 @@ class UpdateTimeUseCase(
                         AvailabilityState.Available -> saveNewTimeEnd(newLocalDateTime)
                         AvailabilityState.Error -> {
                             _timeEndChangeState.value = UiState.Error
-                            SnackbarManager.showMessage(R.string.new_event_time_end_failed)
+                            SnackbarManager.showMessage(Res.string.new_event_time_end_failed)
                         }
                         AvailabilityState.NotAvailable -> {
                             _timeEndChangeState.value = UiState.Error
-                            SnackbarManager.showMessage(R.string.time_not_free)
+                            SnackbarManager.showMessage(Res.string.time_not_free)
                         }
                     }
                 }
@@ -199,7 +199,7 @@ class UpdateTimeUseCase(
                 },
                 onFailure = {
                     _timeEndChangeState.value = UiState.Error
-                    SnackbarManager.showMessage(R.string.new_event_time_end_failed)
+                    SnackbarManager.showMessage(Res.string.new_event_time_end_failed)
                 }
             )
         }

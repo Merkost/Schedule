@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -35,7 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.MainActivity
 import ru.dvfu.appliances.compose.ui.theme.ScheduleTheme
 
@@ -103,7 +105,7 @@ private fun SplashContent(onFinished: () -> Unit) {
             )
             Spacer(Modifier.height(20.dp))
             Text(
-                text = stringResourceCompat(R.string.app_name),
+                text = stringResource(Res.string.app_name),
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimary,
@@ -114,5 +116,3 @@ private fun SplashContent(onFinished: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 1f - alpha)))
 }
 
-@Composable
-private fun stringResourceCompat(id: Int): String = androidx.compose.ui.res.stringResource(id)

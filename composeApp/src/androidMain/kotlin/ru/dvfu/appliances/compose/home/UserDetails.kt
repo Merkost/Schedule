@@ -38,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -49,7 +49,8 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.AppBuildConfig
 import ru.dvfu.appliances.AppDebug
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.components.ItemsSelection
 import ru.dvfu.appliances.compose.components.UiState
@@ -74,7 +75,7 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
     val userRoleState by viewModel.userRoleState.collectAsState()
 
     Scaffold(
-        topBar = { ScheduleAppBar(stringResource(R.string.user), upPress) },
+        topBar = { ScheduleAppBar(stringResource(Res.string.user), upPress) },
     ) { innerPadding ->
         if (isChangeRoleDialogOpen) {
             RolesWithSelectionDialog(
@@ -98,7 +99,7 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
 
             UserDetailRow(
                 icon = Icons.Outlined.AlternateEmail,
-                label = stringResource(R.string.email),
+                label = stringResource(Res.string.email),
                 value = detailsUser.email.ifBlank { "—" },
             )
 
@@ -149,7 +150,7 @@ private fun UserHeroCard(user: User) {
                 )
             }
             Text(
-                text = user.userName.ifBlank { stringResource(R.string.anonymous_user) },
+                text = user.userName.ifBlank { stringResource(Res.string.anonymous_user) },
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -250,7 +251,7 @@ private fun UserRoleCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.role),
+                    text = stringResource(Res.string.role),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -298,7 +299,7 @@ fun RolesWithSelectionDialog(
         },
         title = {
             Text(
-                text = stringResource(R.string.role),
+                text = stringResource(Res.string.role),
                 style = MaterialTheme.typography.headlineSmall,
             )
         },
@@ -319,10 +320,10 @@ fun RolesWithSelectionDialog(
                     onSelectedValue(selectedRole)
                     onDismiss()
                 },
-            ) { Text(stringResource(R.string.apply)) }
+            ) { Text(stringResource(Res.string.apply)) }
         },
         dismissButton = {
-            OutlinedButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            OutlinedButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel)) }
         },
     )
 }
@@ -367,7 +368,7 @@ fun SuperUserAppliancesList(viewModel: UserDetailsViewModel, navController: NavC
     val superUserAppliances by viewModel.currentSuperUserAppliances.collectAsState()
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = stringResource(R.string.superuser_appliances),
+            text = stringResource(Res.string.superuser_appliances),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 4.dp),
@@ -424,7 +425,7 @@ fun NoAppliances() {
             )
             Spacer(Modifier.width(8.dp))
             Text(
-                text = stringResource(R.string.no_appliances),
+                text = stringResource(Res.string.no_appliances),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

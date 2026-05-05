@@ -37,13 +37,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
@@ -206,7 +207,7 @@ private fun SuperUsersSectionHeader(count: Int?, canManage: Boolean, onAddClick:
             tint = MaterialTheme.colorScheme.primary,
         )
         Text(
-            text = stringResource(R.string.superusers),
+            text = stringResource(Res.string.superusers),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -229,7 +230,7 @@ private fun SuperUsersSectionHeader(count: Int?, canManage: Boolean, onAddClick:
         }
         if (canManage) {
             FilledTonalIconButton(onClick = onAddClick) {
-                Icon(Icons.Default.PersonAdd, contentDescription = stringResource(R.string.add_superuser))
+                Icon(Icons.Default.PersonAdd, contentDescription = stringResource(Res.string.add_superuser))
             }
         }
     }
@@ -257,7 +258,7 @@ private fun EmptySuperUsersCard() {
             )
             Spacer(Modifier.width(8.dp))
             Text(
-                text = stringResource(R.string.no_users_in_appliance),
+                text = stringResource(Res.string.no_users_in_appliance),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -406,7 +407,7 @@ private fun ApplianceOwnerCard(owner: User, modifier: Modifier = Modifier, onCli
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = owner.userName.ifBlank { stringResource(R.string.anonymous_user) },
+                    text = owner.userName.ifBlank { stringResource(Res.string.anonymous_user) },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -424,11 +425,11 @@ fun ApplianceToggleActiveDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    val title = if (currentlyActive) R.string.appliance_deactivate_title
-    else R.string.appliance_activate_title
-    val description = if (currentlyActive) R.string.appliance_deactivate_description
-    else R.string.appliance_activate_description
-    val confirmLabel = if (currentlyActive) R.string.deactivate else R.string.activate
+    val title = if (currentlyActive) Res.string.appliance_deactivate_title
+    else Res.string.appliance_activate_title
+    val description = if (currentlyActive) Res.string.appliance_deactivate_description
+    else Res.string.appliance_activate_description
+    val confirmLabel = if (currentlyActive) Res.string.deactivate else Res.string.activate
     val icon = if (currentlyActive) Icons.Default.DoNotDisturb else Icons.Default.Autorenew
     val iconTint = if (currentlyActive) MaterialTheme.colorScheme.error
     else MaterialTheme.colorScheme.tertiary
@@ -449,13 +450,13 @@ fun ApplianceToggleActiveDialog(
         },
         title = {
             Text(
-                text = stringResource(id = title),
+                text = stringResource(title),
                 style = MaterialTheme.typography.headlineSmall,
             )
         },
         text = {
             Text(
-                text = stringResource(id = description),
+                text = stringResource(description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -467,10 +468,10 @@ fun ApplianceToggleActiveDialog(
                     containerColor = confirmContainer,
                     contentColor = confirmContent,
                 ),
-            ) { Text(stringResource(id = confirmLabel)) }
+            ) { Text(stringResource(confirmLabel)) }
         },
         dismissButton = {
-            OutlinedButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            OutlinedButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel)) }
         },
     )
 }
@@ -489,7 +490,7 @@ fun ApplianceDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
         },
         title = {
             Text(
-                text = stringResource(id = R.string.appliance_delete_sure),
+                text = stringResource(Res.string.appliance_delete_sure),
                 style = MaterialTheme.typography.headlineSmall,
             )
         },
@@ -500,10 +501,10 @@ fun ApplianceDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
                 ),
-            ) { Text(stringResource(id = R.string.Yes)) }
+            ) { Text(stringResource(Res.string.Yes)) }
         },
         dismissButton = {
-            OutlinedButton(onClick = onDismiss) { Text(stringResource(id = R.string.No)) }
+            OutlinedButton(onClick = onDismiss) { Text(stringResource(Res.string.No)) }
         },
     )
 }
@@ -518,7 +519,7 @@ fun ApplianceTopBar(
     disableEnableClick: (Boolean) -> Unit,
 ) {
     ScheduleAppBar(
-        title = stringResource(R.string.appliance),
+        title = stringResource(Res.string.appliance),
         backClick = upPress,
         actionDelete = user.isAdmin && noApplianceEvents,
         deleteClick = deleteClick,

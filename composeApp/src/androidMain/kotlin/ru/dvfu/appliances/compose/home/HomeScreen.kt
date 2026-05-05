@@ -15,12 +15,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.EventCalendar
@@ -97,6 +98,7 @@ fun BackPressHandler(
     upPress: () -> Unit
 ) {
     val context = LocalContext.current
+    val exitMessage = stringResource(Res.string.app_exit_message)
     var lastPressed by remember { mutableStateOf(0L) }
 
     BackHandler(true) {
@@ -107,7 +109,7 @@ fun BackPressHandler(
         } else {
             showToast(
                 context.applicationContext,
-                context.getString(R.string.app_exit_message)
+                exitMessage
             )
         }
         lastPressed = currentMillis
@@ -122,7 +124,7 @@ fun HomeTopBar(
     onRetry: () -> Unit
 ) {
     ScheduleAppBar(
-        title = stringResource(id = R.string.schedule),
+        title = stringResource(Res.string.schedule),
         navigationIcon = {
             Crossfade(targetState = uiState) {
                 when (it) {
@@ -172,7 +174,7 @@ fun EventOptionDialog(
                 calendarEvent.timeEnd.format(EventTimeFormatter)
             }\n${calendarEvent.commentary}",
             onDismiss = onDismiss,
-            neutralButtonText = stringResource(id = R.string.delete),
+            neutralButtonText = stringResource(Res.string.delete),
             onNeutralClick = { onDelete(calendarEvent); onDismiss() }
         )
     }

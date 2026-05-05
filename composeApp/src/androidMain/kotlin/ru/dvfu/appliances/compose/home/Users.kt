@@ -26,7 +26,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -34,7 +34,8 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.components.FullscreenLoading
 import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
@@ -53,15 +54,15 @@ fun Users(navController: NavController, backPress: () -> Unit) {
     val usersState by viewModel.userState.collectAsState()
 
     Scaffold(
-        topBar = { ScheduleAppBar(stringResource(R.string.users), backClick = backPress) },
+        topBar = { ScheduleAppBar(stringResource(Res.string.users), backClick = backPress) },
     ) { innerPadding ->
         Crossfade(usersState, modifier = Modifier.padding(innerPadding), label = "usersState") { state ->
             when (state) {
                 is ViewState.Loading -> FullscreenLoading()
-                is ViewState.Error -> UsersEmptyOrError(stringResource(R.string.error_occured))
+                is ViewState.Error -> UsersEmptyOrError(stringResource(Res.string.error_occured))
                 is ViewState.Success -> {
                     if (state.data.isEmpty()) {
-                        UsersEmptyOrError(stringResource(R.string.no_users_to_add))
+                        UsersEmptyOrError(stringResource(Res.string.no_users_to_add))
                     } else {
                         UsersContent(
                             users = state.data,
@@ -189,7 +190,7 @@ fun ItemUser(user: User, userClicked: () -> Unit) {
             UserImage(modifier = Modifier.size(44.dp), user = user)
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    text = user.userName.ifBlank { stringResource(R.string.anonymous_user) },
+                    text = user.userName.ifBlank { stringResource(Res.string.anonymous_user) },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -242,7 +243,7 @@ fun ItemAdd(addClicked: () -> Unit) {
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
             )
             Text(
-                text = stringResource(R.string.add_user),
+                text = stringResource(Res.string.add_user),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,

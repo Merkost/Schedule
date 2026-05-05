@@ -215,7 +215,7 @@ class NotificationManagerImpl(
                 to = user.msgToken,
                 notification = Notification(
                     title = "Ваша роль изменена",
-                    body = "Теперь вы \"${Firebase.app.applicationContext.getString(role.stringRes)}\""
+                    body = "Теперь вы \"${org.jetbrains.compose.resources.getString(role.stringRes)}\""
                 ),
                 data = NotificationData(NotificationType.DEFAULT)
             )
@@ -237,9 +237,9 @@ class NotificationManagerImpl(
 
         Firebase.messaging.subscribeToTopic("weather")
             .addOnCompleteListener { task ->
-                /*var msg = getString(R.string.msg_subscribed)
+                /*var msg = getString(Res.string.msg_subscribed)
                 if (!task.isSuccessful) {
-                    msg = getString(R.string.msg_subscribe_failed)
+                    msg = getString(Res.string.msg_subscribe_failed)
                 }
                 Log.d(TAG, msg)
                 Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()*/

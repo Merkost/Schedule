@@ -28,13 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.*
@@ -64,7 +65,7 @@ fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
     Scaffold(
         topBar = {
             ScheduleAppBar(
-                title = stringResource(id = R.string.new_event),
+                title = stringResource(Res.string.new_event),
                 backClick = upPress,
             )
         },
@@ -151,7 +152,7 @@ fun Commentary(
         modifier = modifier.fillMaxWidth(),
         value = commentary,
         onValueChange = onCommentarySet,
-        label = { Text(stringResource(id = R.string.commentary)) },
+        label = { Text(stringResource(Res.string.commentary)) },
         minLines = 2,
         maxLines = 4,
         shape = RoundedCornerShape(12.dp),
@@ -169,7 +170,7 @@ fun ChooseAppliance(
         is ViewState.Success -> {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 PrimaryText(
-                    text = stringResource(id = R.string.choose_appliance),
+                    text = stringResource(Res.string.choose_appliance),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 ApplianceSelection(
@@ -298,13 +299,13 @@ fun DateAndTime(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         PrimaryText(
-            text = stringResource(id = R.string.date_and_time),
+            text = stringResource(Res.string.date_and_time),
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
             value = date.format(FULL_DATE_FORMAT),
             onValueChange = {},
-            label = { Text(stringResource(R.string.date)) },
+            label = { Text(stringResource(Res.string.date)) },
             readOnly = true,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -320,7 +321,7 @@ fun DateAndTime(
             OutlinedTextField(
                 value = timeStart.toHoursAndMinutes(),
                 onValueChange = {},
-                label = { Text(stringResource(R.string.time_start)) },
+                label = { Text(stringResource(Res.string.time_start)) },
                 readOnly = true,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
@@ -335,7 +336,7 @@ fun DateAndTime(
             OutlinedTextField(
                 value = timeEnd.toHoursAndMinutes(),
                 onValueChange = {},
-                label = { Text(stringResource(R.string.time_end)) },
+                label = { Text(stringResource(Res.string.time_end)) },
                 readOnly = true,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),

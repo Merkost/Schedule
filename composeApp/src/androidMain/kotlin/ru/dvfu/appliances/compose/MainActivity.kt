@@ -15,7 +15,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.InternalCoroutinesApi
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.ui.theme.ScheduleTheme
 
 class MainActivity : ComponentActivity() {
@@ -44,8 +45,7 @@ class MainActivity : ComponentActivity() {
                 return@addOnCompleteListener
             }
             val token = task.result
-            val msg = getString(R.string.msg_token_fmt, token)
-            Log.d(this.localClassName, msg)
+            Log.d(this.localClassName, "FCM token: $token")
         }
     }
 }

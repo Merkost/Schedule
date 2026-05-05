@@ -35,7 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,7 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.components.FullscreenLoading
 import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
@@ -63,7 +64,7 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
     Scaffold(
         topBar = {
             ScheduleAppBar(
-                title = stringResource(R.string.appliances),
+                title = stringResource(Res.string.appliances),
                 backClick = backPress,
                 actionAdd = currentUser.isAdmin,
                 addClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) },
@@ -74,7 +75,7 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
             when (val state = appliancesState) {
                 is ViewState.Error -> EmptyStateBox(
                     icon = Icons.Outlined.DevicesOther,
-                    message = stringResource(R.string.error_occured),
+                    message = stringResource(Res.string.error_occured),
                 )
                 is ViewState.Loading -> FullscreenLoading()
                 is ViewState.Success -> {
@@ -105,7 +106,7 @@ private fun AppliancesGrid(
     var showInactive by rememberSaveable { mutableStateOf(false) }
 
     if (active.isEmpty() && inactive.isEmpty()) {
-        EmptyStateBox(icon = Icons.Outlined.DevicesOther, message = stringResource(R.string.appliances))
+        EmptyStateBox(icon = Icons.Outlined.DevicesOther, message = stringResource(Res.string.appliances))
         return
     }
 

@@ -18,9 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 
 @Composable
 fun ColorPicker(
@@ -105,7 +106,7 @@ fun ColorItem(
             }
             // Color null indicator
             Icon(
-                painterResource(R.drawable.ic_color_off_24dp),
+                painterResource(Res.drawable.ic_color_off_24dp),
                 contentDescription = Icons.Default.Clear.name,
                 modifier = Modifier.align(Alignment.Center),
                 tint = contentColorFor(MaterialTheme.colorScheme.surface)

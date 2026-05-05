@@ -35,7 +35,8 @@ import org.koin.core.Koin
 import org.koin.core.KoinApplication
 import org.koin.core.context.GlobalContext.loadKoinModules
 import org.koin.core.context.unloadKoinModules
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.di.repositoryModule
 import ru.dvfu.appliances.model.repository.entity.*
 import java.time.Duration
@@ -73,7 +74,7 @@ fun Modifier.loadingModifier(
 fun showError(applicationContext: Context, text: String?) {
     showToast(
         applicationContext.applicationContext,
-        text ?: applicationContext.resources.getString(R.string.error_occured)
+        text ?: "Error"
     )
 }
 

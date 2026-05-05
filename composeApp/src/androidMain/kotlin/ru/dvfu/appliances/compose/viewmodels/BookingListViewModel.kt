@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
@@ -83,10 +84,10 @@ class BookingListViewModel(
                 status, managerCommentary
             ).single().fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.status_changed)
+                    SnackbarManager.showMessage(Res.string.status_changed)
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.book_decline_failed)
+                    SnackbarManager.showMessage(Res.string.book_decline_failed)
                 }
             )
         }
@@ -103,10 +104,10 @@ class BookingListViewModel(
                 managerCommentary = managerCommentary
             ).single().fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.refuse_successfull)
+                    SnackbarManager.showMessage(Res.string.refuse_successfull)
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.book_decline_failed)
+                    SnackbarManager.showMessage(Res.string.book_decline_failed)
                 }
             )
         }
@@ -122,7 +123,7 @@ class BookingListViewModel(
                 onSuccess = {
                     // TODO:  /*_eventsList.value = _eventsList.value.copy(managerCommentary = comment)*/
                 },
-                onFailure = { SnackbarManager.showMessage(R.string.error_occured) }
+                onFailure = { SnackbarManager.showMessage(Res.string.error_occured) }
             )
             _uiState.value = UiState.Success
         }
@@ -138,7 +139,7 @@ class BookingListViewModel(
                 onSuccess = {
                     // TODO:  /*_eventsList.value = _eventsList.value.copy(managerCommentary = comment)*/
                     },
-                onFailure = { SnackbarManager.showMessage(R.string.error_occured) }
+                onFailure = { SnackbarManager.showMessage(Res.string.error_occured) }
             )
             _uiState.value = UiState.Success
         }
@@ -155,22 +156,22 @@ class BookingListViewModel(
             ).single()
             when (result) {
                 EventTimeUpdateResult.Error -> {
-                    SnackbarManager.showMessage(R.string.error_occured)
+                    SnackbarManager.showMessage(Res.string.error_occured)
                 }
                 EventTimeUpdateResult.Success -> {
-                    SnackbarManager.showMessage(R.string.event_time_updated)
+                    SnackbarManager.showMessage(Res.string.event_time_updated)
                 }
                 EventTimeUpdateResult.TimeNotFree -> {
-                    SnackbarManager.showMessage(R.string.time_not_free)
+                    SnackbarManager.showMessage(Res.string.time_not_free)
                 }
             }
 
         /*.fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.event_time_updated)
+                    SnackbarManager.showMessage(Res.string.event_time_updated)
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.book_decline_failed)
+                    SnackbarManager.showMessage(Res.string.book_decline_failed)
                 }
             )*/
         }
@@ -189,7 +190,7 @@ class BookingListViewModel(
 //                    _bookingList.value = newBookingsList
 //                },
 //                onFailure = {
-//                    SnackbarManager.showMessage(R.string.event_delete_failed)
+//                    SnackbarManager.showMessage(Res.string.event_delete_failed)
 //                }
 //            )
 //        }

@@ -18,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,10 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 
 data class LoginUiState(
     val loading: Boolean = false,
@@ -99,14 +100,14 @@ fun LoginScreen(
                 )
                 Spacer(Modifier.size(24.dp))
                 Text(
-                    text = stringResource(R.string.app_name),
+                    text = stringResource(Res.string.app_name),
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.size(8.dp))
                 Text(
-                    text = stringResource(R.string.login_to_continue),
+                    text = stringResource(Res.string.login_to_continue),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -155,13 +156,13 @@ private fun AuthButtonsSection(
         ),
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_google),
+            painter = painterResource(Res.drawable.ic_google),
             contentDescription = null,
             modifier = Modifier.size(20.dp),
             tint = Color.Unspecified,
         )
         Spacer(Modifier.size(12.dp))
-        Text(stringResource(R.string.sign_in_with_google), style = MaterialTheme.typography.labelLarge)
+        Text(stringResource(Res.string.sign_in_with_google), style = MaterialTheme.typography.labelLarge)
     }
 
     Spacer(Modifier.size(12.dp))
@@ -173,13 +174,13 @@ private fun AuthButtonsSection(
         shape = MaterialTheme.shapes.large,
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_microsoft),
+            painter = painterResource(Res.drawable.ic_microsoft),
             contentDescription = null,
             modifier = Modifier.size(20.dp),
             tint = Color.Unspecified,
         )
         Spacer(Modifier.size(12.dp))
-        Text(stringResource(R.string.sign_in_with_microsoft), style = MaterialTheme.typography.labelLarge)
+        Text(stringResource(Res.string.sign_in_with_microsoft), style = MaterialTheme.typography.labelLarge)
     }
 
     Spacer(Modifier.size(12.dp))
@@ -192,6 +193,6 @@ private fun AuthButtonsSection(
     ) {
         Icon(Icons.Outlined.Person, contentDescription = null, modifier = Modifier.size(20.dp))
         Spacer(Modifier.size(12.dp))
-        Text(stringResource(R.string.continue_as_a_guest), style = MaterialTheme.typography.labelLarge)
+        Text(stringResource(Res.string.continue_as_a_guest), style = MaterialTheme.typography.labelLarge)
     }
 }

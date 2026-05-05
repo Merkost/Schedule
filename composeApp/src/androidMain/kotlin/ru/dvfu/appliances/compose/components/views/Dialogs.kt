@@ -20,7 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import ru.dvfu.appliances.R
+import org.jetbrains.compose.resources.stringResource
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 
 @Composable
 fun DefaultDialog(
@@ -72,7 +74,7 @@ fun DefaultDialog(
 }
 
 @Composable
-fun ModalLoadingDialog(text: String = stringResourceLocal(R.string.loading)) {
+fun ModalLoadingDialog(text: String = stringResource(Res.string.loading)) {
     Dialog(
         onDismissRequest = { },
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
@@ -103,5 +105,3 @@ fun ModalLoadingDialog(text: String = stringResourceLocal(R.string.loading)) {
     }
 }
 
-@Composable
-private fun stringResourceLocal(id: Int): String = androidx.compose.ui.res.stringResource(id)

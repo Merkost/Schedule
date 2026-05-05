@@ -26,11 +26,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -71,10 +72,10 @@ fun DatePicker(
                     }
                     onDismiss()
                 },
-            ) { Text(stringResource(R.string.apply)) }
+            ) { Text(stringResource(Res.string.apply)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel)) }
         },
         colors = DatePickerDefaults.colors(),
     ) {
@@ -131,7 +132,7 @@ private fun TimePickerMaterialDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Text(
-                    text = stringResource(R.string.time),
+                    text = stringResource(Res.string.time),
                     style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
                     color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.Start),
@@ -141,8 +142,8 @@ private fun TimePickerMaterialDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-                    TextButton(onClick = onConfirm) { Text(stringResource(R.string.apply)) }
+                    TextButton(onClick = onDismiss) { Text(stringResource(Res.string.cancel)) }
+                    TextButton(onClick = onConfirm) { Text(stringResource(Res.string.apply)) }
                 }
             }
         }

@@ -1,26 +1,23 @@
 package ru.dvfu.appliances.application
 
-import androidx.annotation.StringRes
+import kotlin.random.Random
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.util.*
+import org.jetbrains.compose.resources.StringResource
 
-data class Message(val id: Long, @StringRes val messageId: Int)
+data class Message(val id: Long, val messageId: StringResource)
 
-/**
- * Class responsible for managing Snackbar messages to show on the screen
- */
 object SnackbarManager {
 
     private val _messages: MutableStateFlow<List<Message>> = MutableStateFlow(emptyList())
     val messages: StateFlow<List<Message>> get() = _messages.asStateFlow()
 
-    fun showMessage(@StringRes messageTextId: Int) {
+    fun showMessage(messageTextId: StringResource) {
         _messages.update { currentMessages ->
             currentMessages + Message(
-                id = UUID.randomUUID().mostSignificantBits,
+                id = Random.nextLong(),
                 messageId = messageTextId
             )
         }

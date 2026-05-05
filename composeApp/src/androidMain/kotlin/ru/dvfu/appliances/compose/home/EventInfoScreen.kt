@@ -16,12 +16,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.UiState
@@ -51,9 +52,9 @@ fun EventInfoScreen(navController: NavController, eventArg: CalendarEvent, backP
 
     LaunchedEffect(eventDeleteState) {
         when (eventDeleteState) {
-            UiState.Error -> SnackbarManager.showMessage(R.string.event_delete_failed)
+            UiState.Error -> SnackbarManager.showMessage(Res.string.event_delete_failed)
             UiState.Success -> {
-                SnackbarManager.showMessage(R.string.event_delete_successfully)
+                SnackbarManager.showMessage(Res.string.event_delete_successfully)
                 backPress()
             }
             else -> {}
@@ -63,7 +64,7 @@ fun EventInfoScreen(navController: NavController, eventArg: CalendarEvent, backP
     Scaffold(
         topBar = {
             ScheduleAppBar(
-                title = stringResource(id = R.string.booking),
+                title = stringResource(Res.string.booking),
                 backClick = backPress,
                 actionDelete = currentUser.canManageEvent(event),
                 deleteClick = { eventDeleteDialog = true },
@@ -108,7 +109,7 @@ fun EventDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
         },
         title = {
             Text(
-                text = stringResource(id = R.string.event_delete_sure),
+                text = stringResource(Res.string.event_delete_sure),
                 style = MaterialTheme.typography.headlineSmall,
             )
         },
@@ -119,11 +120,11 @@ fun EventDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
                 ),
-            ) { Text(stringResource(id = R.string.Yes)) }
+            ) { Text(stringResource(Res.string.Yes)) }
         },
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.No))
+                Text(stringResource(Res.string.No))
             }
         },
     )
@@ -132,7 +133,7 @@ fun EventDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
 @Composable
 fun EventInfoTopBar(couldDeleteEvent: Boolean, upPress: () -> Unit, onDelete: () -> Unit) {
     ScheduleAppBar(
-        title = stringResource(id = R.string.booking),
+        title = stringResource(Res.string.booking),
         backClick = upPress,
         actionDelete = couldDeleteEvent,
         deleteClick = onDelete,

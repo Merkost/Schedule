@@ -16,14 +16,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.home.Appliances
 import ru.dvfu.appliances.compose.home.HomeScreen
 import ru.dvfu.appliances.compose.home.profile.Profile
@@ -49,13 +50,13 @@ fun NavGraphBuilder.addHomeGraph(
 }
 
 enum class HomeSections(
-    @StringRes val title: Int,
+    val title: org.jetbrains.compose.resources.StringResource,
     val icon: ImageVector,
     val route: String,
 ) {
-    CALENDAR(R.string.calendar, Icons.Outlined.Home, "home/calendar"),
-    APPLIANCES(R.string.appliances, Icons.Outlined.Apartment, "home/appliances"),
-    PROFILE(R.string.profile, Icons.Outlined.VerifiedUser, "home/profile"),
+    CALENDAR(Res.string.calendar, Icons.Outlined.Home, "home/calendar"),
+    APPLIANCES(Res.string.appliances, Icons.Outlined.Apartment, "home/appliances"),
+    PROFILE(Res.string.profile, Icons.Outlined.VerifiedUser, "home/profile"),
 }
 
 @Composable

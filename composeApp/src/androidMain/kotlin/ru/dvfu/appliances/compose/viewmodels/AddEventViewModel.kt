@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.AppBuildConfig
 import ru.dvfu.appliances.AppDebug
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
@@ -122,11 +123,11 @@ class AddEventViewModel(
                     )
                     AvailabilityState.Error -> {
                         _uiState.value = UiState.Error
-                        SnackbarManager.showMessage(R.string.new_event_failed)
+                        SnackbarManager.showMessage(Res.string.new_event_failed)
                     }
                     AvailabilityState.NotAvailable -> {
                         _uiState.value = UiState.Error
-                        SnackbarManager.showMessage(R.string.time_not_free)
+                        SnackbarManager.showMessage(Res.string.time_not_free)
                     }
                 }
             }
@@ -167,11 +168,11 @@ class AddEventViewModel(
             eventsRepository.addNewEvent(event).fold(
                 onSuccess = {
                     notificationManager.newEvent(event)
-                    SnackbarManager.showMessage(R.string.add_event_success)
+                    SnackbarManager.showMessage(Res.string.add_event_success)
                     _uiState.value = UiState.Success
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.add_event_failed)
+                    SnackbarManager.showMessage(Res.string.add_event_failed)
                     _uiState.value = UiState.Error
                 }
             )
@@ -181,12 +182,12 @@ class AddEventViewModel(
     private fun showError() {
         when {
             Duration.between(timeStart.value, timeEnd.value) < MIN_EVENT_DURATION -> {
-                SnackbarManager.showMessage(R.string.duration_error)
+                SnackbarManager.showMessage(Res.string.duration_error)
             }
             selectedAppliance.value == null -> {
-                SnackbarManager.showMessage(R.string.appliance_not_chosen)
+                SnackbarManager.showMessage(Res.string.appliance_not_chosen)
             }
-            else -> SnackbarManager.showMessage(R.string.error_occured)
+            else -> SnackbarManager.showMessage(Res.string.error_occured)
         }
         _uiState.value = UiState.Error
     }
@@ -214,7 +215,7 @@ class AddEventViewModel(
 
     fun onDateSet(date: LocalDate) {
         if (AppDebug.isDebug && date.isBefore(LocalDate.now())) {
-            SnackbarManager.showMessage(R.string.past_day_error)
+            SnackbarManager.showMessage(Res.string.past_day_error)
             return
         }
         this.date.value = LocalDate.of(date.year, date.month, date.dayOfMonth)

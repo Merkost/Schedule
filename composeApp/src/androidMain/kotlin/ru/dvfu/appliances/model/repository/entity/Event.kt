@@ -10,7 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.flow.first
 import kotlinx.parcelize.Parcelize
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.ui.theme.Green500
 import ru.dvfu.appliances.compose.ui.theme.Red500
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
@@ -66,11 +67,11 @@ fun CalendarEvent.canBeRefused(currentUser: User): Boolean {
     return user.userId == currentUser.userId && timeMins > MINUTES_BEFORE_END
 }
 
-enum class BookingStatus(override val stringRes: Int, val color: Color, val icon: ImageVector) :
+enum class BookingStatus(override val stringRes: org.jetbrains.compose.resources.StringResource, val color: Color, val icon: ImageVector) :
     StringOperation {
-    NONE(R.string.new_books, Color.Unspecified, Icons.Default.HourglassBottom),
-    APPROVED(R.string.approved_books, Green500, Icons.Default.CheckCircle),
-    DECLINED(R.string.declined_books, Red500, Icons.Default.Cancel), ;
+    NONE(Res.string.new_books, Color.Unspecified, Icons.Default.HourglassBottom),
+    APPROVED(Res.string.approved_books, Green500, Icons.Default.CheckCircle),
+    DECLINED(Res.string.declined_books, Red500, Icons.Default.Cancel), ;
 
     fun getName() = when (this) {
         DECLINED -> "Отклонено"

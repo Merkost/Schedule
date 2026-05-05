@@ -18,10 +18,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
@@ -37,7 +38,7 @@ fun PendingBookingsList(
     val pending = bookings.filter { it.status == BookingStatus.NONE }
 
     if (pending.isEmpty()) {
-        BookingEmptyState(stringResource(R.string.no_books))
+        BookingEmptyState(stringResource(Res.string.no_books))
     } else {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -78,7 +79,7 @@ fun MyBookingsList(
     navController: NavController,
 ) {
     if (bookings.isEmpty()) {
-        BookingEmptyState(stringResource(R.string.no_books))
+        BookingEmptyState(stringResource(Res.string.no_books))
     } else {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -114,7 +115,7 @@ fun PastBookingsList(
     val sorted = bookings.sortedByDescending { it.date }
 
     if (sorted.isEmpty()) {
-        BookingEmptyState(stringResource(R.string.no_books))
+        BookingEmptyState(stringResource(Res.string.no_books))
     } else {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),

@@ -31,7 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,7 +43,8 @@ import coil.transform.CircleCropTransformation
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
@@ -159,11 +160,11 @@ fun LogoutDialog(onDismiss: () -> Unit) {
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
                 ),
-            ) { Text(stringResource(id = R.string.Yes)) }
+            ) { Text(stringResource(Res.string.Yes)) }
         },
         dismissButton = {
             androidx.compose.material3.OutlinedButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.No))
+                Text(stringResource(Res.string.No))
             }
         },
     )
@@ -199,7 +200,7 @@ fun ProfileUserInfo(user: User) {
         if (user.userPic.isNullOrEmpty()) {
             Icon(
                 Icons.Default.Person,
-                contentDescription = stringResource(R.string.user_photo),
+                contentDescription = stringResource(Res.string.user_photo),
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
@@ -211,17 +212,17 @@ fun ProfileUserInfo(user: User) {
             Image(
                 painter = rememberImagePainter(user.userPic, builder = {
                     crossfade(true)
-                    placeholder(R.drawable.ic_launcher_foreground)
+                    placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
                     transformations(CircleCropTransformation())
                 }),
-                contentDescription = stringResource(R.string.user_photo),
+                contentDescription = stringResource(Res.string.user_photo),
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape),
             )
         }
         Text(
-            text = if (user.anonymous) stringResource(R.string.anonymous_user) else user.userName,
+            text = if (user.anonymous) stringResource(Res.string.anonymous_user) else user.userName,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
         )
@@ -260,7 +261,7 @@ fun ProfileTopBar(upPress: () -> Unit) {
     if (dialogOnLogout) LogoutDialog() { dialogOnLogout = false }
 
     ScheduleAppBar(
-        stringResource(R.string.profile),
+        stringResource(Res.string.profile),
         upPress,
         actions = {
             IconButton(onClick = { dialogOnLogout = true }) {

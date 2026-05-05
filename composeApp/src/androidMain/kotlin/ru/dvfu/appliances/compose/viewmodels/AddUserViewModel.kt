@@ -6,7 +6,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.model.repository.AppliancesRepository
@@ -46,7 +47,7 @@ class AddUserViewModel(
     }
 
     fun addToAppliance(appliance: Appliance, selectedUsers: MutableList<User>) {
-        if (selectedUsers.isEmpty()) SnackbarManager.showMessage(R.string.no_users_chosen)
+        if (selectedUsers.isEmpty()) SnackbarManager.showMessage(Res.string.no_users_chosen)
         else {
             when (areSuperUsers) {
                 true -> {
@@ -76,7 +77,7 @@ class AddUserViewModel(
                     _uiState.value = UiState.Success
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.add_users_failed)
+                    SnackbarManager.showMessage(Res.string.add_users_failed)
                     _uiState.value = UiState.Error
 
                 }
@@ -93,7 +94,7 @@ class AddUserViewModel(
                     _uiState.value = UiState.Success
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.add_users_failed)
+                    SnackbarManager.showMessage(Res.string.add_users_failed)
                     _uiState.value = UiState.Error
                 })
 

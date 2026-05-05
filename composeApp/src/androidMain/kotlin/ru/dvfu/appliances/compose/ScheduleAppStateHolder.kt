@@ -14,6 +14,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import ru.dvfu.appliances.application.SnackbarManager
 
 /**
@@ -92,8 +93,8 @@ class AppStateHolder(
             snackbarManager.messages.collect { currentMessages ->
                 if (currentMessages.isNotEmpty()) {
                     val message = currentMessages[0]
-                    val text = resources.getText(message.messageId)
-                    snackbarHostState.showSnackbar(text.toString())
+                    val text = getString(message.messageId)
+                    snackbarHostState.showSnackbar(text)
                     snackbarManager.setMessageShown(message.id)
                 }
             }

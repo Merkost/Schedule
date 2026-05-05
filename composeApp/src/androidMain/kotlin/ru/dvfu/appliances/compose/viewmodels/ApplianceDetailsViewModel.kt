@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.ChangeApplianceStatusUseCase
@@ -101,10 +102,10 @@ private val getUserUseCase: GetUserUseCase,
             appliance.value.let {
                 deleteApplianceUseCase(it.id).single().fold(
                     onSuccess = {
-                        SnackbarManager.showMessage(R.string.appliance_deleted)
+                        SnackbarManager.showMessage(Res.string.appliance_deleted)
                         _uiState.value = UiState.Success
                     }, onFailure = {
-                        SnackbarManager.showMessage(R.string.appliance_delete_failed)
+                        SnackbarManager.showMessage(Res.string.appliance_delete_failed)
                         _uiState.value = UiState.Error
                     }
                 )
@@ -118,11 +119,11 @@ private val getUserUseCase: GetUserUseCase,
             changeApplianceStatusUseCase(appliance.value.id, newActiveStatus).single().fold(
                 onSuccess = {
                     if (newActiveStatus)
-                        SnackbarManager.showMessage(R.string.appliance_enabled)
-                    else SnackbarManager.showMessage(R.string.appliance_disabled)
+                        SnackbarManager.showMessage(Res.string.appliance_enabled)
+                    else SnackbarManager.showMessage(Res.string.appliance_disabled)
                     _uiState.value = UiState.Success
                 }, onFailure = {
-                    SnackbarManager.showMessage(R.string.error_occured)
+                    SnackbarManager.showMessage(Res.string.error_occured)
                     _uiState.value = UiState.Error
                 }
             )

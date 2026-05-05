@@ -16,12 +16,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.compose.components.SwipeToDeleteItem
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -97,7 +98,7 @@ fun SwipableUsers(
             } else
                 item {
                     NoElementsView(
-                        mainText = stringResource(R.string.no_users_in_appliance),
+                        mainText = stringResource(Res.string.no_users_in_appliance),
                         onClickAction = { }
                     )
                 }

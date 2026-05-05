@@ -25,11 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 
 @Composable
 fun MyCardNoPadding(content: @Composable () -> Unit) {
@@ -88,7 +89,7 @@ fun ScheduleAppBar(
                 IconButton(onClick = backClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
+                        contentDescription = stringResource(Res.string.back),
                     )
                 }
             }
@@ -97,12 +98,12 @@ fun ScheduleAppBar(
         actions = {
             if (actionDelete) {
                 IconButton(onClick = deleteClick) {
-                    Icon(Icons.Filled.Delete, stringResource(R.string.delete))
+                    Icon(Icons.Filled.Delete, stringResource(Res.string.delete))
                 }
             }
             if (actionAdd) {
                 IconButton(onClick = addClick) {
-                    Icon(Icons.Filled.Add, stringResource(R.string.add))
+                    Icon(Icons.Filled.Add, stringResource(Res.string.add))
                 }
             }
             actions()

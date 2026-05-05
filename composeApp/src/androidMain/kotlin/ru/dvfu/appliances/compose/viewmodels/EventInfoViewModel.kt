@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.*
@@ -64,7 +65,7 @@ class EventInfoViewModel(
         viewModelScope.launch {
             updateEventUseCase.updateUserCommentUseCase(event, comment).single().fold(
                 onSuccess = { _event.value = _event.value.copy(commentary = comment) },
-                onFailure = { SnackbarManager.showMessage(R.string.error_occured) }
+                onFailure = { SnackbarManager.showMessage(Res.string.error_occured) }
             )
             _uiState.value = UiState.Success
         }
@@ -75,7 +76,7 @@ class EventInfoViewModel(
         viewModelScope.launch {
             updateEventUseCase.updateManagerCommentUseCase(event, comment).single().fold(
                 onSuccess = { _event.value = _event.value.copy(managerCommentary = comment) },
-                onFailure = { SnackbarManager.showMessage(R.string.error_occured) }
+                onFailure = { SnackbarManager.showMessage(Res.string.error_occured) }
             )
             _uiState.value = UiState.Success
         }
@@ -89,7 +90,7 @@ class EventInfoViewModel(
             val result = updateEventUseCase.updateTimeUseCase(event, dateAndTime).single()
             when(result) {
                 EventTimeUpdateResult.Error -> {
-                    SnackbarManager.showMessage(R.string.error_occured)
+                    SnackbarManager.showMessage(Res.string.error_occured)
                 }
                 EventTimeUpdateResult.Success -> {
                     _event.value = _event.value.copy(
@@ -97,10 +98,10 @@ class EventInfoViewModel(
                         timeStart = dateAndTime.timeStart.atDate(dateAndTime.date),
                         timeEnd = dateAndTime.timeEnd.atDate(dateAndTime.date)
                     )
-                    SnackbarManager.showMessage(R.string.event_time_updated)
+                    SnackbarManager.showMessage(Res.string.event_time_updated)
                 }
                 EventTimeUpdateResult.TimeNotFree -> {
-                    SnackbarManager.showMessage(R.string.time_not_free)
+                    SnackbarManager.showMessage(Res.string.time_not_free)
                 }
             }
             /*.fold(
@@ -112,7 +113,7 @@ class EventInfoViewModel(
                     )
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.error_occured)
+                    SnackbarManager.showMessage(Res.string.error_occured)
                 }
             )*/
             _uiState.value = UiState.Success
@@ -146,11 +147,11 @@ class EventInfoViewModel(
                         managedUser = currentUser.value,
                         managedTime = LocalDateTime.now(),
                     )
-                    SnackbarManager.showMessage(R.string.status_changed)
+                    SnackbarManager.showMessage(Res.string.status_changed)
                     _uiState.value = UiState.Success
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.change_status_failed)
+                    SnackbarManager.showMessage(Res.string.change_status_failed)
                     _uiState.value = UiState.Error
                 }
             )
@@ -168,10 +169,10 @@ class EventInfoViewModel(
                 managerCommentary = managerCommentary
             ).single().fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.refuse_successfull)
+                    SnackbarManager.showMessage(Res.string.refuse_successfull)
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.book_decline_failed)
+                    SnackbarManager.showMessage(Res.string.book_decline_failed)
                 }
             )
         }

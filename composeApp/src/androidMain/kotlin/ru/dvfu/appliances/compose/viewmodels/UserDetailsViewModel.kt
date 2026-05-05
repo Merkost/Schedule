@@ -6,7 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.utils.NotificationManager
@@ -76,7 +77,7 @@ class UserDetailsViewModel(
             _userRoleState.value = UiState.InProgress
             usersRepository.updateUserField(user.userId, mapOf("role" to newRole.ordinal)).fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.role_changed_successfully)
+                    SnackbarManager.showMessage(Res.string.role_changed_successfully)
                     detailsUser.value = detailsUser.value.copy(role = newRole.ordinal)
                     notificationManager.newUserRole(user, role = newRole)
                     _userRoleState.value = UiState.Success

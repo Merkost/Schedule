@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
@@ -55,11 +56,11 @@ class NewApplianceViewModel(
         viewModelScope.launch {
             repository.addAppliance(appliance).fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.new_appliance_success)
+                    SnackbarManager.showMessage(Res.string.new_appliance_success)
                     _uiState.value = UiState.Success
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.new_appliance_failed)
+                    SnackbarManager.showMessage(Res.string.new_appliance_failed)
                     _uiState.value = UiState.Error
                 }
             )

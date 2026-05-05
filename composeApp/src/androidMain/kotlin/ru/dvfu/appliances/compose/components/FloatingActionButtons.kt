@@ -24,10 +24,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.isAdmin
@@ -58,7 +59,7 @@ fun FabWithMenu(
         if (currentUser.isAdmin) {
             FabMenu(item = FabMenuItem(
                 icon = Icons.Default.AddTask,
-                text = stringResource(id = R.string.new_event),
+                text = stringResource(Res.string.new_event),
                 onClick = onAddEventClick
             ), size = size.value)
         }

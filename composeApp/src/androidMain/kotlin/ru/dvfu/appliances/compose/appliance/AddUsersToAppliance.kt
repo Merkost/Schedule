@@ -33,7 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -42,7 +42,8 @@ import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
@@ -77,8 +78,8 @@ fun AddUsersToAppliance(
     Scaffold(
         topBar = {
             ScheduleAppBar(
-                title = if (areSuperUsers) stringResource(R.string.add_superuser)
-                else stringResource(R.string.add_user),
+                title = if (areSuperUsers) stringResource(Res.string.add_superuser)
+                else stringResource(Res.string.add_user),
                 backClick = navController::popBackStack,
             )
         },
@@ -89,7 +90,7 @@ fun AddUsersToAppliance(
                 icon = { Icon(Icons.Default.Check, contentDescription = null) },
                 text = {
                     Text(
-                        text = stringResource(R.string.users_selected_count, selectedUsers.size),
+                        text = stringResource(Res.string.users_selected_count, selectedUsers.size),
                         fontWeight = FontWeight.SemiBold,
                     )
                 },
@@ -118,7 +119,7 @@ fun AddUsersToAppliance(
                     is ViewState.Error -> {
                         EmptyState(
                             icon = Icons.Outlined.PeopleAlt,
-                            message = stringResource(R.string.error_occured),
+                            message = stringResource(Res.string.error_occured),
                         )
                     }
                 }
@@ -157,7 +158,7 @@ fun UsersWithSelection(
     if (usersToShow.isEmpty()) {
         EmptyState(
             icon = Icons.Outlined.PeopleAlt,
-            message = stringResource(R.string.no_users_to_add),
+            message = stringResource(Res.string.no_users_to_add),
         )
         return
     }
@@ -205,7 +206,7 @@ fun EmptyState(
 
 @Composable
 fun NoUsersView() {
-    EmptyState(icon = Icons.Outlined.PeopleAlt, message = stringResource(R.string.no_users_to_add))
+    EmptyState(icon = Icons.Outlined.PeopleAlt, message = stringResource(Res.string.no_users_to_add))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -235,7 +236,7 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
             UserImage(modifier = Modifier.size(44.dp), user = user)
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    text = user.userName.ifBlank { stringResource(R.string.anonymous_user) },
+                    text = user.userName.ifBlank { stringResource(Res.string.anonymous_user) },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -302,11 +303,11 @@ fun UserImage(modifier: Modifier, user: User) {
             Image(
                 painter = rememberImagePainter(user.userPic, builder = {
                     crossfade(true)
-                    placeholder(R.drawable.ic_launcher_foreground)
+                    placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
                     transformations(CircleCropTransformation())
                 }),
                 modifier = Modifier.fillMaxSize(),
-                contentDescription = stringResource(R.string.user_photo),
+                contentDescription = stringResource(Res.string.user_photo),
             )
         }
     }

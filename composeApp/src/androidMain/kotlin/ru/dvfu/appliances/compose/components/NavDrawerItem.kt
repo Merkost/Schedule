@@ -3,7 +3,7 @@ package ru.dvfu.appliances.compose.components
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import ru.dvfu.appliances.compose.HomeSections
 import ru.dvfu.appliances.compose.MainDestinations
 

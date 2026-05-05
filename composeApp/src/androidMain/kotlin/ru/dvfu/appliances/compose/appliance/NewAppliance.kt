@@ -30,12 +30,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.ColorPicker
 import ru.dvfu.appliances.compose.components.UiState
@@ -50,6 +51,7 @@ fun NewAppliance(backPressed: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val keyboard = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
+    val titleRequiredMsg = stringResource(Res.string.appliance_title_required)
 
     val (selectedColor, onColorSelected) = remember { mutableStateOf<Color?>(pickerColors[0]) }
 
@@ -65,7 +67,7 @@ fun NewAppliance(backPressed: () -> Unit) {
     Scaffold(
         topBar = {
             ScheduleAppBar(
-                title = stringResource(R.string.new_appliance_title),
+                title = stringResource(Res.string.new_appliance_title),
                 backClick = backPressed,
             )
         },
@@ -76,13 +78,13 @@ fun NewAppliance(backPressed: () -> Unit) {
                     if (!viewModel.createNewAppliance()) {
                         Toast.makeText(
                             context.applicationContext,
-                            context.getString(R.string.appliance_title_required),
+                            titleRequiredMsg,
                             Toast.LENGTH_SHORT,
                         ).show()
                     }
                 },
                 icon = { Icon(Icons.Default.Check, contentDescription = null) },
-                text = { Text(stringResource(R.string.save)) },
+                text = { Text(stringResource(Res.string.save)) },
                 expanded = canSave,
                 modifier = Modifier.animateContentSize(),
             )
@@ -101,15 +103,15 @@ fun NewAppliance(backPressed: () -> Unit) {
                 color = selectedColor,
             )
 
-            FormSection(stringResource(R.string.appliance_basics)) {
+            FormSection(stringResource(Res.string.appliance_basics)) {
                 OutlinedTextField(
                     value = viewModel.title.value,
                     onValueChange = { viewModel.title.value = it },
-                    label = { Text(stringResource(R.string.main_name)) },
+                    label = { Text(stringResource(Res.string.main_name)) },
                     singleLine = true,
                     isError = title.isBlank(),
                     supportingText = {
-                        if (title.isBlank()) Text(stringResource(R.string.appliance_title_required))
+                        if (title.isBlank()) Text(stringResource(Res.string.appliance_title_required))
                     },
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth(),
@@ -117,7 +119,7 @@ fun NewAppliance(backPressed: () -> Unit) {
                 OutlinedTextField(
                     value = viewModel.description.value,
                     onValueChange = { viewModel.description.value = it },
-                    label = { Text(stringResource(R.string.appliance_description_label)) },
+                    label = { Text(stringResource(Res.string.appliance_description_label)) },
                     minLines = 2,
                     maxLines = 5,
                     shape = RoundedCornerShape(12.dp),
@@ -125,7 +127,7 @@ fun NewAppliance(backPressed: () -> Unit) {
                 )
             }
 
-            FormSection(stringResource(R.string.appliance_color_label)) {
+            FormSection(stringResource(Res.string.appliance_color_label)) {
                 ColorPicker(
                     colors = pickerColors,
                     selectedColor = selectedColor,
@@ -207,12 +209,12 @@ private fun AppliancePreviewCard(name: String, color: Color?) {
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = stringResource(R.string.appliance_preview),
+                    text = stringResource(Res.string.appliance_preview),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = name.ifBlank { stringResource(R.string.main_name) },
+                    text = name.ifBlank { stringResource(Res.string.main_name) },
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = if (name.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
@@ -231,7 +233,7 @@ fun NewApplianceFab(onFabClicked: () -> Unit) {
         modifier = Modifier.animateContentSize(),
         onClick = onFabClicked,
     ) {
-        Icon(Icons.Default.Check, contentDescription = stringResource(R.string.add_new_appliance))
+        Icon(Icons.Default.Check, contentDescription = stringResource(Res.string.add_new_appliance))
     }
 }
 
@@ -239,19 +241,19 @@ fun NewApplianceFab(onFabClicked: () -> Unit) {
 fun ErrorDialog(errorDialog: MutableState<Boolean>) {
     val viewModel: NewApplianceViewModel = koinInject()
     AlertDialog(
-        title = { Text(stringResource(R.string.error_generic_title)) },
-        text = { Text(stringResource(R.string.error_generic_description)) },
+        title = { Text(stringResource(Res.string.error_generic_title)) },
+        text = { Text(stringResource(Res.string.error_generic_description)) },
         onDismissRequest = { errorDialog.value = false },
         confirmButton = {
             OutlinedButton(
                 onClick = { viewModel.createNewAppliance() },
-                content = { Text(stringResource(R.string.try_again)) },
+                content = { Text(stringResource(Res.string.try_again)) },
             )
         },
         dismissButton = {
             OutlinedButton(
                 onClick = { errorDialog.value = false },
-                content = { Text(stringResource(R.string.cancel)) },
+                content = { Text(stringResource(Res.string.cancel)) },
             )
         },
     )

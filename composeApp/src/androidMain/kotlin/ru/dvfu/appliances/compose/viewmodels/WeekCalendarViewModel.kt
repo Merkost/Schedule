@@ -7,7 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.calendars.CalendarType
@@ -113,10 +114,10 @@ class WeekCalendarViewModel(
         viewModelScope.launch {
             eventsRepository.deleteEvent(eventToDelete).fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.event_delete_successfully)
+                    SnackbarManager.showMessage(Res.string.event_delete_successfully)
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.event_delete_failed)
+                    SnackbarManager.showMessage(Res.string.event_delete_failed)
                 }
             )
         }
@@ -206,11 +207,11 @@ class WeekCalendarViewModel(
                 managerCommentary,
             ).first().fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.status_changed)
+                    SnackbarManager.showMessage(Res.string.status_changed)
                     _managingUiState.value = UiState.Success
                 },
                 onFailure = {
-                    SnackbarManager.showMessage(R.string.change_status_failed)
+                    SnackbarManager.showMessage(Res.string.change_status_failed)
                     _managingUiState.value = UiState.Error
                 }
             )

@@ -19,14 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.compose.components.pagerTabIndicatorOffset
-import ru.dvfu.appliances.R
+import ru.dvfu.appliances.generated.resources.Res
+import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
@@ -38,7 +39,7 @@ import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.model.repository.entity.*
 
 
-sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Unit) {
+sealed class BookingTabItem(var titleRes: org.jetbrains.compose.resources.StringResource, var screen: @Composable () -> Unit) {
 
     class PendingBookingsTabItem(
         bookings: List<CalendarEvent>,
@@ -46,7 +47,7 @@ sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Uni
         navController: NavController
     ) :
         BookingTabItem(
-            titleRes = R.string.booking_requests,
+            titleRes = Res.string.booking_requests,
             screen = { PendingBookingsList(bookings, viewModel, navController) }
         )
 
@@ -56,7 +57,7 @@ sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Uni
         navController: NavController
     ) :
         BookingTabItem(
-            titleRes = R.string.my_bookings,
+            titleRes = Res.string.my_bookings,
             screen = { MyBookingsList(bookings, viewModel, navController) }
         )
 
@@ -66,7 +67,7 @@ sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Uni
         navController: NavController
     ) :
         BookingTabItem(
-            titleRes = R.string.past_bookings,
+            titleRes = Res.string.past_bookings,
             screen = { PastBookingsList(bookings, viewModel, navController) }
         )
 }
@@ -93,7 +94,7 @@ fun BookingListTabsView(
         tabsList.forEachIndexed { index, tab ->
             Tab(selected = pagerState.currentPage == index,
                 onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                text = { PrimaryText(text = stringResource(id = tab.titleRes)) })
+                text = { PrimaryText(text = stringResource(tab.titleRes)) })
         }
     }
 }
@@ -227,7 +228,7 @@ fun DeclineBookingButton(
             onClick = onDeclineClick,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-        ) { Text(stringResource(R.string.refuse)) }
+        ) { Text(stringResource(Res.string.refuse)) }
     }
 }
 
@@ -275,7 +276,7 @@ fun BookingButtons(
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-        ) { Text(stringResource(id = R.string.decline)) }
+        ) { Text(stringResource(Res.string.decline)) }
         Button(
             onClick = { approveDialogState = true },
             modifier = Modifier.weight(1f),
@@ -283,7 +284,7 @@ fun BookingButtons(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
             ),
-        ) { Text(stringResource(id = R.string.approve)) }
+        ) { Text(stringResource(Res.string.approve)) }
     }
 }
 
@@ -301,12 +302,12 @@ fun BookingCommentaryDialog(
     val isError = remember(symbolsCount.value) { mutableStateOf(symbolsCount.value >= maxSymbols) }
 
     DefaultDialog(
-        primaryText = stringResource(R.string.leave_a_commentary),
-        secondaryText = stringResource(R.string.not_necessary),
+        primaryText = stringResource(Res.string.leave_a_commentary),
+        secondaryText = stringResource(Res.string.not_necessary),
         positiveButtonText = when (newStatus) {
-            BookingStatus.DECLINED -> stringResource(id = R.string.decline)
-            BookingStatus.APPROVED -> stringResource(id = R.string.approve)
-            else -> stringResource(id = R.string.apply)
+            BookingStatus.DECLINED -> stringResource(Res.string.decline)
+            BookingStatus.APPROVED -> stringResource(Res.string.approve)
+            else -> stringResource(Res.string.apply)
         },
         positiveButtonColor = when (newStatus) {
             BookingStatus.DECLINED -> ButtonDefaults.buttonColors(
@@ -323,10 +324,10 @@ fun BookingCommentaryDialog(
             if (!isError.value) {
                 onApplyCommentary(commentary)
             } else {
-                SnackbarManager.showMessage(R.string.too_many_symbols)
+                SnackbarManager.showMessage(Res.string.too_many_symbols)
             }
         },
-        neutralButtonText = stringResource(id = R.string.cancel),
+        neutralButtonText = stringResource(Res.string.cancel),
         onNeutralClick = onCancel,
         onDismiss = onCancel
     ) {
@@ -346,7 +347,7 @@ fun BookingCommentaryDialog(
                     commentary = it
                 },
                 label = {
-                    Text(text = stringResource(id = R.string.commentary))
+                    Text(text = stringResource(Res.string.commentary))
                 },
                 isError = isError.value,
                 singleLine = false,
