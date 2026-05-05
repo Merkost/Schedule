@@ -1,49 +1,45 @@
 package ru.dvfu.appliances.model.datastore
 
-import android.content.Context
-import android.icu.util.MeasureUnit.WEEK
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
-import androidx.datastore.preferences.preferencesDataStore
-import com.google.gson.Gson
-import kotlinx.coroutines.flow.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
+import okio.Path.Companion.toPath
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.network.AppJson
 
+class UserDatastoreImpl : UserDatastore {
 
-class UserDatastoreImpl(private val context: Context): UserDatastore {
+    private val dataStore: DataStore<Preferences> = PreferenceDataStoreFactory.createWithPath(
+        produceFile = { dataStorePath("userSettings").toPath() },
+    )
 
-    // to make sure there's only one instance
-    companion object {
-        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("userSettings")
-        private val USER = stringPreferencesKey("USER")
-        private val CALENDAR_TYPE = stringPreferencesKey("CALENDAR")
-
+    private companion object {
+        val USER = stringPreferencesKey("USER")
+        val CALENDAR_TYPE = stringPreferencesKey("CALENDAR")
     }
 
-    override val getCurrentUser: Flow<User> = context.dataStore.data
-        .map { preferences ->
-            Gson().fromJson(preferences[USER], User::class.java) ?: User()
-        }
+    override val getCurrentUser: Flow<User> = dataStore.data.map { prefs ->
+        prefs[USER]?.let { AppJson.decodeFromString<User>(it) } ?: User()
+    }
 
-    override val getCalendarType: Flow<CalendarType> = context.dataStore.data
-        .map { preferences ->
-            CalendarType.valueOf(preferences[CALENDAR_TYPE] ?: CalendarType.MONTH.name)
-        }.catch { e ->
-            if (e is IllegalArgumentException) { emit(CalendarType.MONTH) }
-        }
+    override val getCalendarType: Flow<CalendarType> = dataStore.data.map { prefs ->
+        CalendarType.valueOf(prefs[CALENDAR_TYPE] ?: CalendarType.MONTH.name)
+    }.catch { e ->
+        if (e is IllegalArgumentException) emit(CalendarType.MONTH)
+    }
 
     override suspend fun saveCalendarType(calendarType: CalendarType) {
-        context.dataStore.edit { preferences ->
-            preferences[CALENDAR_TYPE] = calendarType.name
-        }
+        dataStore.edit { prefs -> prefs[CALENDAR_TYPE] = calendarType.name }
     }
 
     override suspend fun saveUser(user: User) {
-        context.dataStore.edit { preferences ->
-            preferences[USER] = Gson().toJson(user)
-        }
+        dataStore.edit { prefs -> prefs[USER] = AppJson.encodeToString(user) }
     }
-
-
 }
