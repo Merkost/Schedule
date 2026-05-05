@@ -2,9 +2,11 @@ package ru.dvfu.appliances.model.repository.entity
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 
 @Parcelize
+@Serializable
 data class User(
     val userId: String = "0",
     val msgToken: String = "",

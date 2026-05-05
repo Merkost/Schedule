@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.flow.first
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.ui.theme.Green500
@@ -30,6 +31,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 @Parcelize
+@Serializable
 data class Event(
     val id: String = UUID.randomUUID().toString(),
     val date: Long = 0L,
@@ -67,6 +69,7 @@ fun CalendarEvent.canBeRefused(currentUser: User): Boolean {
     return user.userId == currentUser.userId && timeMins > MINUTES_BEFORE_END
 }
 
+@Serializable
 enum class BookingStatus(override val stringRes: org.jetbrains.compose.resources.StringResource, val color: Color, val icon: ImageVector) :
     StringOperation {
     NONE(Res.string.new_books, Color.Unspecified, Icons.Default.HourglassBottom),
