@@ -1,0 +1,11 @@
+-keep class ru.dvfu.appliances.model.repository.entity.** { *; }
+-keep class ru.dvfu.appliances.compose.home.SelectedDate { *; }
+-keep class * implements android.os.Parcelable { public static final android.os.Parcelable$Creator *; }
+-keep class org.koin.** { *; }
+-keepnames class * extends org.koin.core.module.Module
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.crashlytics.**
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembers class kotlinx.coroutines.** { volatile <fields>; }

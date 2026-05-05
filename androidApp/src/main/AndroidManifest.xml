@@ -14,7 +14,7 @@
         android:theme="@style/Theme.Schedule">
 
         <service
-            android:name=".MyFirebaseMessagingService"
+            android:name="ru.dvfu.appliances.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
