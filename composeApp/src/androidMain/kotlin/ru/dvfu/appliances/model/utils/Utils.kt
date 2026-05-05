@@ -43,8 +43,6 @@ import java.time.Duration
 import java.util.*
 
 
-fun randomUUID() = UUID.randomUUID().toString()
-
 fun Modifier.loadingModifier(
     enabled: Boolean = true,
 ) = composed(inspectorInfo = debugInspectorInfo {
