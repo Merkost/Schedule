@@ -22,7 +22,6 @@ import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -54,7 +53,6 @@ data class LoginUiState(
 fun LoginScreen(
     state: LoginUiState,
     onGoogleClick: () -> Unit,
-    onMicrosoftClick: () -> Unit,
     onGuestClick: () -> Unit,
     onErrorShown: () -> Unit,
 ) {
@@ -115,7 +113,6 @@ fun LoginScreen(
                 AuthButtonsSection(
                     loading = state.loading,
                     onGoogleClick = onGoogleClick,
-                    onMicrosoftClick = onMicrosoftClick,
                     onGuestClick = onGuestClick,
                 )
             }
@@ -137,7 +134,6 @@ fun LoginScreen(
 private fun AuthButtonsSection(
     loading: Boolean,
     onGoogleClick: () -> Unit,
-    onMicrosoftClick: () -> Unit,
     onGuestClick: () -> Unit,
 ) {
     val buttonModifier = Modifier
@@ -163,24 +159,6 @@ private fun AuthButtonsSection(
         )
         Spacer(Modifier.size(12.dp))
         Text(stringResource(Res.string.sign_in_with_google), style = MaterialTheme.typography.labelLarge)
-    }
-
-    Spacer(Modifier.size(12.dp))
-
-    FilledTonalButton(
-        onClick = onMicrosoftClick,
-        enabled = !loading,
-        modifier = buttonModifier,
-        shape = MaterialTheme.shapes.large,
-    ) {
-        Icon(
-            painter = painterResource(Res.drawable.ic_microsoft),
-            contentDescription = null,
-            modifier = Modifier.size(20.dp),
-            tint = Color.Unspecified,
-        )
-        Spacer(Modifier.size(12.dp))
-        Text(stringResource(Res.string.sign_in_with_microsoft), style = MaterialTheme.typography.labelLarge)
     }
 
     Spacer(Modifier.size(12.dp))

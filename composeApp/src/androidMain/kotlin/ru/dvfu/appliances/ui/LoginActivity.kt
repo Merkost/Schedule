@@ -2,7 +2,6 @@ package ru.dvfu.appliances.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,10 +14,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.OAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -86,7 +83,6 @@ class LoginActivity : ComponentActivity() {
                 LoginScreen(
                     state = state,
                     onGoogleClick = ::startGoogleLogin,
-                    onMicrosoftClick = ::startMicrosoftLogin,
                     onGuestClick = ::startGuestLogin,
                     onErrorShown = { uiState.update { it.copy(errorMessage = null) } },
                 )
@@ -119,24 +115,6 @@ class LoginActivity : ComponentActivity() {
     private fun startGoogleLogin() {
         uiState.update { it.copy(loading = true) }
         googleSignInLauncher.launch(googleSignInClient.signInIntent)
-    }
-
-    private fun startMicrosoftLogin() {
-        uiState.update { it.copy(loading = true) }
-        val provider = OAuthProvider.newBuilder("microsoft.com")
-        provider.scopes = arrayListOf("calendars.read")
-
-        val pending = auth.pendingAuthResult
-        if (pending != null) {
-            pending
-                .addOnSuccessListener { result: AuthResult ->
-                    Log.d("LoginActivity", "Microsoft pending success: ${result.user?.email}")
-                }
-                .addOnFailureListener(::handleError)
-        } else {
-            auth.startActivityForSignInWithProvider(this, provider.build())
-                .addOnFailureListener(::handleError)
-        }
     }
 
     private fun startGuestLogin() {
