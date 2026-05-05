@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -25,7 +26,7 @@ android {
 
     sourceSets {
         named("main") {
-            java.srcDirs("src/androidMain/kotlin")
+            java.srcDirs("src/androidMain/kotlin", "src/commonMain/kotlin")
             res.srcDirs("src/androidMain/res")
             manifest.srcFile("src/androidMain/AndroidManifest.xml")
         }
@@ -61,6 +62,8 @@ dependencies {
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.coroutines.android)
     api(libs.kotlinx.coroutines.play.services)
+    api(libs.kotlinx.datetime)
+    api(libs.kotlinx.serialization.json)
 
     api(libs.androidx.core.ktx)
     api(libs.androidx.appcompat)
@@ -72,10 +75,11 @@ dependencies {
 
     api(libs.androidx.navigation.fragment.ktx)
     api(libs.androidx.navigation.ui.ktx)
-    api(libs.androidx.navigation.compose)
+    api(libs.jetbrains.navigation.compose)
 
     api(libs.androidx.activity.compose)
-    api(libs.androidx.lifecycle.viewmodel.compose)
+    api(libs.jetbrains.lifecycle.viewmodel)
+    api(libs.jetbrains.lifecycle.viewmodel.compose)
     api(libs.androidx.lifecycle.viewmodel.ktx)
     api(libs.androidx.lifecycle.livedata.ktx)
     api(libs.androidx.datastore.preferences)
@@ -96,6 +100,9 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    api(libs.koin.core)
+    api(libs.koin.compose)
+    api(libs.koin.compose.viewmodel)
     api(libs.koin.android)
     api(libs.koin.android.compat)
     api(libs.koin.androidx.workmanager)

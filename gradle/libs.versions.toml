@@ -12,11 +12,12 @@ versionCode = "7"
 versionName = "1.1.0"
 jvmTarget = "21"
 javaVersion = "VERSION_21"
-composeMultiplatform = "1.10.3"
+composeMultiplatform = "1.10.1"
 kotlinxDatetime = "0.6.1"
 kotlinxSerializationJson = "1.8.1"
-jetbrainsNavigation = "2.9.0-alpha18"
-jetbrainsLifecycle = "2.9.0-alpha13"
+jetbrainsNavigation = "2.9.0-alpha17"
+jetbrainsLifecycle = "2.9.6"
+composeRuntimeJb = "1.10.1"
 constraintlayoutMultiplatform = "0.5.1"
 
 coreKtx = "1.18.0"
@@ -120,6 +121,13 @@ jetbrains-navigation-compose = { module = "org.jetbrains.androidx.navigation:nav
 jetbrains-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "jetbrainsLifecycle" }
 jetbrains-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "jetbrainsLifecycle" }
 constraintlayout-compose-multiplatform = { module = "tech.annexflow.compose:constraintlayout-compose-multiplatform", version.ref = "constraintlayoutMultiplatform" }
+
+jb-compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeRuntimeJb" }
+jb-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeRuntimeJb" }
+jb-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeRuntimeJb" }
+jb-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeRuntimeJb" }
+jb-compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version = "1.7.3" }
+jb-compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeRuntimeJb" }
 
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
