@@ -41,7 +41,7 @@ val repositoryModule = module {
     single<Repository> { CloudFirestoreDatabaseImpl(collections = get()) }
     single<EventsRepository> {
         EventsRepositoryImpl(
-            dbCollections = get(),
+            collections = get(),
             notificationManager = get()
         )
     }
