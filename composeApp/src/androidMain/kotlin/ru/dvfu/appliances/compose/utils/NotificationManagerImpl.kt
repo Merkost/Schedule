@@ -7,7 +7,8 @@ import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.single
-import ru.dvfu.appliances.BuildConfig
+import ru.dvfu.appliances.AppBuildConfig
+import ru.dvfu.appliances.AppDebug
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
@@ -52,7 +53,7 @@ class NotificationManagerImpl(
         val users = (appliance.userIds + appliance.superuserIds)
             .mapNotNull { getUserUseCase(it).first().getOrNull() }
             .apply {
-                if (BuildConfig.DEBUG.not())
+                if (AppDebug.isDebug.not())
                     filter { it.userId != currentUser.userId }
             }
             .map { it.msgToken }
@@ -90,7 +91,7 @@ class NotificationManagerImpl(
     override suspend fun eventDeleted(event: CalendarEvent) {
         val currentUser = userDatastore.getCurrentUser.first()
 
-        if (BuildConfig.DEBUG || currentUser.userId != event.user.userId) {
+        if (AppDebug.isDebug || currentUser.userId != event.user.userId) {
             sendMessage(
                 PushNotification(
                     to = event.user.msgToken,
@@ -109,7 +110,7 @@ class NotificationManagerImpl(
         val currentUser = userDatastore.getCurrentUser.first()
         getApplianceUseCase(newEvent.applianceId).first().getOrNull()?.let { appliance ->
             users.filter { appliance.superuserIds.contains(it.userId) }
-                .apply { if (BuildConfig.DEBUG.not()) filter { it.userId != currentUser.userId } }
+                .apply { if (AppDebug.isDebug.not()) filter { it.userId != currentUser.userId } }
                 .map { it.msgToken }
                 .forEach {
                     sendMessage(
@@ -169,7 +170,7 @@ class NotificationManagerImpl(
         val currentUser = userDatastore.getCurrentUser.first()
         val sendTo = mutableListOf<String>()
 
-        if (BuildConfig.DEBUG) {
+        if (AppDebug.isDebug) {
             sendTo.add(event.user.msgToken)
             event.managedUser?.msgToken?.let { sendTo.add(it) }
         } else {

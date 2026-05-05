@@ -5,7 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.BuildConfig
+import ru.dvfu.appliances.AppBuildConfig
+import ru.dvfu.appliances.AppDebug
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
@@ -212,7 +213,7 @@ class AddEventViewModel(
     }
 
     fun onDateSet(date: LocalDate) {
-        if (BuildConfig.DEBUG && date.isBefore(LocalDate.now())) {
+        if (AppDebug.isDebug && date.isBefore(LocalDate.now())) {
             SnackbarManager.showMessage(R.string.past_day_error)
             return
         }

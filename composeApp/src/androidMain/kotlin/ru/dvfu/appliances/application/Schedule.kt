@@ -10,7 +10,8 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import ru.dvfu.appliances.BuildConfig
+import ru.dvfu.appliances.AppBuildConfig
+import ru.dvfu.appliances.AppDebug
 import ru.dvfu.appliances.di.application
 import ru.dvfu.appliances.di.mainActivity
 import ru.dvfu.appliances.di.mockRepositoryModule
@@ -21,11 +22,12 @@ class Schedule : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppDebug.init(this)
 
         startKoin {
-            androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
+            androidLogger(if (AppDebug.isDebug) Level.ERROR else Level.NONE)
             androidContext(this@Schedule)
-            val repoModule = if (BuildConfig.USE_MOCK_REPOS) mockRepositoryModule else repositoryModule
+            val repoModule = if (AppBuildConfig.USE_MOCK_REPOS) mockRepositoryModule else repositoryModule
             modules(
                 listOf(
                     application,
@@ -35,7 +37,7 @@ class Schedule : Application() {
             )
         }
 
-        if (BuildConfig.DEBUG) { FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false) }
+        if (AppDebug.isDebug) { FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false) }
         createNotificationChannels()
     }
 

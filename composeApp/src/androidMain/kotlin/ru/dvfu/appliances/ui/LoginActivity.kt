@@ -26,7 +26,6 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.dvfu.appliances.Logger
-import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MainActivity
 import ru.dvfu.appliances.compose.ui.theme.ScheduleTheme
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
@@ -60,7 +59,13 @@ class LoginActivity : ComponentActivity() {
         googleSignInClient = GoogleSignIn.getClient(
             this,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestIdToken(
+                    getString(
+                        resources.getIdentifier(
+                            "default_web_client_id", "string", packageName,
+                        ),
+                    ),
+                )
                 .requestEmail()
                 .build(),
         )
@@ -106,7 +111,7 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun handleError(error: Throwable?) {
-        val msg = error?.message ?: getString(R.string.error_occured)
+        val msg = error?.message ?: "Произошла ошибка"
         uiState.update { it.copy(loading = false, errorMessage = msg) }
         logger.log(error?.message)
     }

@@ -1,4 +1,5 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val localProps = Properties().apply {
     val f = rootProject.file("local.properties")
@@ -9,129 +10,149 @@ val fcmServerKey: String = localProps.getProperty("FCM_SERVER_KEY")
     ?: ""
 
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
 }
 
-android {
-    namespace = "ru.dvfu.appliances"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+val generateAppBuildConfig by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/source/appBuildConfig/androidMain/kotlin")
+    val keyValue = fcmServerKey
+    inputs.property("fcmServerKey", keyValue)
+    outputs.dir(outputDir)
+    doLast {
+        val file = outputDir.get().file("ru/dvfu/appliances/AppBuildConfig.kt").asFile
+        file.parentFile.mkdirs()
+        file.writeText(
+            """
+            package ru.dvfu.appliances
 
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    sourceSets {
-        named("main") {
-            java.srcDirs("src/androidMain/kotlin", "src/commonMain/kotlin")
-            res.srcDirs("src/androidMain/res")
-            manifest.srcFile("src/androidMain/AndroidManifest.xml")
-        }
-    }
-
-    buildTypes {
-        release {
-            buildConfigField("boolean", "USE_MOCK_REPOS", "false")
-            buildConfigField("String", "FCM_SERVER_KEY", "\"$fcmServerKey\"")
-        }
-        debug {
-            buildConfigField("boolean", "USE_MOCK_REPOS", "false")
-            buildConfigField("String", "FCM_SERVER_KEY", "\"$fcmServerKey\"")
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    kotlin {
-        jvmToolchain(21)
-    }
-
-    buildFeatures {
-        compose = true
-        buildConfig = true
+            object AppBuildConfig {
+                const val FCM_SERVER_KEY: String = "$keyValue"
+                const val USE_MOCK_REPOS: Boolean = false
+            }
+            """.trimIndent() + "\n"
+        )
     }
 }
 
-dependencies {
-    api(libs.kotlinx.coroutines.core)
-    api(libs.kotlinx.coroutines.android)
-    api(libs.kotlinx.coroutines.play.services)
-    api(libs.kotlinx.datetime)
-    api(libs.kotlinx.serialization.json)
+kotlin {
+    androidLibrary {
+        namespace = "ru.dvfu.appliances"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
 
-    api(libs.androidx.core.ktx)
-    api(libs.androidx.appcompat)
-    api(libs.google.material)
-    api(libs.androidx.constraintlayout)
-    api(libs.androidx.splashscreen)
-    api(libs.androidx.preference.ktx)
-    api(libs.androidx.work.runtime.ktx)
+        androidResources {
+            enable = true
+        }
 
-    api(libs.androidx.navigation.fragment.ktx)
-    api(libs.androidx.navigation.ui.ktx)
-    api(libs.jetbrains.navigation.compose)
+        withHostTestBuilder {}
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }
 
-    api(libs.androidx.activity.compose)
-    api(libs.jetbrains.lifecycle.viewmodel)
-    api(libs.jetbrains.lifecycle.viewmodel.compose)
-    api(libs.androidx.lifecycle.viewmodel.ktx)
-    api(libs.androidx.lifecycle.livedata.ktx)
-    api(libs.androidx.datastore.preferences)
+        compilations.configureEach {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_21)
+                }
+            }
+        }
+    }
 
-    api(platform(libs.androidx.compose.bom))
-    api(libs.androidx.compose.runtime)
-    api(libs.androidx.compose.foundation)
-    api(libs.androidx.compose.foundation.layout)
-    api(libs.androidx.compose.ui)
-    api(libs.androidx.compose.ui.util)
-    api(libs.androidx.compose.material3)
-    api(libs.androidx.compose.material3.window.size)
-    api(libs.androidx.compose.material.icons.extended)
-    api(libs.androidx.compose.animation)
-    api(libs.androidx.compose.ui.tooling)
-    api(libs.androidx.constraintlayout.compose)
-    api(libs.lottie.compose)
+    sourceSets {
+        androidMain {
+            kotlin.srcDir(generateAppBuildConfig.map { it.outputs.files.singleFile })
+        }
+        commonMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
 
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+            implementation(libs.jetbrains.navigation.compose)
+            implementation(libs.jetbrains.lifecycle.viewmodel)
+            implementation(libs.jetbrains.lifecycle.viewmodel.compose)
 
-    api(libs.koin.core)
-    api(libs.koin.compose)
-    api(libs.koin.compose.viewmodel)
-    api(libs.koin.android)
-    api(libs.koin.android.compat)
-    api(libs.koin.androidx.workmanager)
-    api(libs.koin.androidx.compose)
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
 
-    api(libs.accompanist.permissions)
+            implementation(libs.jb.compose.runtime)
+            implementation(libs.jb.compose.foundation)
+            implementation(libs.jb.compose.material3)
+            implementation(libs.jb.compose.ui)
+            implementation(libs.jb.compose.material.icons.extended)
+            implementation(libs.jb.compose.components.resources)
+        }
+        androidMain.dependencies {
+            implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.kotlinx.coroutines.play.services)
 
-    api(libs.glide)
-    api(libs.coil.compose)
+            implementation(libs.androidx.core.ktx)
+            implementation(libs.androidx.appcompat)
+            implementation(libs.google.material)
+            implementation(libs.androidx.constraintlayout)
+            implementation(libs.androidx.splashscreen)
+            implementation(libs.androidx.preference.ktx)
+            implementation(libs.androidx.work.runtime.ktx)
 
-    api(libs.retrofit)
-    api(libs.retrofit.converter.gson)
-    api(libs.okhttp.logging.interceptor)
-    api(libs.gson)
+            implementation(libs.androidx.navigation.fragment.ktx)
+            implementation(libs.androidx.navigation.ui.ktx)
 
-    api(platform(libs.firebase.bom))
-    api(libs.firebase.messaging)
-    api(libs.firebase.analytics)
-    api(libs.firebase.crashlytics)
-    api(libs.firebase.perf)
-    api(libs.firebase.auth)
-    api(libs.firebase.firestore)
-    api(libs.firebase.database)
-    api(libs.firebase.storage)
-    api(libs.firebase.inappmessaging.display)
-    api(libs.firebase.ui.auth)
-    api(libs.play.services.auth)
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.lifecycle.viewmodel.ktx)
+            implementation(libs.androidx.lifecycle.livedata.ktx)
+            implementation(libs.androidx.datastore.preferences)
 
-    api(libs.compose.calendar)
+            implementation(dependencies.platform(libs.androidx.compose.bom))
+            implementation(libs.androidx.compose.ui.tooling)
+            implementation(libs.androidx.compose.ui.util)
+            implementation(libs.androidx.compose.material3.window.size)
+            implementation(libs.androidx.compose.animation)
 
-    debugImplementation(libs.leakcanary)
+            implementation(libs.koin.android)
+            implementation(libs.koin.android.compat)
+            implementation(libs.koin.androidx.workmanager)
+            implementation(libs.koin.androidx.compose)
+
+            implementation(libs.accompanist.permissions)
+
+            implementation(libs.glide)
+            implementation(libs.coil.compose)
+
+            implementation(libs.retrofit)
+            implementation(libs.retrofit.converter.gson)
+            implementation(libs.okhttp.logging.interceptor)
+            implementation(libs.gson)
+
+            implementation(dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.messaging)
+            implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
+            implementation(libs.firebase.perf)
+            implementation(libs.firebase.auth)
+            implementation(libs.firebase.firestore)
+            implementation(libs.firebase.database)
+            implementation(libs.firebase.storage)
+            implementation(libs.firebase.inappmessaging.display)
+            implementation(libs.firebase.ui.auth)
+            implementation(libs.play.services.auth)
+
+            implementation(libs.lottie.compose)
+            implementation(libs.compose.calendar)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+    }
+}
+
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "ru.dvfu.appliances.generated.resources"
+    generateResClass = always
 }

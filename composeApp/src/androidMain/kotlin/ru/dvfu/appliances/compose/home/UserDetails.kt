@@ -47,7 +47,8 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
-import ru.dvfu.appliances.BuildConfig
+import ru.dvfu.appliances.AppBuildConfig
+import ru.dvfu.appliances.AppDebug
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.components.ItemsSelection
@@ -227,7 +228,7 @@ private fun UserRoleCard(
     userRoleState: UiState,
     onRoleChangeClick: () -> Unit,
 ) {
-    val canEdit = currentUser.isAdmin && (user.userId != currentUser.userId || BuildConfig.DEBUG)
+    val canEdit = currentUser.isAdmin && (user.userId != currentUser.userId || AppDebug.isDebug)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
