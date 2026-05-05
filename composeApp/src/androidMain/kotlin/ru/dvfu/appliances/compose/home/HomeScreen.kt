@@ -1,6 +1,11 @@
 package ru.dvfu.appliances.compose.home
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -46,6 +52,8 @@ fun HomeScreen(
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
+
+    NotificationPermissionRequest()
 
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
     if (eventOptionDialogOpened) EventOptionDialog(
@@ -82,6 +90,21 @@ fun HomeScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun NotificationPermissionRequest() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { /* result ignored — KMPNotifier picks up the granted state on next token call */ }
+    LaunchedEffect(Unit) {
+        val granted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!granted) launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 }
 
