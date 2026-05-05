@@ -1,16 +1,9 @@
 package ru.dvfu.appliances.model.repository.entity
 
-import android.graphics.Color
-import android.os.Parcelable
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
-import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.Constants
 import ru.dvfu.appliances.model.utils.randomUUID
-import java.util.*
 
-@Parcelize
 @Serializable
 data class Appliance(
     val id: String = randomUUID(),
@@ -21,6 +14,7 @@ data class Appliance(
     val superuserIds: List<String> = listOf(),
     val userIds: List<String> = listOf(),
     val active: Boolean = true,
-): Parcelable
+)
 
-fun Appliance.isUserSuperuserOrAdmin(user: User): Boolean = user.isAdmin || superuserIds.contains(user.userId)
+fun Appliance.isUserSuperuserOrAdmin(user: User): Boolean =
+    user.isAdmin || superuserIds.contains(user.userId)
