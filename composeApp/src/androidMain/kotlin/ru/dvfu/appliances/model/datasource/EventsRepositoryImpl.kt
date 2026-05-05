@@ -39,7 +39,7 @@ class EventsRepositoryImpl(
         managerId: String,
     ): Result<Unit> = runCatching {
         collections.events().document(eventId).update(
-            "status" to newStatus,
+            "status" to newStatus.name,
             "managerCommentary" to managerCommentary,
             "managedById" to managerId,
             "managedTime" to LocalDateTime.now().toMillis,
