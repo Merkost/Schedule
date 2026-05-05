@@ -14,7 +14,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
@@ -62,7 +61,6 @@ import ru.dvfu.appliances.notifications.AppNotifierListener
 import ru.dvfu.appliances.notifications.NavControllerNotificationRouter
 import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
 import java.time.LocalDate
-import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @ExperimentalComposeUiApi
@@ -178,7 +176,7 @@ private fun NavGraphBuilder.NavGraph(
 private fun LoadCalendarEvent(eventId: String, content: @Composable (CalendarEvent) -> Unit) {
     val useCase = koinInject<GetEventByIdUseCase>()
     val result by produceState<Result<CalendarEvent>?>(initialValue = null, key1 = eventId) {
-        value = useCase(eventId).first()
+        useCase(eventId).collect { value = it }
     }
     val event = result?.getOrNull()
     if (event == null) {
@@ -194,7 +192,7 @@ private fun LoadCalendarEvent(eventId: String, content: @Composable (CalendarEve
 private fun LoadAppliance(applianceId: String, content: @Composable (Appliance) -> Unit) {
     val useCase = koinInject<GetApplianceUseCase>()
     val result by produceState<Result<Appliance>?>(initialValue = null, key1 = applianceId) {
-        value = useCase(applianceId).first()
+        useCase(applianceId).collect { value = it }
     }
     val appliance = result?.getOrNull()
     if (appliance == null) {
@@ -210,7 +208,7 @@ private fun LoadAppliance(applianceId: String, content: @Composable (Appliance) 
 private fun LoadUser(userId: String, content: @Composable (User) -> Unit) {
     val useCase = koinInject<GetUserUseCase>()
     val result by produceState<Result<User>?>(initialValue = null, key1 = userId) {
-        value = useCase(userId).first()
+        useCase(userId).collect { value = it }
     }
     val user = result?.getOrNull()
     if (user == null) {
