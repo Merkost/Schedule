@@ -43,6 +43,7 @@ composeCalendar = "0.4.2"
 coil = "2.7.0"
 kmpnotifier = "1.6.1"
 leakcanary = "2.14"
+kermit = "2.0.4"
 junit = "4.13.2"
 androidxTestCore = "1.7.0"
 androidxTestRunner = "1.7.0"
@@ -139,6 +140,7 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTestCore" }

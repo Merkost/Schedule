@@ -103,6 +103,7 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
 
             implementation(libs.kmpnotifier)
+            implementation(libs.kermit)
 
             implementation(libs.gitlive.firebase.auth)
             implementation(libs.gitlive.firebase.firestore)
