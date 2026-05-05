@@ -6,13 +6,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SecondaryScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,10 +18,6 @@ import androidx.compose.ui.graphics.Color
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import kotlinx.coroutines.launch
-import ru.dvfu.appliances.compose.components.pagerTabIndicatorOffset
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
@@ -38,7 +30,11 @@ import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.model.repository.entity.*
 
 
-sealed class BookingTabItem(var titleRes: org.jetbrains.compose.resources.StringResource, var screen: @Composable () -> Unit) {
+sealed class BookingTabItem(
+    var titleRes: org.jetbrains.compose.resources.StringResource,
+    val count: Int,
+    var screen: @Composable () -> Unit,
+) {
 
     class PendingBookingsTabItem(
         bookings: List<CalendarEvent>,
@@ -47,6 +43,7 @@ sealed class BookingTabItem(var titleRes: org.jetbrains.compose.resources.String
     ) :
         BookingTabItem(
             titleRes = Res.string.booking_requests,
+            count = bookings.size,
             screen = { PendingBookingsList(bookings, viewModel, navController) }
         )
 
@@ -57,6 +54,7 @@ sealed class BookingTabItem(var titleRes: org.jetbrains.compose.resources.String
     ) :
         BookingTabItem(
             titleRes = Res.string.my_bookings,
+            count = bookings.size,
             screen = { MyBookingsList(bookings, viewModel, navController) }
         )
 
@@ -67,51 +65,11 @@ sealed class BookingTabItem(var titleRes: org.jetbrains.compose.resources.String
     ) :
         BookingTabItem(
             titleRes = Res.string.past_bookings,
+            count = bookings.size,
             screen = { PastBookingsList(bookings, viewModel, navController) }
         )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BookingListTabsView(
-    modifier: Modifier = Modifier,
-    tabsList: List<BookingTabItem>,
-    pagerState: PagerState
-) {
-    val scope = rememberCoroutineScope()
-
-    SecondaryScrollableTabRow(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.background,
-        selectedTabIndex = pagerState.currentPage,
-        indicator = {
-            SecondaryIndicator(
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    ) {
-        tabsList.forEachIndexed { index, tab ->
-            Tab(selected = pagerState.currentPage == index,
-                onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                text = { PrimaryText(text = stringResource(tab.titleRes)) })
-        }
-    }
-}
-
-@Composable
-fun BookingTabsContent(
-    modifier: Modifier = Modifier,
-    tabsList: List<BookingTabItem>,
-    pagerState: PagerState
-) {
-    HorizontalPager(
-        modifier = modifier.fillMaxSize(),
-        state = pagerState,
-        verticalAlignment = Alignment.Top,
-    ) { page ->
-        tabsList[page].screen()
-    }
-}
 
 @Composable
 fun PendingBookingItemView(

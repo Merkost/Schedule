@@ -124,6 +124,7 @@ fun MonthWeekCalendar(
                 .fillMaxSize()
                 .padding(padding)
                 .background(MaterialTheme.colorScheme.surface)
+                .verticalScroll(scrollState)
         ) {
             SelectableCalendar(
                 modifier = Modifier
@@ -340,7 +341,7 @@ private fun ColumnScope.EventsPanel(
 ) = EventsPanelImpl(
     pinnedDate, currentMonth, dayEvents, uiState, currentUser, scrollState,
     onClearSelection, onEventClick, onApproveClick, onDeclineClick,
-    Modifier.weight(1f),
+    Modifier,
 )
 
 @Composable
@@ -410,7 +411,6 @@ private fun EventsPanelImpl(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(scrollState)
                     .padding(horizontal = 12.dp)
                     .padding(bottom = 100.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp),

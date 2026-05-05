@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,9 +25,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -38,7 +43,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.compose.foundation.pager.rememberPagerState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.generated.resources.Res
@@ -78,7 +82,7 @@ fun BookingList(navController: NavController) {
     if (uiState is UiState.InProgress) ModalLoadingDialog()
 
     val bookingTabs = remember { mutableStateListOf<BookingTabItem>() }
-    val pagerState = rememberPagerState { bookingTabs.size }
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -115,22 +119,18 @@ fun BookingList(navController: NavController) {
 
 
                     if (bookingTabs.isNotEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        BookingListTabsView(
-                            tabsList = bookingTabs,
-                            pagerState = pagerState
-                        )
-
-                        BookingTabsContent(
-                            tabsList = bookingTabs,
-                            pagerState = pagerState
-                        )
-                    }
+                        val safeSelected = selectedTab.coerceIn(0, bookingTabs.lastIndex)
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            BookingSegments(
+                                tabs = bookingTabs,
+                                selectedIndex = safeSelected,
+                                onSelected = { selectedTab = it },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                            )
+                            bookingTabs[safeSelected].screen()
+                        }
                     }
                 }
             }
@@ -182,6 +182,34 @@ private fun initTabs(
         )
     )
     return result
+}
+
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun BookingSegments(
+    tabs: List<BookingTabItem>,
+    selectedIndex: Int,
+    onSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    SingleChoiceSegmentedButtonRow(modifier = modifier) {
+        tabs.forEachIndexed { index, tab ->
+            SegmentedButton(
+                selected = index == selectedIndex,
+                onClick = { onSelected(index) },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
+                label = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(tab.titleRes))
+                        if (tab.count > 0) {
+                            Spacer(Modifier.width(6.dp))
+                            Badge { Text(tab.count.toString()) }
+                        }
+                    }
+                },
+            )
+        }
+    }
 }
 
 @Composable
