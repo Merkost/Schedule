@@ -2,8 +2,7 @@
 
 package ru.dvfu.appliances.compose
 
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.UserDetailsRoute
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -70,10 +69,7 @@ fun Users(navController: NavController, backPress: () -> Unit) {
                         UsersContent(
                             users = state.data,
                             onUserClick = { user ->
-                                navController.navigate(
-                                    MainDestinations.USER_DETAILS_ROUTE,
-                                    Arguments.USER to user,
-                                )
+                                navController.navigate(UserDetailsRoute(userId = user.userId))
                             },
                         )
                     }

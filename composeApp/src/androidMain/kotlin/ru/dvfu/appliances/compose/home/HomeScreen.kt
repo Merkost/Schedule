@@ -23,8 +23,7 @@ import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.*
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.EventInfoRoute
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.EventCalendar
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
@@ -67,10 +66,7 @@ fun HomeScreen(
                     viewModel = viewModel,
                     navController = navController,
                     onEventClick = {
-                        navController.navigate(
-                            MainDestinations.EVENT_INFO,
-                            Arguments.EVENT to it
-                        )
+                        navController.navigate(EventInfoRoute(eventId = it.id))
                     }
                 )
             }

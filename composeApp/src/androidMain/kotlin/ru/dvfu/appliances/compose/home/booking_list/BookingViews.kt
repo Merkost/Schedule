@@ -29,10 +29,9 @@ import ru.dvfu.appliances.compose.components.pagerTabIndicatorOffset
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.application.SnackbarManager
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.ApplianceRoute
+import ru.dvfu.appliances.navigation.UserDetailsRoute
 import ru.dvfu.appliances.compose.components.views.*
-import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.ui.theme.customColors
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
@@ -394,16 +393,10 @@ fun EventInfo(
             onSetNewDateAndTime = { onSetDateAndTime(event, it) },
         )
         BookingAppliance(event.appliance) {
-            navController.navigate(
-                MainDestinations.APPLIANCE_ROUTE,
-                Arguments.APPLIANCE to event.appliance,
-            )
+            navController.navigate(ApplianceRoute(applianceId = event.appliance.id))
         }
         BookingUser(event.user) {
-            navController.navigate(
-                MainDestinations.USER_DETAILS_ROUTE,
-                Arguments.USER to event.user,
-            )
+            navController.navigate(UserDetailsRoute(userId = event.user.userId))
         }
         BookingCommentary(
             commentary = event.commentary,
@@ -414,10 +407,7 @@ fun EventInfo(
             book = event,
             currentUser = currentUser,
             onUserClick = {
-                navController.navigate(
-                    MainDestinations.USER_DETAILS_ROUTE,
-                    Arguments.USER to it,
-                )
+                navController.navigate(UserDetailsRoute(userId = it.userId))
             },
             onApprove = onApproveClick,
             onDecline = onDeclineClick,

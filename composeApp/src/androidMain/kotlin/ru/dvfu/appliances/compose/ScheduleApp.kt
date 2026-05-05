@@ -2,13 +2,20 @@ package ru.dvfu.appliances.compose
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -16,18 +23,40 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.compose.appliance.AddUsersToAppliance
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
 import ru.dvfu.appliances.compose.home.*
 import ru.dvfu.appliances.compose.home.booking_list.BookingList
 import ru.dvfu.appliances.compose.home.profile.EditProfile
+import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
+import ru.dvfu.appliances.compose.use_cases.GetEventByIdUseCase
+import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
+import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.navigation.AddEventRoute
+import ru.dvfu.appliances.navigation.AddSuperuserToApplianceRoute
+import ru.dvfu.appliances.navigation.AddUserToApplianceRoute
+import ru.dvfu.appliances.navigation.ApplianceRoute
+import ru.dvfu.appliances.navigation.AppliancesRoute
+import ru.dvfu.appliances.navigation.BookingListRoute
+import ru.dvfu.appliances.navigation.EditProfileRoute
+import ru.dvfu.appliances.navigation.EventInfoRoute
+import ru.dvfu.appliances.navigation.HomeRoute
+import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.NewApplianceRoute
+import ru.dvfu.appliances.navigation.SettingsRoute
+import ru.dvfu.appliances.navigation.UserDetailsRoute
+import ru.dvfu.appliances.navigation.UsersRoute
 import java.time.LocalDate
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @ExperimentalComposeUiApi
@@ -38,7 +67,6 @@ import java.time.LocalDate
 @Composable
 fun ScheduleApp() {
     val appStateHolder = rememberAppStateHolder()
-    val viewModel: MainScreenViewModel = koinViewModel()
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -85,31 +113,94 @@ private fun NavGraphBuilder.NavGraph(
         addHomeGraph(navController = navController, backPress = upPress)
     }
 
-    composable(MainDestinations.ADD_EVENT) {
-        val selectedDate = it.arguments?.getParcelable<SelectedDate>(Arguments.DATE)?.value ?: LocalDate.now()
-        AddEvent(selectedDate = selectedDate, upPress)
+    composable<AddEventRoute> { entry ->
+        val r = entry.toRoute<AddEventRoute>()
+        AddEvent(selectedDate = LocalDate.ofEpochDay(r.dateEpochDay), upPress)
     }
-    composable(MainDestinations.EVENT_INFO) {
-        EventInfoScreen(navController, eventArg = it.requiredArg(Arguments.EVENT), backPress)
+    composable<EventInfoRoute> { entry ->
+        val r = entry.toRoute<EventInfoRoute>()
+        LoadCalendarEvent(eventId = r.eventId) { event ->
+            EventInfoScreen(navController, eventArg = event, backPress)
+        }
     }
-    composable(MainDestinations.EDIT_PROFILE) {
+    composable<EditProfileRoute> {
         EditProfile { navController.popBackStack() }
     }
-    composable(MainDestinations.APPLIANCE_ROUTE) {
-        ApplianceDetails(navController, upPress, it.requiredArg(Arguments.APPLIANCE))
+    composable<ApplianceRoute> { entry ->
+        val r = entry.toRoute<ApplianceRoute>()
+        LoadAppliance(applianceId = r.applianceId) { appliance ->
+            ApplianceDetails(navController, upPress, appliance)
+        }
     }
-    composable(MainDestinations.ADD_USER_TO_APPLIANCE) {
-        AddUsersToAppliance(navController, it.requiredArg(Arguments.APPLIANCE))
+    composable<AddUserToApplianceRoute> { entry ->
+        val r = entry.toRoute<AddUserToApplianceRoute>()
+        LoadAppliance(applianceId = r.applianceId) { appliance ->
+            AddUsersToAppliance(navController, appliance)
+        }
     }
-    composable(MainDestinations.ADD_SUPERUSER_TO_APPLIANCE) {
-        AddUsersToAppliance(navController, it.requiredArg(Arguments.APPLIANCE), areSuperUsers = true)
+    composable<AddSuperuserToApplianceRoute> { entry ->
+        val r = entry.toRoute<AddSuperuserToApplianceRoute>()
+        LoadAppliance(applianceId = r.applianceId) { appliance ->
+            AddUsersToAppliance(navController, appliance, areSuperUsers = true)
+        }
     }
-    composable(MainDestinations.APPLIANCES_ROUTE) { Appliances(navController, upPress) }
-    composable(MainDestinations.NEW_APPLIANCE_ROUTE) { NewAppliance(upPress) }
-    composable(MainDestinations.USER_DETAILS_ROUTE) {
-        UserDetails(navController, upPress, it.requiredArg(Arguments.USER))
+    composable<AppliancesRoute> { Appliances(navController, upPress) }
+    composable<NewApplianceRoute> { NewAppliance(upPress) }
+    composable<UserDetailsRoute> { entry ->
+        val r = entry.toRoute<UserDetailsRoute>()
+        LoadUser(userId = r.userId) { user ->
+            UserDetails(navController, upPress, user)
+        }
     }
-    composable(MainDestinations.USERS_ROUTE) { Users(navController, upPress) }
-    composable(MainDestinations.BOOKING_LIST) { BookingList(navController = navController) }
-    composable(MainDestinations.SETTINGS_ROUTE) { Settings(navController, upPress) }
+    composable<UsersRoute> { Users(navController, upPress) }
+    composable<BookingListRoute> { BookingList(navController = navController) }
+    composable<SettingsRoute> { Settings(navController, upPress) }
+}
+
+@Composable
+private fun LoadCalendarEvent(eventId: String, content: @Composable (CalendarEvent) -> Unit) {
+    val useCase = koinInject<GetEventByIdUseCase>()
+    val result by produceState<Result<CalendarEvent>?>(initialValue = null, key1 = eventId) {
+        value = useCase(eventId).first()
+    }
+    val event = result?.getOrNull()
+    if (event == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    } else {
+        content(event)
+    }
+}
+
+@Composable
+private fun LoadAppliance(applianceId: String, content: @Composable (Appliance) -> Unit) {
+    val useCase = koinInject<GetApplianceUseCase>()
+    val result by produceState<Result<Appliance>?>(initialValue = null, key1 = applianceId) {
+        value = useCase(applianceId).first()
+    }
+    val appliance = result?.getOrNull()
+    if (appliance == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    } else {
+        content(appliance)
+    }
+}
+
+@Composable
+private fun LoadUser(userId: String, content: @Composable (User) -> Unit) {
+    val useCase = koinInject<GetUserUseCase>()
+    val result by produceState<Result<User>?>(initialValue = null, key1 = userId) {
+        value = useCase(userId).first()
+    }
+    val user = result?.getOrNull()
+    if (user == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    } else {
+        content(user)
+    }
 }

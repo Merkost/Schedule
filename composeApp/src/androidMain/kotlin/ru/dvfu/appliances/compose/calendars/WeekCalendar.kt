@@ -12,12 +12,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.AddEventRoute
+import ru.dvfu.appliances.navigation.BookingListRoute
+import ru.dvfu.appliances.navigation.EventInfoRoute
 import ru.dvfu.appliances.compose.calendars.event_calendar.Schedule
 import ru.dvfu.appliances.compose.home.HomeTopBar
-import ru.dvfu.appliances.compose.home.SelectedDate
-import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.isAnonymousOrGuest
@@ -51,10 +50,7 @@ fun EventCalendar(
             HomeTopBar(
                 uiState = uiState,
                 onBookingListOpen = {
-                    navController.navigate(
-                        MainDestinations.BOOKING_LIST,
-                        Arguments.DATE to SelectedDate()
-                    )
+                    navController.navigate(BookingListRoute)
                 },
                 onCalendarSelected = viewModel::setCalendarType,
                 onRetry = { viewModel.getWeekEvents(minDate, maxDate) }
@@ -63,7 +59,7 @@ fun EventCalendar(
         floatingActionButton = {
             if (!currentUser.isAnonymousOrGuest) {
                 FloatingActionButton(
-                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) })
+                    onClick = { navController.navigate(AddEventRoute(dateEpochDay = LocalDate.now().toEpochDay())) })
                 { Icon(Icons.Default.Add, "") }
             }
         },
@@ -74,10 +70,7 @@ fun EventCalendar(
             minDate = minDate,
             maxDate = maxDate,
             onEventClick = {
-                navController.navigate(
-                    MainDestinations.EVENT_INFO,
-                    Arguments.EVENT to it
-                )
+                navController.navigate(EventInfoRoute(eventId = it.id))
             },
             onEventLongClick = onEventLongClick,
             verticalScrollState = verticalScrollState,

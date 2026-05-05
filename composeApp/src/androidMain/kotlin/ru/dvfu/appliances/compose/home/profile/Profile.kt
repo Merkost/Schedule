@@ -45,7 +45,9 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.EditProfileRoute
+import ru.dvfu.appliances.navigation.SettingsRoute
+import ru.dvfu.appliances.navigation.UsersRoute
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
@@ -96,14 +98,14 @@ fun UserButtons(navController: NavController, currentUser: User) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         ColumnButton(Icons.Default.Edit, "Редактировать профиль") {
-            navController.navigate(MainDestinations.EDIT_PROFILE)
+            navController.navigate(EditProfileRoute)
         }
         ColumnButton(Icons.Default.Notifications, "Настройка уведомлений") {
-            navController.navigate(MainDestinations.SETTINGS_ROUTE)
+            navController.navigate(SettingsRoute)
         }
         if (currentUser.isAdmin) {
             ColumnButton(Icons.Default.PersonSearch, "Список пользователей") {
-                navController.navigate(MainDestinations.USERS_ROUTE)
+                navController.navigate(UsersRoute)
             }
         }
     }

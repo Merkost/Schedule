@@ -46,8 +46,7 @@ import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.*
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.UserDetailsRoute
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
@@ -126,10 +125,7 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
             createdUser?.let { owner ->
                 item {
                     ApplianceOwnerCard(owner = owner) {
-                        navController.navigate(
-                            MainDestinations.USER_DETAILS_ROUTE,
-                            Arguments.USER to owner,
-                        )
+                        navController.navigate(UserDetailsRoute(userId = owner.userId))
                     }
                 }
             }
@@ -146,10 +142,7 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
                 superUsers = superUsers,
                 canManage = canManage,
                 onUserClick = { superUser ->
-                    navController.navigate(
-                        MainDestinations.USER_DETAILS_ROUTE,
-                        Arguments.USER to superUser,
-                    )
+                    navController.navigate(UserDetailsRoute(userId = superUser.userId))
                 },
                 onUserDelete = { superUser ->
                     viewModel.deleteSuperUser(superUser, updatedAppliance)

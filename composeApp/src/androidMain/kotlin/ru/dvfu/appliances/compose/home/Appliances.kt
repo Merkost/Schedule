@@ -46,8 +46,8 @@ import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.*
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.ApplianceRoute
+import ru.dvfu.appliances.navigation.NewApplianceRoute
 import ru.dvfu.appliances.compose.components.FullscreenLoading
 import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -69,7 +69,7 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
                 title = stringResource(Res.string.appliances),
                 backClick = backPress,
                 actionAdd = currentUser.isAdmin,
-                addClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) },
+                addClick = { navController.navigate(NewApplianceRoute) },
             )
         },
     ) { innerPadding ->
@@ -87,10 +87,7 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
                         active = active,
                         inactive = inactive,
                         onApplianceClick = { appliance ->
-                            navController.navigate(
-                                MainDestinations.APPLIANCE_ROUTE,
-                                Arguments.APPLIANCE to appliance,
-                            )
+                            navController.navigate(ApplianceRoute(applianceId = appliance.id))
                         },
                     )
                 }

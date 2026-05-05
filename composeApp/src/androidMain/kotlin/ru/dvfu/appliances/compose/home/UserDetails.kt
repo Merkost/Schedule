@@ -1,7 +1,6 @@
 package ru.dvfu.appliances.compose
 
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.ApplianceRoute
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -394,10 +393,7 @@ fun AppliancesLazyRow(appliances: List<Appliance>?, navController: NavController
                 items(it) { appliance ->
                     Box(modifier = Modifier.width(160.dp)) {
                         ItemAppliance(appliance) { clicked ->
-                            navController.navigate(
-                                MainDestinations.APPLIANCE_ROUTE,
-                                Arguments.APPLIANCE to clicked,
-                            )
+                            navController.navigate(ApplianceRoute(applianceId = clicked.id))
                         }
                     }
                 }

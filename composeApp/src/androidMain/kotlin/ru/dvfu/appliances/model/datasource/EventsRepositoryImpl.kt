@@ -79,6 +79,20 @@ class EventsRepositoryImpl(
                 .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
 
+    override suspend fun getEventById(eventId: String): Flow<Result<Event>> = callbackFlow {
+        val subscription = dbCollections.getEventsCollection().document(eventId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(Result.failure(error))
+                    return@addSnapshotListener
+                }
+                val event = snapshot?.toObject(Event::class.java)
+                if (event != null) trySend(Result.success(event))
+                else trySend(Result.failure(NoSuchElementException("Event $eventId not found")))
+            }
+        awaitClose { subscription.remove() }
+    }
+
     override suspend fun getAllEvents(): Flow<List<Event>> = callbackFlow {
         val subscription = dbCollections.getEventsCollection().addSnapshotListener { value, error ->
             value?.let { trySend(value.toObjects<Event>()) }

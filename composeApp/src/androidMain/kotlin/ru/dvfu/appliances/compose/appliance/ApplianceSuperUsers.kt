@@ -17,9 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
-import ru.dvfu.appliances.compose.navigate
+import ru.dvfu.appliances.navigation.AddSuperuserToApplianceRoute
+import ru.dvfu.appliances.navigation.UserDetailsRoute
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
@@ -64,14 +63,9 @@ fun ApplianceSuperUsers(
 }
 
 private fun onSuperUserClick(user: User, navController: NavController) {
-    navController.navigate(
-        MainDestinations.USER_DETAILS_ROUTE,
-        Arguments.USER to user
-    )
+    navController.navigate(UserDetailsRoute(userId = user.userId))
 }
 
 fun onAddSuperUserClick(navController: NavController, appliance: Appliance) {
-    navController.navigate(
-        MainDestinations.ADD_SUPERUSER_TO_APPLIANCE,
-        Arguments.APPLIANCE to appliance)
+    navController.navigate(AddSuperuserToApplianceRoute(applianceId = appliance.id))
 }

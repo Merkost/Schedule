@@ -37,14 +37,12 @@ import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.AddEventRoute
+import ru.dvfu.appliances.navigation.BookingListRoute
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.home.HomeTopBar
-import ru.dvfu.appliances.compose.home.SelectedDate
 import ru.dvfu.appliances.compose.home.booking_list.BookingCommentaryDialog
-import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.model.repository.entity.*
@@ -100,7 +98,7 @@ fun MonthWeekCalendar(
             HomeTopBar(
                 uiState = uiState,
                 onBookingListOpen = {
-                    navController.navigate(MainDestinations.BOOKING_LIST)
+                    navController.navigate(BookingListRoute)
                 },
                 onCalendarSelected = viewModel::setCalendarType,
                 onRetry = { viewModel.onMonthChanged(calendarState.monthState.currentMonth) }
@@ -111,10 +109,7 @@ fun MonthWeekCalendar(
             if (!currentUser.isAnonymousOrGuest) {
                 ExtendedFloatingActionButton(
                     onClick = {
-                        navController.navigate(
-                            MainDestinations.ADD_EVENT,
-                            Arguments.DATE to SelectedDate(currentDate)
-                        )
+                        navController.navigate(AddEventRoute(dateEpochDay = currentDate.toEpochDay()))
                     },
                 ) {
                     Text(text = stringResource(Res.string.new_event))

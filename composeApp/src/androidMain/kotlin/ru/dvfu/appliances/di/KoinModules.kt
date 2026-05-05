@@ -74,6 +74,7 @@ val application = module {
     factory { GetApplianceUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetAppliancesUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetUserUseCase(offlineRepository = get(), usersRepository = get()) }
+    factory { GetEventByIdUseCase(eventsRepository = get(), eventMapper = get()) }
     factory { GetEventTimeAvailabilityUseCase(get()) }
     factory { GetDateEventsUseCase(get()) }
     factory { GetPeriodEventsUseCase(get()) }

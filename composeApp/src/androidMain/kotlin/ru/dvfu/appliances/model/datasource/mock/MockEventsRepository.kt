@@ -23,6 +23,13 @@ class MockEventsRepository : EventsRepository {
 
     override suspend fun getAllEvents(): Flow<List<Event>> = eventsStore
 
+    override suspend fun getEventById(eventId: String): Flow<Result<Event>> =
+        eventsStore.map { list ->
+            list.firstOrNull { it.id == eventId }
+                ?.let { Result.success(it) }
+                ?: Result.failure(NoSuchElementException("Event $eventId not found"))
+        }
+
     override suspend fun deleteEvent(eventToDelete: CalendarEvent): Result<Unit> {
         eventsStore.update { list -> list.filter { it.id != eventToDelete.id } }
         return Result.success(Unit)

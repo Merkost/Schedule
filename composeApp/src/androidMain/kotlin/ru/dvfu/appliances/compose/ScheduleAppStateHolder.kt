@@ -1,17 +1,20 @@
 package ru.dvfu.appliances.compose
 
 import android.content.res.Resources
-import android.os.Parcelable
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.*
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.NavGraph
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
@@ -98,38 +101,6 @@ class AppStateHolder(
             }
         }
     }
-}
-
-fun NavController.navigate(route: String, vararg args: Pair<String, Parcelable>) {
-    val startDestinationId = findStartDestination(graph).id
-    navigate(route) {
-        if (HomeSections.values().map { it.route }.contains(route)) {
-            launchSingleTop = true
-            restoreState = true
-            popUpTo(startDestinationId) {
-                saveState = true
-            }
-        }
-    }
-
-    if (args.isNotEmpty()) {
-        val entry = try {
-            getBackStackEntry(route)
-        } catch (_: IllegalArgumentException) {
-            currentBackStackEntry
-        }
-        entry?.savedStateHandle?.apply {
-            args.forEach { (key, arg) -> set(key, arg) }
-        }
-        entry?.arguments?.apply {
-            args.forEach { (key, arg) -> putParcelable(key, arg) }
-        }
-    }
-}
-
-inline fun <reified T : Parcelable> NavBackStackEntry.requiredArg(key: String): T {
-    savedStateHandle.get<T>(key)?.let { return it }
-    return requireNotNull(arguments?.getParcelable(key)) { "argument for $key is null" }
 }
 
 fun NavController.navigateSingleTop(route: String) {

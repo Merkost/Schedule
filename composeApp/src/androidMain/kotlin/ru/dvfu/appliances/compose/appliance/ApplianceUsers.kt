@@ -24,8 +24,8 @@ import ru.dvfu.appliances.compose.components.SwipeToDeleteItem
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.*
-import ru.dvfu.appliances.navigation.Arguments
-import ru.dvfu.appliances.navigation.MainDestinations
+import ru.dvfu.appliances.navigation.AddUserToApplianceRoute
+import ru.dvfu.appliances.navigation.UserDetailsRoute
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
@@ -62,10 +62,7 @@ fun ApplianceUsers(
 }
 
 fun onAddClick(navController: NavController, appliance: Appliance) {
-    navController.navigate(
-        MainDestinations.ADD_USER_TO_APPLIANCE,
-        Arguments.APPLIANCE to appliance
-    )
+    navController.navigate(AddUserToApplianceRoute(applianceId = appliance.id))
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -156,8 +153,5 @@ fun ItemSwipableUser(user: User, userClicked: () -> Unit, userDeleted: () -> Uni
 }
 
 private fun onUserClick(user: User, navController: NavController) {
-    navController.navigate(
-        MainDestinations.USER_DETAILS_ROUTE,
-        Arguments.USER to user
-    )
+    navController.navigate(UserDetailsRoute(userId = user.userId))
 }

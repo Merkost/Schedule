@@ -9,6 +9,8 @@ import java.time.LocalDate
 interface EventsRepository {
     suspend fun addNewEvent(event: Event): Result<Unit>
 
+    suspend fun getEventById(eventId: String): Flow<Result<Event>>
+
     suspend fun getAllEvents(): Flow<List<Event>>
     suspend fun deleteEvent(eventToDelete: CalendarEvent): Result<Unit>
     suspend fun setNewTimeEnd(eventId: String, timeEnd: Long): Result<Unit>
