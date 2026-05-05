@@ -7,8 +7,9 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.Logger
-import ru.dvfu.appliances.MyFirebaseMessagingService
 import ru.dvfu.appliances.compose.utils.EventMapper
+import ru.dvfu.appliances.notifications.AppNotifierListener
+import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.home.MainScreenViewModel
@@ -23,7 +24,6 @@ import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
 import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
-import ru.dvfu.appliances.model.FirebaseMessagingViewModel
 import ru.dvfu.appliances.model.datasource.*
 import ru.dvfu.appliances.model.datasource.deprecated.CloudFirestoreDatabaseImpl
 import ru.dvfu.appliances.model.datastore.UserDatastoreImpl
@@ -54,8 +54,7 @@ val application = module {
     single<UserDatastore> { UserDatastoreImpl() }
     viewModel { MainViewModel() }
 
-    single { MyFirebaseMessagingService() }
-    single { FirebaseMessagingViewModel(usersRepository = get()) }
+    single { AppNotifierListener(usersRepository = get(), router = NotificationNavRouterDelegate) }
 
     single { Logger() }
     single { SnackbarManager }

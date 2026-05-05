@@ -6,12 +6,15 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Color
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.mmk.kmpnotifier.notification.NotifierManager
+import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import ru.dvfu.appliances.AppBuildConfig
 import ru.dvfu.appliances.AppDebug
+import ru.dvfu.appliances.R
 import ru.dvfu.appliances.di.application
 import ru.dvfu.appliances.di.mainActivity
 import ru.dvfu.appliances.di.mockRepositoryModule
@@ -43,6 +46,13 @@ class Schedule : Application() {
 
         if (AppDebug.isDebug) { FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false) }
         createNotificationChannels()
+
+        NotifierManager.initialize(
+            NotificationPlatformConfiguration.Android(
+                notificationIconResId = R.mipmap.ic_launcher,
+                showPushNotification = true,
+            )
+        )
     }
 
     private fun createNotificationChannels() {

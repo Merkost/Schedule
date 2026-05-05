@@ -12,6 +12,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -24,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import com.mmk.kmpnotifier.notification.NotifierManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.koinViewModel
@@ -55,6 +58,9 @@ import ru.dvfu.appliances.navigation.NewApplianceRoute
 import ru.dvfu.appliances.navigation.SettingsRoute
 import ru.dvfu.appliances.navigation.UserDetailsRoute
 import ru.dvfu.appliances.navigation.UsersRoute
+import ru.dvfu.appliances.notifications.AppNotifierListener
+import ru.dvfu.appliances.notifications.NavControllerNotificationRouter
+import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
 import java.time.LocalDate
 import kotlinx.coroutines.flow.first
 
@@ -67,6 +73,17 @@ import kotlinx.coroutines.flow.first
 @Composable
 fun ScheduleApp() {
     val appStateHolder = rememberAppStateHolder()
+    val notifierListener: AppNotifierListener = koinInject()
+
+    LaunchedEffect(notifierListener) {
+        NotifierManager.addListener(notifierListener)
+    }
+    DisposableEffect(appStateHolder.navController) {
+        NotificationNavRouterDelegate.attach(
+            NavControllerNotificationRouter(appStateHolder.navController)
+        )
+        onDispose { NotificationNavRouterDelegate.detach() }
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
