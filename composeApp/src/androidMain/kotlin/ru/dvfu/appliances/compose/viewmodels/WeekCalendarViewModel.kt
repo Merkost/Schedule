@@ -87,17 +87,13 @@ class WeekCalendarViewModel(
 
     private fun getDayEvents(date: LocalDate = LocalDate.now()) {
         viewModelScope.launch {
-            _dayEvents = _dayEvents.apply {
-                get(date)?.let { put(date, EventsState.Loading) }
+            if (_dayEvents[date] !is EventsState.Loaded) {
+                _dayEvents[date] = EventsState.Loading
             }
             getDateEventsUseCase(date).collectLatest {
                 _reposEvents.value = (_reposEvents.value.plus(it))
-                val dayEvents = eventMapper.mapEvents(it).filterForUser(currentUser.value)
-                _dayEvents = _dayEvents.apply {
-                    replace(date, EventsState.Loaded(dayEvents))?.let {
-                        put(date, EventsState.Loaded(dayEvents))
-                    }
-                }
+                val mapped = eventMapper.mapEvents(it).filterForUser(currentUser.value)
+                _dayEvents[date] = EventsState.Loaded(mapped)
             }
         }
     }
@@ -172,12 +168,10 @@ class WeekCalendarViewModel(
             }
             getPeriodEventsUseCase(dates.first(), dates.last()).collectLatest { result ->
                 _reposEvents.value = (_reposEvents.value.plus(result))
-                val dayEvents = eventMapper.mapEvents(result).filterForUser(currentUser.value).groupBy { it.date }
+                val grouped = eventMapper.mapEvents(result).filterForUser(currentUser.value).groupBy { it.date }
                 _dayEvents = _dayEvents.apply {
-                    dayEvents.forEach { (date, events) ->
-                        replace(date, EventsState.Loaded(events))?.let {
-                            put(date, EventsState.Loaded(events))
-                        }
+                    dates.forEach { date ->
+                        put(date, EventsState.Loaded(grouped[date].orEmpty()))
                     }
                 }
                 _uiState.value = UiState.Success
