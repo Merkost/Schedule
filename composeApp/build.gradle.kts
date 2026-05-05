@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -80,12 +82,12 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-            implementation(libs.jb.compose.runtime)
-            implementation(libs.jb.compose.foundation)
-            implementation(libs.jb.compose.material3)
-            implementation(libs.jb.compose.ui)
-            implementation(libs.jb.compose.material.icons.extended)
-            implementation(libs.jb.compose.components.resources)
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.materialIconsExtended)
+            implementation(compose.components.resources)
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)

@@ -17,7 +17,7 @@ kotlinxDatetime = "0.6.1"
 kotlinxSerializationJson = "1.8.1"
 jetbrainsNavigation = "2.9.0-alpha17"
 jetbrainsLifecycle = "2.9.6"
-composeRuntimeJb = "1.9.0"
+composeRuntimeJb = "1.10.3"
 constraintlayoutMultiplatform = "0.5.1"
 
 coreKtx = "1.18.0"
