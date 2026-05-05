@@ -13,14 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Schedule">
 
-        <service
-            android:name="ru.dvfu.appliances.MyFirebaseMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
-
         <meta-data
             android:name="firebase_performance_logcat_enabled"
             android:value="true" />

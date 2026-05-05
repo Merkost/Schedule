@@ -43,7 +43,6 @@ koin = "4.2.1"
 accompanist = "0.36.0"
 composeCalendar = "0.4.2"
 coil = "2.7.0"
-glide = "5.0.5"
 kmpnotifier = "1.6.1"
 lottieCompose = "6.7.1"
 leakcanary = "2.14"
@@ -134,7 +133,6 @@ lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "
 compose-calendar = { module = "io.github.boguszpawlowski.composecalendar:composecalendar", version.ref = "composeCalendar" }
 
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 kmpnotifier = { module = "io.github.mirzemehdi:kmpnotifier", version.ref = "kmpnotifier" }
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }

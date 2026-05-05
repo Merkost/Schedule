@@ -145,7 +145,6 @@ kotlin {
 
             implementation(libs.accompanist.permissions)
 
-            implementation(libs.glide)
             implementation(libs.coil.compose)
 
             implementation(dependencies.platform(libs.firebase.bom))

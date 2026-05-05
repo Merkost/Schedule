@@ -1,9 +1,7 @@
 package ru.dvfu.appliances.compose.utils
 
 import androidx.lifecycle.*
-import com.google.firebase.Firebase
-import com.google.firebase.app
-import com.google.firebase.messaging.messaging
+import com.mmk.kmpnotifier.notification.NotifierManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.single
@@ -230,15 +228,7 @@ class NotificationManagerImpl(
         val currentUser = userDatastore.getCurrentUser.single()
         if (currentUser.isAnonymousOrGuest) return
 
-        Firebase.messaging.subscribeToTopic("weather")
-            .addOnCompleteListener { task ->
-                /*var msg = getString(Res.string.msg_subscribed)
-                if (!task.isSuccessful) {
-                    msg = getString(Res.string.msg_subscribe_failed)
-                }
-                Log.d(TAG, msg)
-                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()*/
-            }
+        runCatching { NotifierManager.getPushNotifier().subscribeToTopic("weather") }
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
