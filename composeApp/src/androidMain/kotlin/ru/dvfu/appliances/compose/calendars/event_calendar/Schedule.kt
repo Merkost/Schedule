@@ -79,7 +79,7 @@ fun Schedule(
                 )
             }
         }
-        Column(modifier = modifier) {
+        Column {
             ScheduleHeader(
                 minDate = minDate,
                 maxDate = maxDate,
