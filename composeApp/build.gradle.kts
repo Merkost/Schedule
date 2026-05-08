@@ -21,7 +21,7 @@ plugins {
 }
 
 val generateAppBuildConfig by tasks.registering {
-    val outputDir = layout.buildDirectory.dir("generated/source/appBuildConfig/androidMain/kotlin")
+    val outputDir = layout.buildDirectory.dir("generated/source/appBuildConfig/commonMain/kotlin")
     val keyValue = fcmServerKey
     inputs.property("fcmServerKey", keyValue)
     outputs.dir(outputDir)
@@ -80,7 +80,7 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     sourceSets {
-        androidMain {
+        commonMain {
             kotlin.srcDir(generateAppBuildConfig.map { it.outputs.files.singleFile })
         }
         commonMain.dependencies {

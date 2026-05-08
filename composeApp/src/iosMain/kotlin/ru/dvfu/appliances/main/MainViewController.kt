@@ -8,6 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.mp.KoinPlatform
 import platform.UIKit.UIViewController
+import ru.dvfu.appliances.AppDebug
 import ru.dvfu.appliances.compose.ScheduleApp
 import ru.dvfu.appliances.compose.ui.theme.ScheduleTheme
 import ru.dvfu.appliances.di.initKoin
@@ -30,6 +31,7 @@ fun MainViewController(): UIViewController {
     }
 }
 
-fun initKoinIos() {
+fun initKoinIos(isDebug: Boolean = false) {
+    AppDebug.isDebug = isDebug
     initKoin()
 }

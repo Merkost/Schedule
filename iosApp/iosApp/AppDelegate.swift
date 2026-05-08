@@ -8,6 +8,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+#if DEBUG
+        let isDebug = true
+#else
+        let isDebug = false
+#endif
+        MainViewControllerKt.doInitKoinIos(isDebug: isDebug)
         NotifierManager.shared.initialize(
             configuration: NotificationPlatformConfigurationIos(
                 showPushNotification: true,
