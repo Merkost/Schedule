@@ -1,15 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
-val localProps = Properties().apply {
-    val f = rootProject.file("local.properties")
-    if (f.exists()) f.inputStream().use { load(it) }
-}
-val fcmServerKey: String = localProps.getProperty("FCM_SERVER_KEY")
-    ?: System.getenv("FCM_SERVER_KEY")
-    ?: ""
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -22,8 +13,6 @@ plugins {
 
 val generateAppBuildConfig by tasks.registering {
     val outputDir = layout.buildDirectory.dir("generated/source/appBuildConfig/commonMain/kotlin")
-    val keyValue = fcmServerKey
-    inputs.property("fcmServerKey", keyValue)
     outputs.dir(outputDir)
     doLast {
         val file = outputDir.get().file("ru/dvfu/appliances/AppBuildConfig.kt").asFile
@@ -33,7 +22,6 @@ val generateAppBuildConfig by tasks.registering {
             package ru.dvfu.appliances
 
             object AppBuildConfig {
-                const val FCM_SERVER_KEY: String = "$keyValue"
                 const val USE_MOCK_REPOS: Boolean = false
             }
             """.trimIndent() + "\n"
@@ -118,6 +106,7 @@ kotlin {
             implementation(libs.gitlive.firebase.crashlytics)
             implementation(libs.gitlive.firebase.config)
             implementation(libs.gitlive.firebase.common)
+            implementation(libs.gitlive.firebase.functions)
 
             implementation(compose.runtime)
             implementation(compose.foundation)
