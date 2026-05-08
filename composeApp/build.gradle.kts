@@ -124,6 +124,8 @@ kotlin {
 
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
+
+            implementation(libs.kizitonwose.calendar)
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
@@ -166,8 +168,6 @@ kotlin {
             implementation(libs.firebase.storage)
             implementation(libs.firebase.inappmessaging.display)
             implementation(libs.play.services.auth)
-
-            implementation(libs.compose.calendar)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

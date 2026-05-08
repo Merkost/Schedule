@@ -19,6 +19,8 @@ import ru.dvfu.appliances.compose.use_cases.event.UpdateEventUserCommentUseCase
 import ru.dvfu.appliances.compose.use_cases.event.UpdateManagerCommentUseCase
 import ru.dvfu.appliances.compose.use_cases.event.UpdateTimeUseCase
 import ru.dvfu.appliances.compose.utils.EventMapper
+import ru.dvfu.appliances.compose.utils.NotificationManager
+import ru.dvfu.appliances.compose.utils.NotificationManagerImpl
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 import ru.dvfu.appliances.compose.viewmodels.AddUserViewModel
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
@@ -69,6 +71,16 @@ val repositoryModule = module {
 val application = module {
     single<UserDatastore> { UserDatastoreImpl() }
     viewModel { MainViewModel() }
+
+    single<NotificationManager> {
+        NotificationManagerImpl(
+            userDatastore = get(),
+            usersRepository = get(),
+            getUserUseCase = get(),
+            getApplianceUseCase = get(),
+            notificationApi = get(),
+        )
+    }
 
     single { AppNotifierListener(usersRepository = get(), router = NotificationNavRouterDelegate) }
 

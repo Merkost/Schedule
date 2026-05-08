@@ -1,11 +1,8 @@
 package ru.dvfu.appliances.compose.utils
 
-import androidx.lifecycle.*
 import com.mmk.kmpnotifier.notification.NotifierManager
-import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.single
-import ru.dvfu.appliances.AppBuildConfig
 import ru.dvfu.appliances.AppDebug
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
@@ -26,25 +23,7 @@ class NotificationManagerImpl(
     private val getUserUseCase: GetUserUseCase,
     private val getApplianceUseCase: GetApplianceUseCase,
     private val notificationApi: NotificationApi,
-) : NotificationManager, LifecycleEventObserver {
-
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
-
-    /*val currentUser = MutableStateFlow(User())
-
-    init {
-        getCurrentUserListener()
-    }
-
-    private fun getCurrentUserListener() {
-        scope.launch {
-           userDatastore.getCurrentUser.collect {
-               currentUser.value = it
-           }
-        }
-    }*/
-
+) : NotificationManager {
 
     override suspend fun applianceDeleted(appliance: Appliance) {
         val currentUser = userDatastore.getCurrentUser.first()
@@ -72,7 +51,6 @@ class NotificationManagerImpl(
 
     override suspend fun eventUpdated(event: CalendarEvent, data: Map<String, Any?>) {
         if (userDatastore.getCurrentUser.first().userId != event.user.userId)
-
             sendMessage(
                 PushNotification(
                     to = event.user.msgToken,
@@ -126,18 +104,6 @@ class NotificationManagerImpl(
                             data = NotificationData(NotificationType.NEW_EVENT.name)
                         )
                     )
-
-                    /*Firebase.messaging.send(
-                        RemoteMessage.Builder("$SENDER_ID@gcm.googleapis.com").setData(
-                            mapOf(
-                                "token" to it,
-                                "notification" to bundleOf(
-                                    "title" to "Breaking News",
-                                    "body" to "New news story available."
-                                ).toString(),
-                            )
-                        ).build()
-                    )*/
                 }
         }
     }
@@ -230,21 +196,4 @@ class NotificationManagerImpl(
 
         runCatching { NotifierManager.getPushNotifier().subscribeToTopic("weather") }
     }
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        /*when(event) {
-            Lifecycle.Event.ON_CREATE -> {}
-            Lifecycle.Event.ON_START -> {
-                job.start()
-            }
-            Lifecycle.Event.ON_RESUME -> {}
-            Lifecycle.Event.ON_PAUSE -> {}
-            Lifecycle.Event.ON_STOP -> {
-                job.cancel()
-            }
-            Lifecycle.Event.ON_DESTROY -> {}
-            Lifecycle.Event.ON_ANY -> {}
-        }*/
-    }
 }
-

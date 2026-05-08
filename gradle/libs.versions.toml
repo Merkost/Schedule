@@ -38,7 +38,7 @@ playServicesAuth = "21.5.1"
 gitliveFirebase = "2.4.0"
 koin = "4.2.1"
 accompanist = "0.37.3"
-composeCalendar = "1.4.0"
+kizitonwoseCalendar = "2.10.1"
 coil = "3.4.0"
 kmpnotifier = "1.6.1"
 junit = "4.13.2"
@@ -121,7 +121,7 @@ constraintlayout-compose-multiplatform = { module = "tech.annexflow.compose:cons
 
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
-compose-calendar = { module = "io.github.boguszpawlowski.composecalendar:composecalendar", version.ref = "composeCalendar" }
+kizitonwose-calendar = { module = "com.kizitonwose.calendar:compose-multiplatform", version.ref = "kizitonwoseCalendar" }
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
