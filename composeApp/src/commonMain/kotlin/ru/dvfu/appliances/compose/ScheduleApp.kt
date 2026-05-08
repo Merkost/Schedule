@@ -26,8 +26,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.mmk.kmpnotifier.notification.NotifierManager
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import org.koin.compose.koinInject
 import ru.dvfu.appliances.compose.appliance.AddUsersToAppliance
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
@@ -50,6 +54,7 @@ import ru.dvfu.appliances.navigation.BookingListRoute
 import ru.dvfu.appliances.navigation.EditProfileRoute
 import ru.dvfu.appliances.navigation.EventInfoRoute
 import ru.dvfu.appliances.navigation.HomeRoute
+import ru.dvfu.appliances.navigation.LoginRoute
 import ru.dvfu.appliances.navigation.MainDestinations
 import ru.dvfu.appliances.navigation.NewApplianceRoute
 import ru.dvfu.appliances.navigation.SettingsRoute
@@ -58,6 +63,7 @@ import ru.dvfu.appliances.navigation.UsersRoute
 import ru.dvfu.appliances.notifications.AppNotifierListener
 import ru.dvfu.appliances.notifications.NavControllerNotificationRouter
 import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
+import ru.dvfu.appliances.ui.LoginScreen
 import kotlinx.datetime.LocalDate
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
@@ -81,6 +87,31 @@ fun ScheduleApp() {
         onDispose { NotificationNavRouterDelegate.detach() }
     }
 
+    val isAuthenticated by produceState<Boolean?>(initialValue = null) {
+        Firebase.auth.authStateChanged
+            .map { it != null }
+            .distinctUntilChanged()
+            .collect { value = it }
+    }
+
+    LaunchedEffect(isAuthenticated) {
+        val authed = isAuthenticated ?: return@LaunchedEffect
+        val controller = appStateHolder.navController
+        val current = controller.currentDestination?.route ?: return@LaunchedEffect
+        val onLogin = current.contains("LoginRoute")
+        if (authed && onLogin) {
+            controller.navigate(MainDestinations.HOME_ROUTE) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        } else if (!authed && !onLogin) {
+            controller.navigate(LoginRoute) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets(0),
         bottomBar = {
@@ -94,9 +125,19 @@ fun ScheduleApp() {
         },
         snackbarHost = { SnackbarHost(appStateHolder.snackbarHostState) },
     ) { innerPadding ->
+        if (isAuthenticated == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center,
+            ) { CircularProgressIndicator() }
+            return@Scaffold
+        }
+        val start: Any = if (isAuthenticated == true) MainDestinations.HOME_ROUTE else LoginRoute
         NavHost(
             navController = appStateHolder.navController,
-            startDestination = MainDestinations.HOME_ROUTE,
+            startDestination = start,
             modifier = Modifier
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding),
@@ -119,6 +160,10 @@ private fun NavGraphBuilder.NavGraph(
     backPress: () -> Unit = { navController.popBackStack() },
     upPress: () -> Unit,
 ) {
+    composable<LoginRoute> {
+        LoginScreen()
+    }
+
     navigation(
         route = MainDestinations.HOME_ROUTE,
         startDestination = HomeSections.CALENDAR.route,

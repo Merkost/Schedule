@@ -47,5 +47,14 @@
 	<string>Schedule needs camera access to attach photos to bookings.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Schedule needs photo library access to attach images to bookings.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.106372275715-f2cpjslhhgkm7bc1q5q679p8loiaqa8h</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

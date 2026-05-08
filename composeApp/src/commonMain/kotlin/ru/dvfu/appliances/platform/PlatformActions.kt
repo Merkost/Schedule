@@ -6,6 +6,4 @@ expect fun showError(message: String?)
 
 expect fun openAppNotificationSettings()
 
-expect fun startLoginScreen()
-
 expect fun finishApp()

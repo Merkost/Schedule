@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,19 +28,31 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
 import ru.dvfu.appliances.generated.resources.Res
-import ru.dvfu.appliances.generated.resources.*
+import ru.dvfu.appliances.generated.resources.app_name
+import ru.dvfu.appliances.generated.resources.continue_as_a_guest
+import ru.dvfu.appliances.generated.resources.ic_google
+import ru.dvfu.appliances.generated.resources.login_to_continue
+import ru.dvfu.appliances.generated.resources.sign_in_with_google
+import ru.dvfu.appliances.platform.GoogleAuthLauncher
 
 data class LoginUiState(
     val loading: Boolean = false,
@@ -50,7 +61,37 @@ data class LoginUiState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
+fun LoginScreen() {
+    val viewModel = koinViewModel<LoginViewModel>()
+    val launcher = koinInject<GoogleAuthLauncher>()
+    val scope = rememberCoroutineScope()
+    val state by viewModel.subscribe().collectAsState()
+
+    val uiState = when (val s = state) {
+        is BaseViewState.Loading -> LoginUiState(loading = true)
+        is BaseViewState.Error -> LoginUiState(errorMessage = s.error.message ?: "Произошла ошибка")
+        is BaseViewState.Success<*> -> LoginUiState()
+    }
+
+    LoginScreenContent(
+        state = uiState,
+        onGoogleClick = {
+            scope.launch {
+                val result = launcher.signIn()
+                result.fold(
+                    onSuccess = { idToken -> viewModel.signInWithGoogleIdToken(idToken) },
+                    onFailure = { err -> viewModel.setError(err) },
+                )
+            }
+        },
+        onGuestClick = { viewModel.signInAnonymously() },
+        onErrorShown = { viewModel.clearError() },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginScreenContent(
     state: LoginUiState,
     onGoogleClick: () -> Unit,
     onGuestClick: () -> Unit,

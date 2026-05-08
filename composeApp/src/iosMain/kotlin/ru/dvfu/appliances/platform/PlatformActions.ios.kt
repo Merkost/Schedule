@@ -15,8 +15,5 @@ actual fun openAppNotificationSettings() {
     UIApplication.sharedApplication.openURL(url)
 }
 
-actual fun startLoginScreen() {
-}
-
 actual fun finishApp() {
 }

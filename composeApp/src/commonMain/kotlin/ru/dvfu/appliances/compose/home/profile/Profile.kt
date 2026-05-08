@@ -45,7 +45,8 @@ import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.isAdmin
-import ru.dvfu.appliances.platform.startLoginScreen
+import org.koin.compose.koinInject
+import ru.dvfu.appliances.platform.GoogleAuthLauncher
 
 @InternalCoroutinesApi
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,6 +107,7 @@ fun UserButtons(navController: NavController, currentUser: User) {
 fun LogoutDialog(onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
     val viewModel = koinViewModel<ProfileViewModel>()
+    val launcher = koinInject<GoogleAuthLauncher>()
 
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
@@ -134,9 +136,9 @@ fun LogoutDialog(onDismiss: () -> Unit) {
             androidx.compose.material3.Button(
                 onClick = {
                     scope.launch {
-                        viewModel.logoutCurrentUser().collect { isLogout ->
-                            if (isLogout) startLoginScreen()
-                        }
+                        runCatching { launcher.signOut() }
+                        viewModel.logoutCurrentUser().collect { }
+                        onDismiss()
                     }
                 },
                 colors = androidx.compose.material3.ButtonDefaults.buttonColors(

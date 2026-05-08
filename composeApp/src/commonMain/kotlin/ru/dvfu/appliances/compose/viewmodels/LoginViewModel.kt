@@ -2,6 +2,9 @@ package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.GoogleAuthProvider
+import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.model.repository.UsersRepository
@@ -30,6 +33,35 @@ class LoginViewModel(
                 .collectLatest { user ->
                     user?.let { onSuccess(it) }
                 }
+        }
+    }
+
+    fun signInWithGoogleIdToken(idToken: String) {
+        viewModelScope.launch {
+            mutableStateFlow.value = BaseViewState.Loading(null)
+            runCatching {
+                Firebase.auth.signInWithCredential(
+                    GoogleAuthProvider.credential(idToken, null)
+                )
+            }.onFailure { handleError(it) }
+        }
+    }
+
+    fun signInAnonymously() {
+        viewModelScope.launch {
+            mutableStateFlow.value = BaseViewState.Loading(null)
+            runCatching { Firebase.auth.signInAnonymously() }
+                .onFailure { handleError(it) }
+        }
+    }
+
+    fun setError(error: Throwable) {
+        handleError(error)
+    }
+
+    fun clearError() {
+        if (mutableStateFlow.value is BaseViewState.Error) {
+            mutableStateFlow.value = BaseViewState.Success(null)
         }
     }
 
