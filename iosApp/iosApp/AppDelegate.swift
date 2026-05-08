@@ -1,9 +1,20 @@
 import UIKit
+import UserNotifications
 import FirebaseCore
 import GoogleSignIn
 import ComposeApp
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler:
+            @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .list, .sound, .badge])
+    }
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
@@ -23,7 +34,16 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             )
         )
         GoogleSignInBridge.install()
+        UNUserNotificationCenter.current().delegate = self
+        application.registerForRemoteNotifications()
         return true
+    }
+
+    func application(
+        _ application: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+        NSLog("APNs registration failed: \(error.localizedDescription)")
     }
 
     func application(
