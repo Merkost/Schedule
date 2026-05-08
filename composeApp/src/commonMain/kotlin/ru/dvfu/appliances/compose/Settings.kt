@@ -18,10 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsActive
+import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Send
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,23 +37,32 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
+import com.mmk.kmpnotifier.notification.NotifierManager
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.utils.NotificationManager
@@ -57,6 +70,7 @@ import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.model.datastore.ThemeMode
 import ru.dvfu.appliances.model.datastore.UserDatastore
+import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.platform.NotificationPermissionResult
 import ru.dvfu.appliances.platform.openAppNotificationSettings
 import ru.dvfu.appliances.platform.rememberNotificationPermissionController
@@ -65,13 +79,38 @@ import ru.dvfu.appliances.platform.rememberNotificationPermissionController
 fun Settings(navController: NavController, upPress: () -> Unit) {
     val datastore: UserDatastore = koinInject()
     val notificationManager: NotificationManager = koinInject()
+    val usersRepository: UsersRepository = koinInject()
     val permissionController = rememberNotificationPermissionController()
+    val clipboard = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
 
     var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
     var bookingUpdatesEnabled by rememberSaveable { mutableStateOf(true) }
     var remindersEnabled by rememberSaveable { mutableStateOf(true) }
     var deniedAlwaysDialog by rememberSaveable { mutableStateOf(false) }
+
+    var permissionState by remember { mutableStateOf<NotificationPermissionResult?>(null) }
+    var permissionRefresh by remember { mutableIntStateOf(0) }
+
+    var fcmToken by remember { mutableStateOf<String?>(null) }
+    var serverToken by remember { mutableStateOf<String?>(null) }
+    var fcmRefresh by remember { mutableIntStateOf(0) }
+    var fcmSyncing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(permissionRefresh) {
+        permissionState = permissionController.currentState()
+    }
+    LifecycleResumeEffect(Unit) {
+        permissionRefresh++
+        fcmRefresh++
+        onPauseOrDispose { }
+    }
+
+    LaunchedEffect(fcmRefresh) {
+        fcmToken = runCatching { NotifierManager.getPushNotifier().getToken() }.getOrNull()
+        val uid = usersRepository.currentUser.first()?.userId
+        serverToken = uid?.let { usersRepository.getUser(it).getOrNull()?.msgToken }?.takeIf { it.isNotBlank() }
+    }
 
     val themeMode by datastore.getThemeMode.collectAsState(initial = ThemeMode.SYSTEM)
 
@@ -94,8 +133,16 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
         )
     }
 
+    fun requestPermission() = scope.launch {
+        val result = permissionController.request()
+        permissionState = result
+        if (result == NotificationPermissionResult.DeniedAlways) deniedAlwaysDialog = true
+    }
+
     fun sendTest() = scope.launch {
-        when (permissionController.request()) {
+        val result = permissionController.request()
+        permissionState = result
+        when (result) {
             NotificationPermissionResult.Granted -> {
                 notificationManager.sendTestNotificationToCurrentDevice().fold(
                     onSuccess = { SnackbarManager.showMessage(Res.string.test_notification_sent) },
@@ -112,6 +159,25 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
         }
     }
 
+    fun syncFcmToken() = scope.launch {
+        fcmSyncing = true
+        runCatching {
+            val token = NotifierManager.getPushNotifier().getToken()
+            if (!token.isNullOrBlank()) usersRepository.setNewMessagingToken(token)
+            fcmToken = token
+            val uid = usersRepository.currentUser.first()?.userId
+            serverToken = uid?.let { usersRepository.getUser(it).getOrNull()?.msgToken }?.takeIf { it.isNotBlank() }
+        }
+        fcmSyncing = false
+    }
+
+    fun copyToken() {
+        fcmToken?.let {
+            clipboard.setText(AnnotatedString(it))
+            SnackbarManager.showMessage(Res.string.fcm_diagnostics_copied)
+        }
+    }
+
     Scaffold(
         topBar = { ScheduleAppBar(stringResource(Res.string.settings), backClick = upPress) },
     ) { innerPadding ->
@@ -123,6 +189,14 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            if (permissionState != null && permissionState != NotificationPermissionResult.Granted) {
+                NotificationPermissionBanner(
+                    state = permissionState!!,
+                    onAllow = { requestPermission() },
+                    onOpenSettings = { permissionController.openSystemSettings() },
+                )
+            }
+
             SettingsSection(title = stringResource(Res.string.notifications)) {
                 SettingsToggleRow(
                     icon = Icons.Outlined.NotificationsActive,
@@ -162,6 +236,14 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                     title = stringResource(Res.string.open_system_settings),
                     subtitle = stringResource(Res.string.open_system_settings_subtitle),
                     onClick = { openAppNotificationSettings() },
+                )
+                SettingsDivider()
+                FcmDiagnosticsRow(
+                    deviceToken = fcmToken,
+                    serverToken = serverToken,
+                    syncing = fcmSyncing,
+                    onSync = { syncFcmToken() },
+                    onCopy = { copyToken() },
                 )
             }
 
@@ -324,5 +406,136 @@ private enum class ThemeModeOption(val mode: ThemeMode, val labelRes: StringReso
     System(ThemeMode.SYSTEM, Res.string.theme_mode_system),
     Light(ThemeMode.LIGHT, Res.string.theme_mode_light),
     Dark(ThemeMode.DARK, Res.string.theme_mode_dark),
+}
+
+@Composable
+private fun NotificationPermissionBanner(
+    state: NotificationPermissionResult,
+    onAllow: () -> Unit,
+    onOpenSettings: () -> Unit,
+) {
+    val blocked = state == NotificationPermissionResult.DeniedAlways
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.NotificationsOff,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(24.dp),
+                )
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = stringResource(Res.string.notification_permission_banner_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = stringResource(
+                            if (blocked) Res.string.notification_permission_banner_subtitle_blocked
+                            else Res.string.notification_permission_banner_subtitle_denied,
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
+            Button(
+                onClick = if (blocked) onOpenSettings else onAllow,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    stringResource(
+                        if (blocked) Res.string.notification_permission_banner_action_open_settings
+                        else Res.string.notification_permission_banner_action_allow,
+                    ),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FcmDiagnosticsRow(
+    deviceToken: String?,
+    serverToken: String?,
+    syncing: Boolean,
+    onSync: () -> Unit,
+    onCopy: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            SettingsIcon(Icons.Outlined.Key, enabled = true)
+            SettingsTextColumn(
+                title = stringResource(Res.string.fcm_diagnostics_title),
+                subtitle = fcmDiagnosticsSubtitle(deviceToken, serverToken),
+                enabled = true,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        if (!deviceToken.isNullOrBlank()) {
+            Text(
+                text = "${deviceToken.take(20)}…${deviceToken.takeLast(8)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TextButton(
+                onClick = onSync,
+                enabled = !syncing,
+                modifier = Modifier.weight(1f),
+            ) {
+                Icon(
+                    Icons.Outlined.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(Res.string.fcm_diagnostics_refresh), maxLines = 1)
+            }
+            TextButton(
+                onClick = onCopy,
+                enabled = !deviceToken.isNullOrBlank(),
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(stringResource(Res.string.fcm_diagnostics_copy), maxLines = 1)
+            }
+        }
+    }
+}
+
+@Composable
+private fun fcmDiagnosticsSubtitle(deviceToken: String?, serverToken: String?): String = when {
+    deviceToken.isNullOrBlank() -> stringResource(Res.string.fcm_diagnostics_unavailable)
+    serverToken.isNullOrBlank() -> stringResource(Res.string.fcm_diagnostics_no_server)
+    serverToken == deviceToken -> stringResource(Res.string.fcm_diagnostics_synced)
+    else -> stringResource(Res.string.fcm_diagnostics_mismatch)
 }
 

@@ -25,8 +25,14 @@ fun rememberNotificationPermissionController(): NotificationPermissionController
 class NotificationPermissionController(
     private val controller: dev.icerock.moko.permissions.PermissionsController,
 ) {
-    suspend fun isGranted(): Boolean =
-        controller.getPermissionState(dev.icerock.moko.permissions.Permission.REMOTE_NOTIFICATION) == PermissionState.Granted
+    suspend fun isGranted(): Boolean = currentState() == NotificationPermissionResult.Granted
+
+    suspend fun currentState(): NotificationPermissionResult =
+        when (controller.getPermissionState(dev.icerock.moko.permissions.Permission.REMOTE_NOTIFICATION)) {
+            PermissionState.Granted -> NotificationPermissionResult.Granted
+            PermissionState.DeniedAlways -> NotificationPermissionResult.DeniedAlways
+            else -> NotificationPermissionResult.Denied
+        }
 
     suspend fun request(): NotificationPermissionResult = try {
         controller.providePermission(dev.icerock.moko.permissions.Permission.REMOTE_NOTIFICATION)
@@ -42,7 +48,6 @@ class NotificationPermissionController(
 
 enum class NotificationPermissionResult { Granted, Denied, DeniedAlways }
 
-/** Best-effort fire-and-forget permission prompt for screens that just want to nudge the user once. */
 @Composable
 fun NotificationPermissionRequest() {
     val controller = rememberNotificationPermissionController()
