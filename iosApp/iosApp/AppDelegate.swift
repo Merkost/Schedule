@@ -1,6 +1,7 @@
 import UIKit
 import UserNotifications
 import FirebaseCore
+import FirebaseMessaging
 import GoogleSignIn
 import ComposeApp
 
@@ -41,9 +42,17 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
     func application(
         _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        IosLogKt.iosLog(tag: "APNs", message: "registration ok, token bytes: \(deviceToken.count)")
+        Messaging.messaging().apnsToken = deviceToken
+    }
+
+    func application(
+        _ application: UIApplication,
         didFailToRegisterForRemoteNotificationsWithError error: Error
     ) {
-        NSLog("APNs registration failed: \(error.localizedDescription)")
+        IosLogKt.iosLogError(tag: "APNs", message: "registration failed: \(error.localizedDescription)")
     }
 
     func application(

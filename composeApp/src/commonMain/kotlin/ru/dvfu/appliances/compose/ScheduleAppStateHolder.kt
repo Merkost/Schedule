@@ -43,7 +43,10 @@ class AppStateHolder(
             snackbarManager.messages.collect { currentMessages ->
                 if (currentMessages.isNotEmpty()) {
                     val message = currentMessages[0]
-                    val text = getString(message.messageId)
+                    val text = when (message) {
+                        is ru.dvfu.appliances.application.Message.FromResource -> getString(message.resource)
+                        is ru.dvfu.appliances.application.Message.Text -> message.text
+                    }
                     snackbarHostState.showSnackbar(text)
                     snackbarManager.setMessageShown(message.id)
                 }

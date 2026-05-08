@@ -7,7 +7,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.resources.StringResource
 
-data class Message(val id: Long, val messageId: StringResource)
+sealed interface Message {
+    val id: Long
+
+    data class FromResource(override val id: Long, val resource: StringResource) : Message
+    data class Text(override val id: Long, val text: String) : Message
+}
 
 object SnackbarManager {
 
@@ -15,17 +20,14 @@ object SnackbarManager {
     val messages: StateFlow<List<Message>> get() = _messages.asStateFlow()
 
     fun showMessage(messageTextId: StringResource) {
-        _messages.update { currentMessages ->
-            currentMessages + Message(
-                id = Random.nextLong(),
-                messageId = messageTextId
-            )
-        }
+        _messages.update { it + Message.FromResource(Random.nextLong(), messageTextId) }
+    }
+
+    fun showText(text: String) {
+        _messages.update { it + Message.Text(Random.nextLong(), text) }
     }
 
     fun setMessageShown(messageId: Long) {
-        _messages.update { currentMessages ->
-            currentMessages.filterNot { it.id == messageId }
-        }
+        _messages.update { it.filterNot { m -> m.id == messageId } }
     }
 }
