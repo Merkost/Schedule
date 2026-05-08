@@ -39,8 +39,8 @@ class UpdateTimeUseCase(
                 eventsRepository.updateEvent(
                     event.id, mapOf(
                         "date" to eventDateAndTime.date.toMillis,
-                        "timeStart" to eventDateAndTime.timeStart.atDate(eventDateAndTime.date).toMillis,
-                        "timeEnd" to eventDateAndTime.timeEnd.atDate(eventDateAndTime.date).toMillis
+                        "timeStart" to kotlinx.datetime.LocalDateTime(eventDateAndTime.date, eventDateAndTime.timeStart).toMillis,
+                        "timeEnd" to kotlinx.datetime.LocalDateTime(eventDateAndTime.date, eventDateAndTime.timeEnd).toMillis
                     )
                 ).fold(
                     onSuccess = {
@@ -68,12 +68,10 @@ class UpdateTimeUseCase(
                     emit(true)
                 } else {
                     val result = it.find { event ->
-                        (event.timeStart.toLocalTime().isBefore(eventDateAndTime.timeStart) ||
-                                event.timeStart.toLocalTime()
-                                    .isAfter(eventDateAndTime.timeEnd)) && (
-                                event.timeEnd.toLocalTime()
-                                    .isBefore(eventDateAndTime.timeStart) || event.timeEnd.toLocalTime()
-                                    .isAfter(eventDateAndTime.timeEnd))
+                        val startTime = event.timeStart.toLocalTime()
+                        val endTime = event.timeEnd.toLocalTime()
+                        (startTime < eventDateAndTime.timeStart || startTime > eventDateAndTime.timeEnd) &&
+                                (endTime < eventDateAndTime.timeStart || endTime > eventDateAndTime.timeEnd)
                     }
                     emit(result == null)
                 }

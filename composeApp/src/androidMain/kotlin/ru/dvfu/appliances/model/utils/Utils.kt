@@ -39,7 +39,8 @@ import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.di.repositoryModule
 import ru.dvfu.appliances.model.repository.entity.*
-import java.time.Duration
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import java.util.*
 
 
@@ -81,7 +82,7 @@ fun showToast(context: Context, text: String) {
 }
 
 suspend inline fun suspendCoroutineWithTimeout(
-    timeout: Long = Duration.ofSeconds(8L).toMillis(),
+    timeout: Long = 8.seconds.inWholeMilliseconds,
     crossinline block: (CancellableContinuation<Result<Unit>>) -> Unit,
 ): Result<Unit> {
     return withTimeoutOrNull(timeout) {

@@ -1,12 +1,13 @@
 package ru.dvfu.appliances.model.datasource
 
-import org.kimplify.cedar.Cedar
 import dev.gitlive.firebase.firestore.where
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDate
+import org.kimplify.cedar.Cedar
 import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
@@ -14,8 +15,6 @@ import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.FirestoreCollections
 import ru.dvfu.appliances.model.utils.toMillis
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 class EventsRepositoryImpl(
     private val collections: FirestoreCollections,
@@ -59,7 +58,7 @@ class EventsRepositoryImpl(
             "status" to newStatus.name,
             "managerCommentary" to managerCommentary,
             "managedById" to managerId,
-            "managedTime" to LocalDateTime.now().toMillis,
+            "managedTime" to Clock.System.now().toEpochMilliseconds(),
         )
     }
 

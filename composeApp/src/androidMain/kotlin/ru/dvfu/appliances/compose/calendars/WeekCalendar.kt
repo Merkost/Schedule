@@ -20,9 +20,15 @@ import ru.dvfu.appliances.compose.home.HomeTopBar
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.isAnonymousOrGuest
-import java.time.LocalDate
-import java.time.temporal.WeekFields
-import java.util.*
+import kotlin.time.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlinx.datetime.todayIn
 
 @Composable
 fun EventCalendar(
@@ -32,9 +38,15 @@ fun EventCalendar(
     horizontalScrollState: ScrollState,
     verticalScrollState: ScrollState,
 ) {
-    val currentDate = remember { LocalDate.now() }
-    val minDate = remember { currentDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 1L) }
-    val maxDate = remember { currentDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 7L) }
+    val currentDate = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()) }
+    val minDate = remember {
+        val daysFromMonday = currentDate.dayOfWeek.isoDayNumber - 1
+        currentDate.minus(daysFromMonday, DateTimeUnit.DAY)
+    }
+    val maxDate = remember {
+        val daysToSunday = 7 - currentDate.dayOfWeek.isoDayNumber
+        currentDate.plus(daysToSunday, DateTimeUnit.DAY)
+    }
 
     LaunchedEffect(minDate, maxDate) {
         viewModel.getWeekEvents(minDate, maxDate)
@@ -59,7 +71,7 @@ fun EventCalendar(
         floatingActionButton = {
             if (!currentUser.isAnonymousOrGuest) {
                 FloatingActionButton(
-                    onClick = { navController.navigate(AddEventRoute(dateEpochDay = LocalDate.now().toEpochDay())) })
+                    onClick = { navController.navigate(AddEventRoute(dateEpochDay = Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays().toLong())) })
                 { Icon(Icons.Default.Add, "") }
             }
         },

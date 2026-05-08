@@ -32,7 +32,7 @@ import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.EventCalendar
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
 import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.calendars.event_calendar.EventTimeFormatter
+import ru.dvfu.appliances.compose.calendars.event_calendar.formatEventTime
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
@@ -185,8 +185,8 @@ fun EventOptionDialog(
     calendarEvent?.let {
         DefaultDialog(
             primaryText = calendarEvent.appliance.name,
-            secondaryText = "${calendarEvent.timeStart.format(EventTimeFormatter)} - ${
-                calendarEvent.timeEnd.format(EventTimeFormatter)
+            secondaryText = "${formatEventTime(calendarEvent.timeStart.time)} - ${
+                formatEventTime(calendarEvent.timeEnd.time)
             }\n${calendarEvent.commentary}",
             onDismiss = onDismiss,
             neutralButtonText = stringResource(Res.string.delete),

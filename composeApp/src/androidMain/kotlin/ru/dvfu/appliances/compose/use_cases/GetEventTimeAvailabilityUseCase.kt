@@ -41,8 +41,8 @@ class GetEventTimeAvailabilityUseCase(
     }
 
     private fun isTimeFree(list: List<Event>, eventDateAndTime: EventDateAndTime): Boolean {
-        val timeStart = eventDateAndTime.timeStart.atDate(eventDateAndTime.date).toMillis
-        val timeEnd = eventDateAndTime.timeEnd.atDate(eventDateAndTime.date).toMillis
+        val timeStart = kotlinx.datetime.LocalDateTime(eventDateAndTime.date, eventDateAndTime.timeStart).toMillis
+        val timeEnd = kotlinx.datetime.LocalDateTime(eventDateAndTime.date, eventDateAndTime.timeEnd).toMillis
 
         return !list.any {
             (timeStart > it.timeStart && timeEnd < it.timeEnd)

@@ -32,26 +32,29 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
-import java.time.ZoneOffset
+import kotlin.time.Clock
+import kotlin.time.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.todayIn
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePicker(
     context: Context,
     date: LocalDate,
-    minDate: LocalDate = LocalDate.now(),
+    minDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
     onDateSet: (LocalDate) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val minDateMillis = remember(minDate) {
-        minDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        minDate.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
     }
     val initialMillis = remember(date) {
-        date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        date.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
     }
 
     val datePickerState = rememberDatePickerState(
@@ -68,7 +71,7 @@ fun DatePicker(
             TextButton(
                 onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
-                        onDateSet(Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate())
+                        onDateSet(Instant.fromEpochMilliseconds(millis).toLocalDateTime(TimeZone.UTC).date)
                     }
                     onDismiss()
                 },
@@ -100,7 +103,7 @@ fun TimePicker(
     TimePickerMaterialDialog(
         state = timePickerState,
         onConfirm = {
-            onTimeSet(LocalTime.of(timePickerState.hour, timePickerState.minute))
+            onTimeSet(LocalTime(timePickerState.hour, timePickerState.minute))
             onDismiss()
         },
         onDismiss = onDismiss,

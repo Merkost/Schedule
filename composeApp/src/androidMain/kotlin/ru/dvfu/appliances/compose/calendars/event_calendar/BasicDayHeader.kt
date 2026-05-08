@@ -10,8 +10,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import java.time.LocalDate
-import java.time.LocalTime
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 
 @Composable
@@ -19,9 +21,9 @@ fun BasicDayHeader(
     day: LocalDate,
     modifier: Modifier = Modifier,
 ) {
-    val currentDate = remember { LocalDate.now() }
+    val currentDate = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()) }
     Text(
-        text = day.format(DayFormatter),
+        text = formatDay(day),
         textAlign = TextAlign.Center,
         modifier = modifier
             .fillMaxWidth()
@@ -33,5 +35,5 @@ fun BasicDayHeader(
 @Preview(showBackground = true)
 @Composable
 fun BasicDayHeaderPreview() {
-        BasicDayHeader(day = LocalDate.now())
+    BasicDayHeader(day = Clock.System.todayIn(TimeZone.currentSystemDefault()))
 }

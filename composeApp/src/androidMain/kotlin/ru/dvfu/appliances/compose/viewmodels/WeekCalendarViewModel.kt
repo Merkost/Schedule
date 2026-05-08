@@ -19,8 +19,14 @@ import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.utils.filterForUser
 import ru.dvfu.appliances.model.utils.filterWeekEventsForUser
-import java.time.LocalDate
-import java.time.LocalDateTime
+import kotlin.time.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlinx.datetime.todayIn
 import java.time.YearMonth
 
 
@@ -42,7 +48,7 @@ class WeekCalendarViewModel(
     private val _calendarType = MutableStateFlow<CalendarType>(CalendarType.MONTH)
     val calendarType = _calendarType.asStateFlow()
 
-    private val _currentDate = MutableStateFlow<LocalDate>(LocalDate.now())
+    private val _currentDate = MutableStateFlow<LocalDate>(Clock.System.todayIn(TimeZone.currentSystemDefault()))
     val currentDate = _currentDate.asStateFlow()
 
     private val _weekEvents = MutableStateFlow<List<CalendarEvent>>(listOf())
@@ -55,11 +61,11 @@ class WeekCalendarViewModel(
     val currentUser = _currentUser.asStateFlow()
 
     private var _dayEvents =
-        mutableStateMapOf<LocalDate, EventsState>(Pair(LocalDate.now(), EventsState.Loading))
+        mutableStateMapOf<LocalDate, EventsState>(Pair(Clock.System.todayIn(TimeZone.currentSystemDefault()), EventsState.Loading))
     val dayEvents = _dayEvents
 
     /*private var _monthEvents =
-        mutableStateMapOf<LocalDate, List<Event>>(Pair(LocalDate.now(), listOf()))
+        mutableStateMapOf<LocalDate, List<Event>>(Pair(Clock.System.todayIn(TimeZone.currentSystemDefault()), listOf()))
     val monthEvents = _monthEvents*/
 
     private var _monthEvents =
@@ -72,7 +78,7 @@ class WeekCalendarViewModel(
     private val appliances = MutableStateFlow<List<Appliance>>(listOf())
 
     init {
-        getDayEvents(LocalDate.now())
+        getDayEvents(Clock.System.todayIn(TimeZone.currentSystemDefault()))
         getCurrentUser()
         getCalendarTypeListener()
     }
@@ -85,7 +91,7 @@ class WeekCalendarViewModel(
         }
     }
 
-    private fun getDayEvents(date: LocalDate = LocalDate.now()) {
+    private fun getDayEvents(date: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())) {
         viewModelScope.launch {
             if (_dayEvents[date] !is EventsState.Loaded) {
                 _dayEvents[date] = EventsState.Loading
@@ -214,7 +220,8 @@ class WeekCalendarViewModel(
 
 }
 
-private fun YearMonth.getDates(): List<LocalDate> = (1..lengthOfMonth()).map { atDay(it) }
+private fun YearMonth.getDates(): List<LocalDate> =
+    (1..lengthOfMonth()).map { LocalDate(year, monthValue, it) }
 
 sealed class EventsState() {
     object Loading : EventsState()

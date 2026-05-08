@@ -29,9 +29,14 @@ import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
-import java.time.LocalDate
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import java.time.format.TextStyle
 import java.util.*
+
+private fun java.time.LocalDate.toKx(): LocalDate = LocalDate(year, monthValue, dayOfMonth)
 
 @Composable
 fun <T : SelectionState> ScheduleCalendarDate(
@@ -40,10 +45,11 @@ fun <T : SelectionState> ScheduleCalendarDate(
     currentDayEvents: List<CalendarEvent>,
     onClick: (LocalDate) -> Unit = {},
     modifier: Modifier = Modifier,
-    todayDate: LocalDate = LocalDate.now(),
+    todayDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
     selectionColor: Color = MaterialTheme.colorScheme.primaryContainer,
 ) {
     val date = state.date
+    val dateKx = date.toKx()
     val selectionState = state.selectionState
     val isSelected = selectionState.isDateSelected(date)
 
@@ -69,15 +75,15 @@ fun <T : SelectionState> ScheduleCalendarDate(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable {
-                    onClick(date)
+                    onClick(dateKx)
                     selectionState.onDateSelected(date)
                 },
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = date.dayOfMonth.toString(),
-                fontWeight = if (date == todayDate) FontWeight.Bold else FontWeight.Normal,
-                fontSize = if (date == todayDate) 16.sp else 14.sp,
+                fontWeight = if (dateKx == todayDate) FontWeight.Bold else FontWeight.Normal,
+                fontSize = if (dateKx == todayDate) 16.sp else 14.sp,
             )
             if (currentDayEvents.any { it.status == BookingStatus.NONE }) {
                 Box(

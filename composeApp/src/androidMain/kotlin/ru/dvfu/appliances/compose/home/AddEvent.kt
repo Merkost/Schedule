@@ -43,11 +43,12 @@ import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.components.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.utils.TimeConstants.FULL_DATE_FORMAT
+import ru.dvfu.appliances.model.utils.formatFull
 import ru.dvfu.appliances.model.utils.toHoursAndMinutes
+import kotlinx.datetime.format
 import ru.dvfu.appliances.ui.ViewState
-import java.time.LocalDate
-import java.time.LocalTime
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,8 +90,8 @@ fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
         ) {
             DateAndTime(
                 date = viewModel.date.value,
-                timeStart = viewModel.timeStart.value.toLocalTime(),
-                timeEnd = viewModel.timeEnd.value.toLocalTime(),
+                timeStart = viewModel.timeStart.value.time,
+                timeEnd = viewModel.timeEnd.value.time,
                 onDateSet = viewModel::onDateSet,
                 onTimeStartSet = viewModel::onTimeStartSet,
                 onTimeEndSet = viewModel::onTimeEndSet,
@@ -303,7 +304,7 @@ fun DateAndTime(
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
-            value = date.format(FULL_DATE_FORMAT),
+            value = date.formatFull(),
             onValueChange = {},
             label = { Text(stringResource(Res.string.date)) },
             readOnly = true,

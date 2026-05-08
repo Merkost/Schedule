@@ -15,7 +15,10 @@ import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
-import java.time.LocalDateTime
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 class EventInfoViewModel(
     private val eventArg: CalendarEvent,
@@ -95,8 +98,8 @@ class EventInfoViewModel(
                 EventTimeUpdateResult.Success -> {
                     _event.value = _event.value.copy(
                         date = dateAndTime.date,
-                        timeStart = dateAndTime.timeStart.atDate(dateAndTime.date),
-                        timeEnd = dateAndTime.timeEnd.atDate(dateAndTime.date)
+                        timeStart = LocalDateTime(dateAndTime.date, dateAndTime.timeStart),
+                        timeEnd = LocalDateTime(dateAndTime.date, dateAndTime.timeEnd)
                     )
                     SnackbarManager.showMessage(Res.string.event_time_updated)
                 }
@@ -145,7 +148,7 @@ class EventInfoViewModel(
                         status = bookingStatus,
                         managerCommentary = managerCommentary,
                         managedUser = currentUser.value,
-                        managedTime = LocalDateTime.now(),
+                        managedTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
                     )
                     SnackbarManager.showMessage(Res.string.status_changed)
                     _uiState.value = UiState.Success

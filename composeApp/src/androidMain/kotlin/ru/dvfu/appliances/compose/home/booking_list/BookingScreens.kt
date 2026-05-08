@@ -26,7 +26,7 @@ import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import java.time.LocalDateTime
+import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun PendingBookingsList(

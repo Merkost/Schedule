@@ -59,7 +59,12 @@ import ru.dvfu.appliances.model.utils.showError
 import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
-import java.time.LocalDate
+import kotlin.time.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.todayIn
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,8 +90,8 @@ fun EditProfile(onBack: () -> Unit) {
         DatePicker(
             context = context,
             date = currentUser.birthday.takeIf { it != 0L }?.toLocalDate()
-                ?: LocalDate.now().minusYears(18),
-            minDate = LocalDate.of(1900, 1, 1),
+                ?: Clock.System.todayIn(TimeZone.currentSystemDefault()).minus(18, DateTimeUnit.YEAR),
+            minDate = LocalDate(1900, 1, 1),
             onDismiss = { datePickerShown = false },
             onDateSet = { viewModel.birthdaySelected(it.toMillis) },
         )

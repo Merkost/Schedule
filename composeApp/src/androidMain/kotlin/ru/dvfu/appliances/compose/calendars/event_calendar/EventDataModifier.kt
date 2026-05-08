@@ -3,7 +3,9 @@ package ru.dvfu.appliances.compose.calendars.event_calendar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.unit.Density
-import java.time.format.DateTimeFormatter
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.isoDayNumber
 
 private class EventDataModifier(
     val positionedEvent: PositionedEvent,
@@ -13,7 +15,19 @@ private class EventDataModifier(
 
 fun Modifier.eventData(positionedEvent: PositionedEvent) = this.then(EventDataModifier(positionedEvent))
 
+fun formatEventTime(time: LocalTime): String =
+    "${time.hour}:${time.minute.toString().padStart(2, '0')}"
 
-val EventTimeFormatter = DateTimeFormatter.ofPattern("H:mm")
-val HourFormatter = DateTimeFormatter.ofPattern("H")
-val DayFormatter = DateTimeFormatter.ofPattern("EE, MMM d")
+fun formatHour(time: LocalTime): String = time.hour.toString()
+
+private val DAY_OF_WEEK_SHORT_RU = listOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс")
+private val MONTH_SHORT_RU = listOf(
+    "янв", "фев", "мар", "апр", "май", "июн",
+    "июл", "авг", "сен", "окт", "ноя", "дек",
+)
+
+fun formatDay(day: LocalDate): String {
+    val dow = DAY_OF_WEEK_SHORT_RU[day.dayOfWeek.isoDayNumber - 1]
+    val month = MONTH_SHORT_RU[day.monthNumber - 1]
+    return "$dow, $month ${day.dayOfMonth}"
+}

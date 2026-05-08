@@ -2,27 +2,37 @@ package ru.dvfu.appliances.compose.calendars.event_calendar
 
 import androidx.compose.ui.unit.Dp
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import java.time.LocalTime
-import java.time.temporal.ChronoUnit
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.plus
 
- fun splitEvents(calendarEvents: List<CalendarEvent>): List<PositionedEvent> {
+fun splitEvents(calendarEvents: List<CalendarEvent>): List<PositionedEvent> {
     return calendarEvents
         .map { event ->
-            val startDate = event.timeStart.toLocalDate()
-            val endDate = event.timeEnd.toLocalDate()
+            val startDate = event.timeStart.date
+            val endDate = event.timeEnd.date
             if (startDate == endDate) {
-                listOf(PositionedEvent(event, SplitType.None, event.timeStart.toLocalDate(), event.timeStart.toLocalTime(), event.timeEnd.toLocalTime()))
+                listOf(
+                    PositionedEvent(
+                        event,
+                        SplitType.None,
+                        startDate,
+                        event.timeStart.time,
+                        event.timeEnd.time,
+                    )
+                )
             } else {
-                val days = ChronoUnit.DAYS.between(startDate, endDate)
+                val days = startDate.daysUntil(endDate)
                 val splitEvents = mutableListOf<PositionedEvent>()
                 for (i in 0..days) {
-                    val date = startDate.plusDays(i)
+                    val date = startDate.plus(i, DateTimeUnit.DAY)
                     splitEvents += PositionedEvent(
                         event,
                         splitType = if (date == startDate) SplitType.End else if (date == endDate) SplitType.Start else SplitType.Both,
                         date = date,
-                        start = if (date == startDate) event.timeStart.toLocalTime() else LocalTime.MIN,
-                        end = if (date == endDate) event.timeEnd.toLocalTime() else LocalTime.MAX,
+                        start = if (date == startDate) event.timeStart.time else LocalTime(0, 0),
+                        end = if (date == endDate) event.timeEnd.time else LocalTime(23, 59, 59),
                     )
                 }
                 splitEvents
@@ -31,11 +41,11 @@ import java.time.temporal.ChronoUnit
         .flatten()
 }
 
- fun PositionedEvent.overlapsWith(other: PositionedEvent): Boolean {
+fun PositionedEvent.overlapsWith(other: PositionedEvent): Boolean {
     return date == other.date && start < other.end && end > other.start
 }
 
- fun List<PositionedEvent>.timesOverlapWith(event: PositionedEvent): Boolean {
+fun List<PositionedEvent>.timesOverlapWith(event: PositionedEvent): Boolean {
     return any { it.overlapsWith(event) }
 }
 
@@ -65,10 +75,8 @@ fun arrangeEvents(events: List<PositionedEvent>): List<PositionedEvent> {
         }
 
         when {
-            // Overlaps with all, add a new column
             firstFreeCol < 0 -> {
                 groupEvents += mutableListOf(event)
-                // Expand anything that spans into the previous column and doesn't overlap with this calendarEvent
                 for (ci in 0 until groupEvents.size - 1) {
                     val col = groupEvents[ci]
                     col.forEachIndexed { ei, e ->
@@ -78,12 +86,10 @@ fun arrangeEvents(events: List<PositionedEvent>): List<PositionedEvent> {
                     }
                 }
             }
-            // No overlap with any, start a new group
             numFreeCol == groupEvents.size -> {
                 resetGroup()
                 groupEvents += mutableListOf(event)
             }
-            // At least one column free, add to first free column and expand to as many as possible
             else -> {
                 groupEvents[firstFreeCol] += event.copy(colSpan = numFreeCol)
             }

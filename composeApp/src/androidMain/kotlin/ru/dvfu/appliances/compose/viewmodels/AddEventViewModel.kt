@@ -22,8 +22,27 @@ import ru.dvfu.appliances.model.utils.TimeConstants.DEFAULT_EVENT_DURATION
 import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
-import java.time.*
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlinx.datetime.*
+import ru.dvfu.appliances.model.utils.TimeConstants
 import java.util.*
+
+private val ZONE = TimeConstants.ZONE
+
+private fun nowDateTime(): LocalDateTime =
+    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+private fun nowTime(): LocalTime = nowDateTime().time
+
+private fun today(): LocalDate =
+    Clock.System.todayIn(TimeZone.currentSystemDefault())
+
+private fun LocalDateTime.plusDuration(d: Duration): LocalDateTime =
+    toInstant(ZONE).plus(d).toLocalDateTime(ZONE)
+
+private fun durationBetween(a: LocalDateTime, b: LocalDateTime): Duration =
+    b.toInstant(ZONE) - a.toInstant(ZONE)
 
 
 class AddEventViewModel(
@@ -54,24 +73,26 @@ class AddEventViewModel(
 
     val date = mutableStateOf(selectedDate)
     val timeStart = mutableStateOf<LocalDateTime>(
-        if (selectedDate.isAfter(LocalDate.now())) selectedDate.atTime(8, 0)
-        else LocalTime.now().atDate(selectedDate)
+        if (selectedDate > today()) selectedDate.atTime(8, 0)
+        else selectedDate.atTime(nowTime())
     )
-    val timeEnd = mutableStateOf<LocalDateTime>(timeStart.value.plus(DEFAULT_EVENT_DURATION))
+    val timeEnd = mutableStateOf<LocalDateTime>(timeStart.value.plusDuration(DEFAULT_EVENT_DURATION))
     val commentary = mutableStateOf("")
 
     val isDurationError: MutableStateFlow<Boolean>
         get() = MutableStateFlow(
-            timeEnd.value.isBefore(timeStart.value) || Duration.between(
+            timeEnd.value < timeStart.value || durationBetween(
                 timeStart.value, timeEnd.value,
             ) < MIN_EVENT_DURATION
         )
     val duration: MutableStateFlow<String>
         get() {
-            val dur = Duration.between(timeStart.value, timeEnd.value)
+            val dur = durationBetween(timeStart.value, timeEnd.value)
+            val totalMinutes = dur.inWholeMinutes.coerceAtLeast(0)
+            val hours = totalMinutes / 60
+            val minutes = totalMinutes % 60
             val period = String.format(
-                Locale.getDefault(), "%02d:%02d", dur.toHours(),
-                dur.minusHours(dur.toHours()).toMinutes(),
+                Locale.getDefault(), "%02d:%02d", hours, minutes,
             )
             return MutableStateFlow(period)
         }
@@ -108,8 +129,8 @@ class AddEventViewModel(
                 val availabilityResult = getEventTimeAvailabilityUseCase.invoke(
                     selectedAppliance.id,
                     eventDateAndTime = EventDateAndTime(
-                        timeStart = timeStart.value.toLocalTime(),
-                        timeEnd = timeEnd.value.toLocalTime(),
+                        timeStart = timeStart.value.time,
+                        timeEnd = timeEnd.value.time,
                         date = date.value
                     )
                 ).single()
@@ -137,7 +158,7 @@ class AddEventViewModel(
     private fun prepareEvent(selectedAppliance: Appliance): Event {
         return Event(
             date = date.value.toMillis,
-            timeCreated = LocalDateTime.now().toMillis,
+            timeCreated = nowDateTime().toMillis,
             timeStart = timeStart.value.toMillis,
             timeEnd = timeEnd.value.toMillis,
             commentary = commentary.value,
@@ -150,13 +171,13 @@ class AddEventViewModel(
     private fun prepareApprovedEvent(selectedAppliance: Appliance): Event {
         return Event(
             date = date.value.toMillis,
-            timeCreated = LocalDateTime.now().toMillis,
+            timeCreated = nowDateTime().toMillis,
             timeStart = timeStart.value.toMillis,
             timeEnd = timeEnd.value.toMillis,
             commentary = commentary.value,
             applianceId = selectedAppliance.id,
             userId = currentUser.value.userId,
-            managedTime = LocalDateTime.now().toMillis,
+            managedTime = nowDateTime().toMillis,
             managerCommentary = "",
             managedById = currentUser.value.userId,
             status = BookingStatus.APPROVED,
@@ -181,7 +202,7 @@ class AddEventViewModel(
 
     private fun showError() {
         when {
-            Duration.between(timeStart.value, timeEnd.value) < MIN_EVENT_DURATION -> {
+            durationBetween(timeStart.value, timeEnd.value) < MIN_EVENT_DURATION -> {
                 SnackbarManager.showMessage(Res.string.duration_error)
             }
             selectedAppliance.value == null -> {
@@ -214,17 +235,17 @@ class AddEventViewModel(
     }
 
     fun onDateSet(date: LocalDate) {
-        if (AppDebug.isDebug && date.isBefore(LocalDate.now())) {
+        if (AppDebug.isDebug && date < today()) {
             SnackbarManager.showMessage(Res.string.past_day_error)
             return
         }
-        this.date.value = LocalDate.of(date.year, date.month, date.dayOfMonth)
-        if (date.isAfter(LocalDate.now())) {
+        this.date.value = LocalDate(date.year, date.month, date.dayOfMonth)
+        if (date > today()) {
             timeStart.value = date.atTime(8, 0)
-            timeEnd.value = timeStart.value.plus(DEFAULT_EVENT_DURATION)
+            timeEnd.value = timeStart.value.plusDuration(DEFAULT_EVENT_DURATION)
         } else {
-            timeStart.value = date.atTime(LocalTime.now())
-            timeEnd.value = timeStart.value.plus(DEFAULT_EVENT_DURATION)
+            timeStart.value = date.atTime(nowTime())
+            timeEnd.value = timeStart.value.plusDuration(DEFAULT_EVENT_DURATION)
         }
     }
 

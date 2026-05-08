@@ -63,9 +63,19 @@ import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.utils.*
 import ru.dvfu.appliances.ui.ViewState
-import java.time.Duration
-import java.time.LocalDateTime
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
+import ru.dvfu.appliances.model.utils.formatFull
 import java.util.*
+
+private fun nowDateTime(): LocalDateTime =
+    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
 
 @OptIn(
@@ -151,11 +161,11 @@ private fun initTabs(
         result.add(
             BookingTabItem.PendingBookingsTabItem(
                 bookings = if (currentUser.isAdmin) {
-                    bookings.filter { it.timeEnd.isAfter(LocalDateTime.now()) }
+                    bookings.filter { it.timeEnd > nowDateTime() }
                 } else {
                     bookings.filter {
                         it.appliance.isUserSuperuserOrAdmin(currentUser)
-                                && it.timeEnd.isAfter(LocalDateTime.now())
+                                && it.timeEnd > nowDateTime()
                     }
                 },
                 viewModel = viewModel,
@@ -168,7 +178,7 @@ private fun initTabs(
 
     result.add(
         BookingTabItem.MyBookingsTabItem(
-            bookings = myBookings.filter { it.timeEnd.isAfter(LocalDateTime.now()) },
+            bookings = myBookings.filter { it.timeEnd > nowDateTime() },
             viewModel = viewModel,
             navController = navController
         )
@@ -176,7 +186,7 @@ private fun initTabs(
 
     result.add(
         BookingTabItem.PastBookingsTabItem(
-            bookings = myBookings.filter { it.timeEnd.isBefore(LocalDateTime.now()) },
+            bookings = myBookings.filter { it.timeEnd < nowDateTime() },
             viewModel = viewModel,
             navController = navController
         )
@@ -475,7 +485,7 @@ fun BookingTime(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
                 Text(
-                    text = timeStart.toLocalDate().format(TimeConstants.FULL_DATE_FORMAT),
+                    text = timeStart.date.formatFull(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                 )
@@ -493,25 +503,28 @@ fun BookingTime(
     }
 
     if (dialogState) {
-        var dialogDate by remember { mutableStateOf(timeStart.toLocalDate()) }
-        var dialogTimeStart by remember { mutableStateOf(timeStart.toLocalTime()) }
-        var dialogTimeEnd by remember { mutableStateOf(timeEnd.toLocalTime()) }
-        val bookingAlreadyStarted = remember { timeStart.isBefore(LocalDateTime.now()) }
+        var dialogDate by remember { mutableStateOf(timeStart.date) }
+        var dialogTimeStart by remember { mutableStateOf(timeStart.time) }
+        var dialogTimeEnd by remember { mutableStateOf(timeEnd.time) }
+        val bookingAlreadyStarted = remember { timeStart < nowDateTime() }
         val isError by remember(dialogTimeStart, dialogTimeEnd) {
+            val totalStart = dialogTimeStart.hour * 60 + dialogTimeStart.minute
+            val totalEnd = dialogTimeEnd.hour * 60 + dialogTimeEnd.minute
             mutableStateOf(
-                dialogTimeEnd.isBefore(dialogTimeStart) || Duration.between(
-                    dialogTimeStart,
-                    dialogTimeEnd
-                ) < Duration.ofMinutes(30)
+                totalEnd < totalStart || (totalEnd - totalStart).minutes < 30.minutes
             )
         }
         val duration by remember(dialogTimeStart, dialogTimeEnd) {
-            val dur = Duration.between(dialogTimeStart, dialogTimeEnd)
+            val totalStart = dialogTimeStart.hour * 60 + dialogTimeStart.minute
+            val totalEnd = dialogTimeEnd.hour * 60 + dialogTimeEnd.minute
+            val totalMinutes = (totalEnd - totalStart).coerceAtLeast(0)
+            val hours = totalMinutes / 60
+            val minutesRem = totalMinutes % 60
             val period = String.format(
                 Locale.getDefault(),
                 "%02d:%02d",
-                dur.toHours(),
-                dur.minusHours(dur.toHours()).toMinutes(),
+                hours,
+                minutesRem,
             )
             mutableStateOf(period)
         }

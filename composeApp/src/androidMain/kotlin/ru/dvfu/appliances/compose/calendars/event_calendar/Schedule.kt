@@ -20,9 +20,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.temporal.ChronoUnit
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.todayIn
+import kotlinx.datetime.toLocalDateTime
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -42,19 +46,19 @@ fun Schedule(
         },
     dayHeader: @Composable (day: LocalDate) -> Unit = { BasicDayHeader(day = it) },
     timeLabel: @Composable (time: LocalTime) -> Unit = { BasicSidebarLabel(time = it) },
-    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::timeStart)?.timeStart?.toLocalDate()
-        ?: LocalDate.now(),
-    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::timeEnd)?.timeEnd?.toLocalDate()
-        ?: LocalDate.now(),
-    minTime: LocalTime = LocalTime.of(8, 0),
-    maxTime: LocalTime = LocalTime.of(23, 0),
+    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::timeStart)?.timeStart?.date
+        ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
+    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::timeEnd)?.timeEnd?.date
+        ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
+    minTime: LocalTime = LocalTime(8, 0),
+    maxTime: LocalTime = LocalTime(23, 0),
     daySize: ScheduleSize = ScheduleSize.Adaptive(256.dp),
     hourSize: ScheduleSize = ScheduleSize.Adaptive(64.dp),
     verticalScrollState: ScrollState,
     horizontalScrollState: ScrollState,
 ) {
-    val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
-    val numMinutes = ChronoUnit.MINUTES.between(minTime, maxTime).toInt() + 1
+    val numDays = minDate.daysUntil(maxDate) + 1
+    val numMinutes = minutesBetween(minTime, maxTime).toInt() + 1
     val numHours = numMinutes.toFloat() / 60f
     var sidebarWidth by remember { mutableStateOf(0) }
     var headerHeight by remember { mutableStateOf(0) }
@@ -135,24 +139,26 @@ fun BasicSchedule(
             onEventClick = {},
             onEventLongClick = {})
     },
-    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::timeStart)?.timeStart?.toLocalDate()
-        ?: LocalDate.now(),
-    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::timeEnd)?.timeEnd?.toLocalDate()
-        ?: LocalDate.now(),
-    minTime: LocalTime = LocalTime.MIN,
-    maxTime: LocalTime = LocalTime.MAX,
+    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::timeStart)?.timeStart?.date
+        ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
+    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::timeEnd)?.timeEnd?.date
+        ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
+    minTime: LocalTime = LocalTime(0, 0),
+    maxTime: LocalTime = LocalTime(23, 59, 59),
     dayWidth: Dp,
     hourHeight: Dp,
     verticalScrollState: ScrollState,
     horizontalScrollState: ScrollState,
 ) {
-    val currentTime = remember { LocalTime.now() }
-    val currentDay = remember { LocalDate.now() }
+    val currentTime = remember {
+        Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
+    }
+    val currentDay = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()) }
     var dayWidthForScroll = remember { 0 }
     var hourHeightForScroll = remember { 0 }
 
-    val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
-    val numMinutes = ChronoUnit.MINUTES.between(minTime, maxTime).toInt() + 1
+    val numDays = minDate.daysUntil(maxDate) + 1
+    val numMinutes = minutesBetween(minTime, maxTime).toInt() + 1
     val numHours = numMinutes / 60
     val dividerColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
     val positionedEvents =
@@ -167,9 +173,9 @@ fun BasicSchedule(
         },
         modifier = modifier
             .drawBehind {
-                val firstHour = minTime.truncatedTo(ChronoUnit.HOURS)
+                val firstHour = minTime.truncatedToHours()
                 val firstHourOffsetMinutes =
-                    if (firstHour == minTime) 0 else ChronoUnit.MINUTES.between(
+                    if (firstHour == minTime) 0L else minutesBetween(
                         minTime,
                         firstHour.plusHours(1)
                     )
@@ -234,7 +240,7 @@ fun BasicSchedule(
         val placeablesWithEvents = measureables.map { measurable ->
             val splitEvent = measurable.parentData as PositionedEvent
             val eventDurationMinutes =
-                ChronoUnit.MINUTES.between(splitEvent.start, minOf(splitEvent.end, maxTime))
+                minutesBetween(splitEvent.start, minOf(splitEvent.end, maxTime))
             val eventHeight = ((eventDurationMinutes / 60f) * hourHeight.toPx()).roundToInt()
             val eventWidth =
                 ((splitEvent.colSpan.toFloat() / splitEvent.colTotal.toFloat()) * dayWidth.toPx()).roundToInt()
@@ -250,12 +256,12 @@ fun BasicSchedule(
         }
         layout(width, height) {
             placeablesWithEvents.forEach { (placeable, splitEvent) ->
-                val eventOffsetMinutes = if (splitEvent.start > minTime) ChronoUnit.MINUTES.between(
+                val eventOffsetMinutes = if (splitEvent.start > minTime) minutesBetween(
                     minTime,
                     splitEvent.start
-                ) else 0
+                ) else 0L
                 val eventY = ((eventOffsetMinutes / 60f) * hourHeight.toPx()).roundToInt()
-                val eventOffsetDays = ChronoUnit.DAYS.between(minDate, splitEvent.date).toInt()
+                val eventOffsetDays = minDate.daysUntil(splitEvent.date)
                 val eventX =
                     eventOffsetDays * dayWidth.roundToPx() + (splitEvent.col * (dayWidth.toPx() / splitEvent.colTotal.toFloat())).roundToInt()
                 placeable.place(eventX, eventY)

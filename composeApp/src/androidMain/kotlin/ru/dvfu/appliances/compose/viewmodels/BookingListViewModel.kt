@@ -19,7 +19,7 @@ import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.ui.ViewState
-import java.time.*
+import kotlinx.datetime.*
 
 class BookingListViewModel(
     private val eventsRepository: EventsRepository,
@@ -172,8 +172,3 @@ class BookingListViewModel(
 
 }
 
-data class EventDateAndTime(
-    val date: LocalDate,
-    val timeStart: LocalTime,
-    val timeEnd: LocalTime
-)

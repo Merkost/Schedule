@@ -60,7 +60,7 @@ import ru.dvfu.appliances.navigation.UsersRoute
 import ru.dvfu.appliances.notifications.AppNotifierListener
 import ru.dvfu.appliances.notifications.NavControllerNotificationRouter
 import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @ExperimentalComposeUiApi
@@ -130,7 +130,7 @@ private fun NavGraphBuilder.NavGraph(
 
     composable<AddEventRoute> { entry ->
         val r = entry.toRoute<AddEventRoute>()
-        AddEvent(selectedDate = LocalDate.ofEpochDay(r.dateEpochDay), upPress)
+        AddEvent(selectedDate = LocalDate.fromEpochDays(r.dateEpochDay.toInt()), upPress)
     }
     composable<EventInfoRoute> { entry ->
         val r = entry.toRoute<EventInfoRoute>()

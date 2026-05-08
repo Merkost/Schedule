@@ -8,8 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import java.time.LocalDate
-import java.time.temporal.ChronoUnit
+import kotlin.time.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.plus
+import kotlinx.datetime.todayIn
 
 @Composable
 fun ScheduleHeader(
@@ -20,10 +25,10 @@ fun ScheduleHeader(
     dayHeader: @Composable (day: LocalDate) -> Unit = { BasicDayHeader(day = it) },
 ) {
     Row(modifier = modifier) {
-        val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
+        val numDays = minDate.daysUntil(maxDate) + 1
         repeat(numDays) { i ->
             Box(modifier = Modifier.width(dayWidth)) {
-                dayHeader(minDate.plusDays(i.toLong()))
+                dayHeader(minDate.plus(i, DateTimeUnit.DAY))
             }
         }
     }
@@ -32,9 +37,10 @@ fun ScheduleHeader(
 @Preview(showBackground = true)
 @Composable
 fun ScheduleHeaderPreview() {
-        ScheduleHeader(
-            minDate = LocalDate.now(),
-            maxDate = LocalDate.now().plusDays(5),
-            dayWidth = 256.dp,
-        )
+    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    ScheduleHeader(
+        minDate = today,
+        maxDate = today.plus(5, DateTimeUnit.DAY),
+        dayWidth = 256.dp,
+    )
 }

@@ -12,7 +12,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import java.time.LocalTime
+import kotlin.time.Clock
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 
 @Composable
@@ -20,9 +23,11 @@ fun BasicSidebarLabel(
     time: LocalTime,
     modifier: Modifier = Modifier,
 ) {
-    val currentTime = remember { LocalTime.now() }
+    val currentTime = remember {
+        Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
+    }
     Text(
-        text = time.format(HourFormatter),
+        text = formatHour(time),
         modifier = modifier
             .fillMaxHeight()
             .padding(4.dp),
@@ -34,5 +39,5 @@ fun BasicSidebarLabel(
 @Preview(showBackground = true)
 @Composable
 fun BasicSidebarLabelPreview() {
-    BasicSidebarLabel(time = LocalTime.of(13, 0), Modifier.sizeIn(maxHeight = 64.dp))
+    BasicSidebarLabel(time = LocalTime(13, 0), Modifier.sizeIn(maxHeight = 64.dp))
 }

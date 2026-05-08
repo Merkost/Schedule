@@ -1,14 +1,21 @@
 package ru.dvfu.appliances.model.datasource.mock
 
+import kotlin.time.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.todayIn
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
-import java.util.UUID
+import ru.dvfu.appliances.model.utils.randomUUID
 
 object FakeData {
 
@@ -18,7 +25,7 @@ object FakeData {
         email = "admin@dvfu.ru",
         role = Roles.ADMIN.ordinal,
         anonymous = false,
-        userPic = ""
+        userPic = "",
     )
 
     val regularUser = User(
@@ -27,7 +34,7 @@ object FakeData {
         email = "sidorov@dvfu.ru",
         role = Roles.USER.ordinal,
         anonymous = false,
-        userPic = ""
+        userPic = "",
     )
 
     val secondUser = User(
@@ -36,7 +43,7 @@ object FakeData {
         email = "kozlova@dvfu.ru",
         role = Roles.USER.ordinal,
         anonymous = false,
-        userPic = ""
+        userPic = "",
     )
 
     val guestUser = User(
@@ -45,7 +52,7 @@ object FakeData {
         email = "guest@dvfu.ru",
         role = Roles.GUEST.ordinal,
         anonymous = true,
-        userPic = ""
+        userPic = "",
     )
 
     val allUsers = listOf(adminUser, regularUser, secondUser, guestUser)
@@ -58,7 +65,7 @@ object FakeData {
         createdById = adminUser.userId,
         superuserIds = listOf(regularUser.userId),
         userIds = listOf(regularUser.userId, secondUser.userId),
-        active = true
+        active = true,
     )
 
     val spectrometer = Appliance(
@@ -69,7 +76,7 @@ object FakeData {
         createdById = adminUser.userId,
         superuserIds = listOf(secondUser.userId),
         userIds = listOf(regularUser.userId, secondUser.userId),
-        active = true
+        active = true,
     )
 
     val inactiveAppliance = Appliance(
@@ -80,68 +87,71 @@ object FakeData {
         createdById = adminUser.userId,
         superuserIds = emptyList(),
         userIds = listOf(regularUser.userId),
-        active = false
+        active = false,
     )
 
     val allAppliances = listOf(microscope, spectrometer, inactiveAppliance)
 
-    fun generateEvents(baseDate: LocalDate = LocalDate.now()): List<Event> {
-        val zone = ZoneId.systemDefault()
+    fun generateEvents(
+        baseDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
+    ): List<Event> {
+        val zone = TimeZone.currentSystemDefault()
 
         fun toEpochMillis(date: LocalDate, time: LocalTime): Long =
-            date.atTime(time).atZone(zone).toInstant().toEpochMilli()
+            date.atTime(time).toInstant(zone).toEpochMilliseconds()
 
+        val midnight = LocalTime(0, 0)
         return listOf(
             Event(
-                id = UUID.randomUUID().toString(),
-                date = toEpochMillis(baseDate, LocalTime.MIDNIGHT),
-                timeCreated = toEpochMillis(baseDate.minusDays(1), LocalTime.of(10, 0)),
-                timeStart = toEpochMillis(baseDate, LocalTime.of(9, 0)),
-                timeEnd = toEpochMillis(baseDate, LocalTime.of(11, 0)),
+                id = randomUUID(),
+                date = toEpochMillis(baseDate, midnight),
+                timeCreated = toEpochMillis(baseDate.minus(1, DateTimeUnit.DAY), LocalTime(10, 0)),
+                timeStart = toEpochMillis(baseDate, LocalTime(9, 0)),
+                timeEnd = toEpochMillis(baseDate, LocalTime(11, 0)),
                 commentary = "Анализ образцов серии А",
                 applianceId = microscope.id,
                 userId = regularUser.userId,
                 status = BookingStatus.APPROVED,
                 managedById = adminUser.userId,
-                managedTime = toEpochMillis(baseDate.minusDays(1), LocalTime.of(12, 0)),
+                managedTime = toEpochMillis(baseDate.minus(1, DateTimeUnit.DAY), LocalTime(12, 0)),
             ),
             Event(
-                id = UUID.randomUUID().toString(),
-                date = toEpochMillis(baseDate, LocalTime.MIDNIGHT),
-                timeCreated = toEpochMillis(baseDate.minusDays(2), LocalTime.of(14, 0)),
-                timeStart = toEpochMillis(baseDate, LocalTime.of(13, 0)),
-                timeEnd = toEpochMillis(baseDate, LocalTime.of(15, 30)),
+                id = randomUUID(),
+                date = toEpochMillis(baseDate, midnight),
+                timeCreated = toEpochMillis(baseDate.minus(2, DateTimeUnit.DAY), LocalTime(14, 0)),
+                timeStart = toEpochMillis(baseDate, LocalTime(13, 0)),
+                timeEnd = toEpochMillis(baseDate, LocalTime(15, 30)),
                 commentary = "Спектральный анализ полимеров",
                 applianceId = spectrometer.id,
                 userId = secondUser.userId,
                 status = BookingStatus.NONE,
             ),
             Event(
-                id = UUID.randomUUID().toString(),
-                date = toEpochMillis(baseDate.plusDays(1), LocalTime.MIDNIGHT),
-                timeCreated = toEpochMillis(baseDate, LocalTime.of(8, 0)),
-                timeStart = toEpochMillis(baseDate.plusDays(1), LocalTime.of(10, 0)),
-                timeEnd = toEpochMillis(baseDate.plusDays(1), LocalTime.of(12, 0)),
+                id = randomUUID(),
+                date = toEpochMillis(baseDate.plus(1, DateTimeUnit.DAY), midnight),
+                timeCreated = toEpochMillis(baseDate, LocalTime(8, 0)),
+                timeStart = toEpochMillis(baseDate.plus(1, DateTimeUnit.DAY), LocalTime(10, 0)),
+                timeEnd = toEpochMillis(baseDate.plus(1, DateTimeUnit.DAY), LocalTime(12, 0)),
                 commentary = "Подготовка к конференции",
                 applianceId = microscope.id,
                 userId = adminUser.userId,
                 status = BookingStatus.APPROVED,
                 managedById = adminUser.userId,
-                managedTime = toEpochMillis(baseDate, LocalTime.of(9, 0)),
+                managedTime = toEpochMillis(baseDate, LocalTime(9, 0)),
             ),
             Event(
-                id = UUID.randomUUID().toString(),
-                date = toEpochMillis(baseDate.plusDays(2), LocalTime.MIDNIGHT),
-                timeCreated = toEpochMillis(baseDate, LocalTime.of(16, 0)),
-                timeStart = toEpochMillis(baseDate.plusDays(2), LocalTime.of(14, 0)),
-                timeEnd = toEpochMillis(baseDate.plusDays(2), LocalTime.of(17, 0)),
+                id = randomUUID(),
+                date = toEpochMillis(baseDate.plus(2, DateTimeUnit.DAY), midnight),
+                timeCreated = toEpochMillis(baseDate, LocalTime(16, 0)),
+                timeStart = toEpochMillis(baseDate.plus(2, DateTimeUnit.DAY), LocalTime(14, 0)),
+                timeEnd = toEpochMillis(baseDate.plus(2, DateTimeUnit.DAY), LocalTime(17, 0)),
                 commentary = "Студенческая лабораторная",
                 applianceId = spectrometer.id,
                 userId = regularUser.userId,
                 status = BookingStatus.DECLINED,
                 managedById = secondUser.userId,
-                managedTime = toEpochMillis(baseDate, LocalTime.of(17, 0)),
-                managerCommentary = "Конфликт расписания"
+                managedTime = toEpochMillis(baseDate, LocalTime(17, 0)),
+                managerCommentary = "Конфликт расписания",
             ),
         )
     }

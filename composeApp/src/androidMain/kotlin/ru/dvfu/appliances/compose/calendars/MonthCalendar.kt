@@ -48,9 +48,16 @@ import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.utils.formattedTime
 import ru.dvfu.appliances.model.utils.loadingModifier
-import java.time.LocalDate
-import java.time.LocalDateTime
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.todayIn
 import java.time.YearMonth
+
+private fun java.time.LocalDate.toKx(): LocalDate = LocalDate(year, monthValue, dayOfMonth)
+private fun LocalDate.toJava(): java.time.LocalDate = java.time.LocalDate.of(year, monthNumber, dayOfMonth)
 
 @Composable
 fun MonthWeekCalendar(
@@ -72,7 +79,7 @@ fun MonthWeekCalendar(
     )
 
     LaunchedEffect(calendarState.selectionState.selection) {
-        val selection = calendarState.selectionState.selection
+        val selection = calendarState.selectionState.selection.map { it.toKx() }
         viewModel.onDateSelectionChanged(selection)
         val next = selection.firstOrNull()
         pinnedDate = if (next != null && next == pinnedDate) null else next
@@ -111,7 +118,7 @@ fun MonthWeekCalendar(
             if (!currentUser.isAnonymousOrGuest) {
                 ExtendedFloatingActionButton(
                     onClick = {
-                        navController.navigate(AddEventRoute(dateEpochDay = currentDate.toEpochDay()))
+                        navController.navigate(AddEventRoute(dateEpochDay = currentDate.toEpochDays().toLong()))
                     },
                 ) {
                     Text(text = stringResource(Res.string.new_event))
@@ -135,7 +142,7 @@ fun MonthWeekCalendar(
                     ScheduleCalendarDate(
                         currentUser = currentUser,
                         state = dayState,
-                        currentDayEvents = (dayEvents[dayState.date] as? EventsState.Loaded)?.events.orEmpty()
+                        currentDayEvents = (dayEvents[dayState.date.toKx()] as? EventsState.Loaded)?.events.orEmpty()
                             .filter { it.status != BookingStatus.DECLINED && it.appliance.active }
                     )
                 },
@@ -360,7 +367,7 @@ private fun EventsPanelImpl(
 ) {
     val monthEvents: List<Pair<LocalDate, List<CalendarEvent>>> = dayEvents
         .asSequence()
-        .filter { (date, _) -> YearMonth.from(date) == currentMonth }
+        .filter { (date, _) -> date.year == currentMonth.year && date.monthNumber == currentMonth.monthValue }
         .mapNotNull { (date, state) ->
             val events = (state as? EventsState.Loaded)?.events
                 ?.filter { it.status != BookingStatus.DECLINED && it.appliance.active }
@@ -392,7 +399,7 @@ private fun EventsPanelImpl(
         ) {
             Text(
                 text = if (pinnedDate != null) {
-                    pinnedDate.format(java.time.format.DateTimeFormatter.ofPattern("d MMMM", java.util.Locale.getDefault()))
+                    ru.dvfu.appliances.model.utils.formattedDate(pinnedDate)
                 } else {
                     currentMonth.format(java.time.format.DateTimeFormatter.ofPattern("LLLL", java.util.Locale.getDefault()))
                         .replaceFirstChar { it.titlecase() } + " — все события"
@@ -459,13 +466,18 @@ private fun EventsPanelImpl(
     }
 }
 
+private val DAY_OF_WEEK_NAMES_RU = listOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс")
+private val MONTH_SHORT_RU = listOf(
+    "янв", "фев", "мар", "апр", "май", "июн",
+    "июл", "авг", "сен", "окт", "ноя", "дек",
+)
+
 @Composable
 private fun EventDateHeader(date: LocalDate) {
-    val locale = java.util.Locale.getDefault()
-    val isToday = date == LocalDate.now()
-    val dayOfWeek = date.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT_STANDALONE, locale).replaceFirstChar { it.titlecase() }
+    val isToday = date == Clock.System.todayIn(TimeZone.currentSystemDefault())
+    val dayOfWeek = DAY_OF_WEEK_NAMES_RU[date.dayOfWeek.isoDayNumber - 1]
     val dayOfMonth = date.dayOfMonth
-    val monthName = date.month.getDisplayName(java.time.format.TextStyle.SHORT_STANDALONE, locale).lowercase()
+    val monthName = MONTH_SHORT_RU[date.monthNumber - 1]
 
     Row(
         modifier = Modifier

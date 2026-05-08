@@ -1,8 +1,8 @@
 package ru.dvfu.appliances.model.repository
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.LocalDate
 import ru.dvfu.appliances.model.repository.entity.*
-import java.time.LocalDate
 
 interface EventsRepository {
     suspend fun addNewEvent(event: Event): Result<Unit>

@@ -4,13 +4,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlin.time.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.plus
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.toLocalDate
-import java.time.LocalDate
-import java.time.ZoneId
 
 class MockEventsRepository : EventsRepository {
 
@@ -46,7 +50,7 @@ class MockEventsRepository : EventsRepository {
         eventId: String,
         newStatus: BookingStatus,
         managerCommentary: String,
-        managerId: String
+        managerId: String,
     ): Result<Unit> {
         eventsStore.update { list ->
             list.map {
@@ -54,7 +58,7 @@ class MockEventsRepository : EventsRepository {
                     status = newStatus,
                     managerCommentary = managerCommentary,
                     managedById = managerId,
-                    managedTime = System.currentTimeMillis()
+                    managedTime = Clock.System.now().toEpochMilliseconds(),
                 ) else it
             }
         }
@@ -80,9 +84,9 @@ class MockEventsRepository : EventsRepository {
         Result.success(eventsStore.value.filter { it.applianceId == applianceId && it.date.toLocalDate() == date })
 
     override suspend fun getAllEventsWithPeriod(dateStart: LocalDate, dateEnd: LocalDate): Result<List<Event>> {
-        val zone = ZoneId.systemDefault()
-        val startMillis = dateStart.atStartOfDay(zone).toInstant().toEpochMilli()
-        val endMillis = dateEnd.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
+        val zone = TimeZone.currentSystemDefault()
+        val startMillis = dateStart.atStartOfDayIn(zone).toEpochMilliseconds()
+        val endMillis = dateEnd.plus(1, DateTimeUnit.DAY).atStartOfDayIn(zone).toEpochMilliseconds()
         return Result.success(eventsStore.value.filter { it.date in startMillis until endMillis })
     }
 
