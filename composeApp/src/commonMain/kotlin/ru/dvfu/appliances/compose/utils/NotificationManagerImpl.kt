@@ -187,7 +187,9 @@ class NotificationManagerImpl(
     }
 
     override suspend fun sendTestNotificationToCurrentDevice(): Result<String> = runCatching {
+        val log = org.kimplify.cedar.Cedar.tag("FCM")
         val token = NotifierManager.getPushNotifier().getToken()
+        log.d("test push: token=${token?.take(12)}…(len=${token?.length})")
         check(!token.isNullOrBlank()) { "FCM token unavailable on this device" }
         notificationApi.postNotification(
             PushNotification(
@@ -199,6 +201,7 @@ class NotificationManagerImpl(
                 data = NotificationData(NotificationType.DEFAULT.name),
             ),
         )
+        log.d("test push: posted ok")
         token
     }
 
