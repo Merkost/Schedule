@@ -7,13 +7,13 @@ import android.content.Context
 import android.graphics.Color
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.mmk.kmpnotifier.notification.NotifierManager
-import org.kimplify.cedar.Cedar
-import org.kimplify.cedar.ConsoleTree
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.kimplify.cedar.Cedar
+import org.kimplify.cedar.ConsoleTree
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -21,7 +21,9 @@ import org.koin.core.logger.Level
 import ru.dvfu.appliances.AppBuildConfig
 import ru.dvfu.appliances.AppDebug
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.di.androidAppModule
 import ru.dvfu.appliances.di.application
+import ru.dvfu.appliances.di.initKoin
 import ru.dvfu.appliances.di.mainActivity
 import ru.dvfu.appliances.di.mockRepositoryModule
 import ru.dvfu.appliances.di.networkModule
@@ -38,19 +40,26 @@ class Schedule : Application() {
         AppDebug.init(this)
         Cedar.plant(ConsoleTree)
 
-        startKoin {
-            androidLogger(if (AppDebug.isDebug) Level.ERROR else Level.NONE)
-            androidContext(this@Schedule)
-            val repoModule = if (AppBuildConfig.USE_MOCK_REPOS) mockRepositoryModule else repositoryModule
-            modules(
-                listOf(
-                    platformModule(),
-                    networkModule,
-                    application,
-                    mainActivity,
-                    repoModule
+        if (AppBuildConfig.USE_MOCK_REPOS) {
+            startKoin {
+                androidLogger(if (AppDebug.isDebug) Level.ERROR else Level.NONE)
+                androidContext(this@Schedule)
+                modules(
+                    listOf(
+                        platformModule(),
+                        networkModule,
+                        application,
+                        mainActivity,
+                        androidAppModule,
+                        mockRepositoryModule,
+                    )
                 )
-            )
+            }
+        } else {
+            initKoin(extraModules = listOf(androidAppModule)) {
+                androidLogger(if (AppDebug.isDebug) Level.ERROR else Level.NONE)
+                androidContext(this@Schedule)
+            }
         }
 
         if (AppDebug.isDebug) { FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false) }

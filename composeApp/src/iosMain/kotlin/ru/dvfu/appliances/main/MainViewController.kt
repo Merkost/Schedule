@@ -1,22 +1,35 @@
 package ru.dvfu.appliances.main
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeUIViewController
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
+import org.koin.mp.KoinPlatform
 import platform.UIKit.UIViewController
+import ru.dvfu.appliances.compose.ScheduleApp
+import ru.dvfu.appliances.compose.ui.theme.ScheduleTheme
+import ru.dvfu.appliances.di.initKoin
 
-fun MainViewController(): UIViewController = ComposeUIViewController {
-    PlaceholderApp()
+@OptIn(
+    ExperimentalComposeUiApi::class,
+    ExperimentalFoundationApi::class,
+    ExperimentalAnimationApi::class,
+    InternalCoroutinesApi::class,
+    ExperimentalCoroutinesApi::class,
+)
+fun MainViewController(): UIViewController {
+    if (KoinPlatform.getKoinOrNull() == null) {
+        initKoinIos()
+    }
+    return ComposeUIViewController {
+        ScheduleTheme {
+            ScheduleApp()
+        }
+    }
 }
 
-@Composable
-private fun PlaceholderApp() {
-    Surface(color = MaterialTheme.colorScheme.background) {
-        Text(
-            text = "Schedule iOS — migration in progress",
-            style = MaterialTheme.typography.titleLarge,
-        )
-    }
+fun initKoinIos() {
+    initKoin()
 }
