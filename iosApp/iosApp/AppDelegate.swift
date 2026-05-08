@@ -11,20 +11,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         NotifierManager.shared.initialize(
             configuration: NotificationPlatformConfigurationIos(
                 showPushNotification: true,
-                askNotificationPermissionOnStart: false
+                askNotificationPermissionOnStart: false,
+                notificationSoundName: nil
             )
         )
         return true
-    }
-
-    func application(
-        _ application: UIApplication,
-        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
-    ) {
-        NotifierManager.shared.application(
-            application,
-            didRegisterForRemoteNotificationsWithDeviceToken: deviceToken
-        )
     }
 
     func application(

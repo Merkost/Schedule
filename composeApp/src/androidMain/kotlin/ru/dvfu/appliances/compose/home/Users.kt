@@ -33,7 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.koinViewModel
 import ru.dvfu.appliances.generated.resources.Res
@@ -48,7 +47,6 @@ import ru.dvfu.appliances.ui.ViewState
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @InternalCoroutinesApi
-@ExperimentalCoilApi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Users(navController: NavController, backPress: () -> Unit) {

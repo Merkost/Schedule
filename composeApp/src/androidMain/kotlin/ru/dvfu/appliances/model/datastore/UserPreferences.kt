@@ -23,6 +23,7 @@ class UserDatastoreImpl : UserDatastore {
     private companion object {
         val USER = stringPreferencesKey("USER")
         val CALENDAR_TYPE = stringPreferencesKey("CALENDAR")
+        val THEME_MODE = stringPreferencesKey("THEME_MODE")
     }
 
     override val getCurrentUser: Flow<User> = dataStore.data.map { prefs ->
@@ -41,5 +42,13 @@ class UserDatastoreImpl : UserDatastore {
 
     override suspend fun saveUser(user: User) {
         dataStore.edit { prefs -> prefs[USER] = AppJson.encodeToString(user) }
+    }
+
+    override val getThemeMode: Flow<ThemeMode> = dataStore.data.map { prefs ->
+        prefs[THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM
+    }
+
+    override suspend fun saveThemeMode(mode: ThemeMode) {
+        dataStore.edit { prefs -> prefs[THEME_MODE] = mode.name }
     }
 }

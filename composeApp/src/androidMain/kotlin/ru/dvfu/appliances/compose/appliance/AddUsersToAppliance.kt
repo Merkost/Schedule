@@ -38,8 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
-import coil.transform.CircleCropTransformation
+import coil3.compose.AsyncImage
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.generated.resources.Res
@@ -300,14 +299,10 @@ fun UserImage(modifier: Modifier, user: User) {
                 modifier = Modifier.fillMaxSize().padding(8.dp),
             )
         } else {
-            Image(
-                painter = rememberImagePainter(user.userPic, builder = {
-                    crossfade(true)
-                    placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
-                    transformations(CircleCropTransformation())
-                }),
-                modifier = Modifier.fillMaxSize(),
+            AsyncImage(
+                model = user.userPic,
                 contentDescription = stringResource(Res.string.user_photo),
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }

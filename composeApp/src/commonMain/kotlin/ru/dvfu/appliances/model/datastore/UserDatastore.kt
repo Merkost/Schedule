@@ -11,4 +11,7 @@ interface UserDatastore {
 
     val getCurrentUser: Flow<User>
     suspend fun saveUser(user: User)
+
+    val getThemeMode: Flow<ThemeMode>
+    suspend fun saveThemeMode(mode: ThemeMode)
 }

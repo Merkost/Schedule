@@ -27,14 +27,20 @@ import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,17 +51,25 @@ import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+import org.jetbrains.compose.resources.StringResource
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
+import ru.dvfu.appliances.model.datastore.ThemeMode
+import ru.dvfu.appliances.model.datastore.UserDatastore
 
 @Composable
 fun Settings(navController: NavController, upPress: () -> Unit) {
     val context = LocalContext.current
+    val datastore: UserDatastore = koinInject()
+    val scope = rememberCoroutineScope()
 
     var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
     var bookingUpdatesEnabled by rememberSaveable { mutableStateOf(true) }
     var remindersEnabled by rememberSaveable { mutableStateOf(true) }
-    var darkTheme by rememberSaveable { mutableStateOf(false) }
+
+    val themeMode by datastore.getThemeMode.collectAsState(initial = ThemeMode.SYSTEM)
 
     Scaffold(
         topBar = { ScheduleAppBar(stringResource(Res.string.settings), backClick = upPress) },
@@ -104,12 +118,9 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
             }
 
             SettingsSection(title = stringResource(Res.string.appearance)) {
-                SettingsToggleRow(
-                    icon = Icons.Outlined.DarkMode,
-                    title = stringResource(Res.string.dark_theme),
-                    subtitle = stringResource(Res.string.dark_theme_subtitle),
-                    checked = darkTheme,
-                    onCheckedChange = { darkTheme = it },
+                ThemeModeRow(
+                    selected = themeMode,
+                    onSelected = { mode -> scope.launch { datastore.saveThemeMode(mode) } },
                 )
             }
 
@@ -222,6 +233,49 @@ private fun SettingsTextColumn(title: String, subtitle: String?, enabled: Boolea
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeModeRow(selected: ThemeMode, onSelected: (ThemeMode) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            SettingsIcon(Icons.Outlined.DarkMode, enabled = true)
+            SettingsTextColumn(
+                title = stringResource(Res.string.dark_theme),
+                subtitle = stringResource(Res.string.dark_theme_subtitle),
+                enabled = true,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            ThemeModeOption.entries.forEachIndexed { index, option ->
+                SegmentedButton(
+                    selected = option.mode == selected,
+                    onClick = { onSelected(option.mode) },
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = ThemeModeOption.entries.size,
+                    ),
+                    label = { Text(stringResource(option.labelRes), maxLines = 1) },
+                )
+            }
+        }
+    }
+}
+
+private enum class ThemeModeOption(val mode: ThemeMode, val labelRes: StringResource) {
+    System(ThemeMode.SYSTEM, Res.string.theme_mode_system),
+    Light(ThemeMode.LIGHT, Res.string.theme_mode_light),
+    Dark(ThemeMode.DARK, Res.string.theme_mode_dark),
 }
 
 private fun goToNotificationsSettings(context: Context) {

@@ -37,9 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
-import coil.transform.CircleCropTransformation
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -56,7 +54,6 @@ import ru.dvfu.appliances.model.repository.entity.isAdmin
 import ru.dvfu.appliances.ui.LoginActivity
 
 @InternalCoroutinesApi
-@ExperimentalCoilApi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Profile(navController: NavController, modifier: Modifier = Modifier, backPress: () -> Unit) {
@@ -189,7 +186,6 @@ fun ColumnButton(image: ImageVector, name: String, click: () -> Unit) {
         })
 }
 
-@ExperimentalCoilApi
 @Composable
 fun ProfileUserInfo(user: User) {
     Column(
@@ -211,12 +207,8 @@ fun ProfileUserInfo(user: User) {
                 tint = MaterialTheme.colorScheme.primary,
             )
         } else {
-            Image(
-                painter = rememberImagePainter(user.userPic, builder = {
-                    crossfade(true)
-                    placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
-                    transformations(CircleCropTransformation())
-                }),
+            AsyncImage(
+                model = user.userPic,
                 contentDescription = stringResource(Res.string.user_photo),
                 modifier = Modifier
                     .size(80.dp)
@@ -251,7 +243,6 @@ private fun startLoginActivity(context: Context) {
     (context as Activity).finish()
 }
 
-@ExperimentalCoilApi
 @InternalCoroutinesApi
 @Preview("default")
 //@Preview("dark theme", uiMode = Configuration.UI_MODE_NIGHT_YES)

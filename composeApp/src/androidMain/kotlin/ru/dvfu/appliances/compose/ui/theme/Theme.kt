@@ -7,8 +7,13 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import org.koin.compose.koinInject
+import ru.dvfu.appliances.model.datastore.ThemeMode
+import ru.dvfu.appliances.model.datastore.UserDatastore
 
 private val LightColorScheme = lightColorScheme(
     primary = BrandPrimary,
@@ -70,9 +75,16 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun ScheduleTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
+    val datastore: UserDatastore = koinInject()
+    val systemDark = isSystemInDarkTheme()
+    val themeMode by datastore.getThemeMode.collectAsState(initial = ThemeMode.SYSTEM)
+    val darkTheme = when (themeMode) {
+        ThemeMode.SYSTEM -> systemDark
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    }
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     val view = LocalView.current

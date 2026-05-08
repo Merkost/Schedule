@@ -73,6 +73,7 @@ kotlin {
         target.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            export(libs.kmpnotifier)
         }
     }
 
@@ -102,7 +103,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-            implementation(libs.kmpnotifier)
+            api(libs.kmpnotifier)
 
             implementation(libs.gitlive.firebase.auth)
             implementation(libs.gitlive.firebase.firestore)
@@ -119,6 +120,9 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
+
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
@@ -149,8 +153,6 @@ kotlin {
             implementation(libs.koin.androidx.compose)
 
             implementation(libs.accompanist.permissions)
-
-            implementation(libs.coil.compose)
 
             implementation(dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.messaging)

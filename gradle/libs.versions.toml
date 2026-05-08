@@ -1,5 +1,5 @@
 [versions]
-agp = "9.2.0"
+agp = "9.2.1"
 kotlin = "2.3.21"
 googleServices = "4.4.4"
 crashlyticsPlugin = "3.0.7"
@@ -29,7 +29,7 @@ activityCompose = "1.13.0"
 lifecycle = "2.10.0"
 datastore = "1.2.1"
 ktor = "3.4.3"
-composeBom = "2026.04.01"
+composeBom = "2026.05.00"
 constraintlayoutCompose = "1.1.1"
 navigationCompose = "2.9.8"
 coroutines = "1.10.2"
@@ -39,7 +39,7 @@ gitliveFirebase = "2.4.0"
 koin = "4.2.1"
 accompanist = "0.37.3"
 composeCalendar = "1.4.0"
-coil = "2.7.0"
+coil = "3.4.0"
 kmpnotifier = "1.6.1"
 junit = "4.13.2"
 androidxTestCore = "1.7.0"
@@ -123,7 +123,8 @@ accompanist-permissions = { module = "com.google.accompanist:accompanist-permiss
 
 compose-calendar = { module = "io.github.boguszpawlowski.composecalendar:composecalendar", version.ref = "composeCalendar" }
 
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 kmpnotifier = { module = "io.github.mirzemehdi:kmpnotifier", version.ref = "kmpnotifier" }
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
