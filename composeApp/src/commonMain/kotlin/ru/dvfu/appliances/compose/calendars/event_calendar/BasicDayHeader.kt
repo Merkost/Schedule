@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ru.dvfu.appliances.compose.calendars.event_calendar
 
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +30,7 @@ fun BasicDayHeader(
         modifier = modifier
             .fillMaxWidth()
             .padding(4.dp),
-        fontWeight = if (day.dayOfMonth == currentDate.dayOfMonth) FontWeight.ExtraBold else null
+        fontWeight = if (day.day == currentDate.day) FontWeight.ExtraBold else null
     )
 }
 

@@ -15,8 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -142,7 +142,7 @@ fun MonthWeekCalendar(
         snapshotFlow { calendarState.firstVisibleMonth.yearMonth }
             .distinctUntilChanged()
             .collect { ym ->
-                viewModel.onMonthChanged(ym.year, ym.month.number)
+                viewModel.onMonthChanged(ym.year, ym.month.ordinal + 1)
             }
     }
 
@@ -170,7 +170,7 @@ fun MonthWeekCalendar(
                 onCalendarSelected = viewModel::setCalendarType,
                 onRetry = {
                     val ym = calendarState.firstVisibleMonth.yearMonth
-                    viewModel.onMonthChanged(ym.year, ym.month.number)
+                    viewModel.onMonthChanged(ym.year, ym.month.ordinal + 1)
                 }
             )
         },
@@ -180,7 +180,7 @@ fun MonthWeekCalendar(
                 ExtendedFloatingActionButton(
                     onClick = {
                         navController.navigate(
-                            AddEventRoute(dateEpochDay = currentDate.toEpochDays().toLong())
+                            AddEventRoute(dateEpochDay = currentDate.toEpochDays())
                         )
                     },
                 ) {
@@ -266,7 +266,7 @@ private fun SchedulerMonthHeader(
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val monthLabel = MONTH_NAMES_RU_FULL[yearMonth.month.number - 1]
+    val monthLabel = MONTH_NAMES_RU_FULL[yearMonth.month.ordinal]
         .replaceFirstChar { it.uppercase() }
     Row(
         modifier = modifier
@@ -277,7 +277,7 @@ private fun SchedulerMonthHeader(
     ) {
         IconButton(onClick = onPrev) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowLeft,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 contentDescription = "Previous",
                 tint = MaterialTheme.colorScheme.onSurface,
             )
@@ -297,7 +297,7 @@ private fun SchedulerMonthHeader(
         }
         IconButton(onClick = onNext) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Next",
                 tint = MaterialTheme.colorScheme.onSurface,
             )
@@ -369,7 +369,7 @@ private fun ScheduleCalendarDate(
         ) {
             val isToday = date == today
             Text(
-                text = date.dayOfMonth.toString(),
+                text = date.day.toString(),
                 fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                 fontSize = if (isToday) 16.sp else 14.sp,
                 color = if (isFromCurrentMonth) {
@@ -408,7 +408,7 @@ private fun ColumnScope.EventsPanel(
     val monthEvents: List<Pair<LocalDate, List<CalendarEvent>>> = dayEvents
         .asSequence()
         .filter { (date, _) ->
-            date.year == currentMonth.year && date.monthNumber == currentMonth.month.number
+            date.year == currentMonth.year && date.month == currentMonth.month
         }
         .mapNotNull { (date, state) ->
             val events = (state as? EventsState.Loaded)?.events
@@ -423,7 +423,7 @@ private fun ColumnScope.EventsPanel(
     val isLoading = dayState is EventsState.Loading ||
         (pinnedDate == null && dayEvents.values.any { it is EventsState.Loading } && monthEvents.isEmpty())
 
-    val monthLabel = MONTH_NAMES_RU_FULL[currentMonth.month.number - 1]
+    val monthLabel = MONTH_NAMES_RU_FULL[currentMonth.month.ordinal]
         .replaceFirstChar { it.uppercase() }
 
     Card(
@@ -671,8 +671,8 @@ fun EventView(
 private fun EventDateHeader(date: LocalDate) {
     val isToday = date == Clock.System.todayIn(TimeZone.currentSystemDefault())
     val dayOfWeek = DAY_OF_WEEK_NAMES_RU[date.dayOfWeek] ?: ""
-    val dayOfMonth = date.dayOfMonth
-    val monthName = MONTH_SHORT_RU[date.monthNumber - 1]
+    val dayOfMonth = date.day
+    val monthName = MONTH_SHORT_RU[date.month.ordinal]
 
     Row(
         modifier = Modifier

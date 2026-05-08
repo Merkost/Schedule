@@ -42,6 +42,10 @@ val generateAppBuildConfig by tasks.registering {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     androidLibrary {
         namespace = "ru.dvfu.appliances"
         compileSdk = libs.versions.compileSdk.get().toInt()
@@ -73,6 +77,7 @@ kotlin {
         target.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            binaryOption("bundleId", "ru.dvfu.appliances.composeApp")
             export(libs.kmpnotifier)
         }
     }
@@ -146,7 +151,9 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
 
             implementation(dependencies.platform(libs.androidx.compose.bom))
-            implementation(libs.androidx.compose.ui.tooling)
+            implementation("androidx.compose.ui:ui-tooling") {
+                exclude(group = "androidx.compose.ui", module = "ui-tooling-preview")
+            }
             implementation(libs.androidx.compose.ui.util)
             implementation(libs.androidx.compose.material3.window.size)
             implementation(libs.androidx.compose.animation)

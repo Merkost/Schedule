@@ -12,16 +12,16 @@ private val MONTH_NAMES_RU_SHORT = listOf(
 
 fun Long.toDate(): String {
     val ldt = Instant.fromEpochMilliseconds(this).toLocalDateTime(TimeZone.currentSystemDefault())
-    return "${ldt.dayOfMonth.toString().padStart(2, '0')}." +
-        "${ldt.monthNumber.toString().padStart(2, '0')}." +
+    return "${ldt.day.toString().padStart(2, '0')}." +
+        "${(ldt.month.ordinal + 1).toString().padStart(2, '0')}." +
         "${ldt.year}"
 }
 
 fun Long.toDateWithWeek(): String {
     val ldt = Instant.fromEpochMilliseconds(this).toLocalDateTime(TimeZone.currentSystemDefault())
     val dow = DAY_NAMES_RU[ldt.dayOfWeek.ordinal]
-    val month = MONTH_NAMES_RU_SHORT[ldt.monthNumber - 1]
-    return "$dow, ${ldt.dayOfMonth} $month"
+    val month = MONTH_NAMES_RU_SHORT[ldt.month.ordinal]
+    return "$dow, ${ldt.day} $month"
 }
 
 fun Long.toTime(): String {

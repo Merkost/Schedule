@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ru.dvfu.appliances.platform
 
 import android.content.Context

@@ -134,18 +134,31 @@ fun ScheduleApp() {
             ) { CircularProgressIndicator() }
             return@Scaffold
         }
-        val start: Any = if (isAuthenticated == true) MainDestinations.HOME_ROUTE else LoginRoute
-        NavHost(
-            navController = appStateHolder.navController,
-            startDestination = start,
-            modifier = Modifier
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding),
-        ) {
-            NavGraph(
+        val navModifier = Modifier
+            .padding(innerPadding)
+            .consumeWindowInsets(innerPadding)
+        if (isAuthenticated == true) {
+            NavHost(
                 navController = appStateHolder.navController,
-                upPress = appStateHolder::upPress,
-            )
+                startDestination = MainDestinations.HOME_ROUTE,
+                modifier = navModifier,
+            ) {
+                NavGraph(
+                    navController = appStateHolder.navController,
+                    upPress = appStateHolder::upPress,
+                )
+            }
+        } else {
+            NavHost(
+                navController = appStateHolder.navController,
+                startDestination = LoginRoute,
+                modifier = navModifier,
+            ) {
+                NavGraph(
+                    navController = appStateHolder.navController,
+                    upPress = appStateHolder::upPress,
+                )
+            }
         }
     }
 }

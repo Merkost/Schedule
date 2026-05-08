@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ru.dvfu.appliances.compose.ui.theme
 
 import android.app.Activity

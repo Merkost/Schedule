@@ -20,16 +20,16 @@ class AppliancesRepositoryImpl(
 
     override suspend fun deleteUserFromAppliance(userIdToDelete: String, from: Appliance): Result<Unit> =
         runCatching {
-            collections.appliances().document(from.id).update(
-                "userIds" to from.userIds.filter { it != userIdToDelete },
-            )
+            collections.appliances().document(from.id).updateFields {
+                "userIds" to from.userIds.filter { it != userIdToDelete }
+            }
         }
 
     override suspend fun deleteSuperUserFromAppliance(userIdToDelete: String, from: Appliance): Result<Unit> =
         runCatching {
-            collections.appliances().document(from.id).update(
-                "superuserIds" to from.superuserIds.filter { it != userIdToDelete },
-            )
+            collections.appliances().document(from.id).updateFields {
+                "superuserIds" to from.superuserIds.filter { it != userIdToDelete }
+            }
         }
 
     override suspend fun getUserAppliances(userId: String): Flow<List<Appliance>> =
@@ -53,7 +53,9 @@ class AppliancesRepositoryImpl(
 
     override suspend fun changeApplianceStatus(applianceId: String, isActive: Boolean): Result<Unit> =
         runCatching {
-            collections.appliances().document(applianceId).update("active" to isActive)
+            collections.appliances().document(applianceId).updateFields {
+                "active" to isActive
+            }
         }
 
     override suspend fun getSuperUserAppliances(userId: String): Flow<List<Appliance>> =
@@ -77,12 +79,16 @@ class AppliancesRepositoryImpl(
 
     override suspend fun addUsersToAppliance(appliance: Appliance, userIds: List<String>): Result<Unit> =
         runCatching {
-            collections.appliances().document(appliance.id).update("userIds" to userIds)
+            collections.appliances().document(appliance.id).updateFields {
+                "userIds" to userIds
+            }
         }
 
     override suspend fun addSuperUsersToAppliance(appliance: Appliance, superuserIds: List<String>): Result<Unit> =
         runCatching {
-            collections.appliances().document(appliance.id).update("superuserIds" to superuserIds)
+            collections.appliances().document(appliance.id).updateFields {
+                "superuserIds" to superuserIds
+            }
         }
 
     override suspend fun getApplianceUsers(userIds: List<String>): Flow<List<User>> =

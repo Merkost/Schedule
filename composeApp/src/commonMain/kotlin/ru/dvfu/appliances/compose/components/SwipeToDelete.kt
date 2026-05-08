@@ -27,6 +27,7 @@ fun SwipeToDeleteItem(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    @Suppress("DEPRECATION")
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {

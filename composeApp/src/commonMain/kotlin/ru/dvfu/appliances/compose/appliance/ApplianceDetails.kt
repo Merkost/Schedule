@@ -122,7 +122,7 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
                 item { ApplianceDescriptionCard(description = updatedAppliance.description) }
             }
 
-            createdUser?.let { owner ->
+            createdUser.let { owner ->
                 item {
                     ApplianceOwnerCard(owner = owner) {
                         navController.navigate(UserDetailsRoute(userId = owner.userId))

@@ -71,7 +71,7 @@ fun EventCalendar(
         floatingActionButton = {
             if (!currentUser.isAnonymousOrGuest) {
                 FloatingActionButton(
-                    onClick = { navController.navigate(AddEventRoute(dateEpochDay = Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays().toLong())) })
+                    onClick = { navController.navigate(AddEventRoute(dateEpochDay = Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays())) })
                 { Icon(Icons.Default.Add, "") }
             }
         },

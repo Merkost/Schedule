@@ -28,7 +28,7 @@ private val MONTH_NAMES_RU = listOf(
 )
 
 fun LocalDate.formatFull(): String =
-    "$dayOfMonth ${MONTH_NAMES_RU[monthNumber - 1]} $year"
+    "$day ${MONTH_NAMES_RU[month.ordinal]} $year"
 
 fun Long.toLocalDateTime(): LocalDateTime =
     Instant.fromEpochMilliseconds(this).toLocalDateTime(ZONE)
@@ -52,7 +52,7 @@ fun formattedTime(timeStart: LocalDateTime, timeEnd: LocalDateTime): String =
     "${timeStart.time.toHoursAndMinutes()} - ${timeEnd.time.toHoursAndMinutes()}"
 
 fun formattedDate(date: LocalDate): String =
-    "${date.dayOfMonth} ${MONTH_NAMES_RU[date.monthNumber - 1]}"
+    "${date.day} ${MONTH_NAMES_RU[date.month.ordinal]}"
 
 fun formattedDateTime(date: LocalDate, timeStart: LocalDateTime, timeEnd: LocalDateTime): String =
     "${formattedDate(date)}, ${formattedTime(timeStart, timeEnd)}"
@@ -85,4 +85,4 @@ fun formattedApplianceDateTimeStatus(
     "${formattedAppliance(name)}, ${formattedDateTimeStatus(date, timeStart, timeEnd, status)}"
 
 val LocalDateTime.toDateAndTime: String
-    get() = "${date.dayOfMonth} ${MONTH_NAMES_RU[date.monthNumber - 1]}, ${time.toHoursAndMinutes()}"
+    get() = "${date.day} ${MONTH_NAMES_RU[date.month.ordinal]}, ${time.toHoursAndMinutes()}"

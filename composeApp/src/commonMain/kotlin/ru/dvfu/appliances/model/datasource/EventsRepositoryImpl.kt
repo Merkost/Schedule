@@ -45,7 +45,9 @@ class EventsRepositoryImpl(
     }
 
     override suspend fun setNewTimeEnd(eventId: String, timeEnd: Long): Result<Unit> = runCatching {
-        collections.events().document(eventId).update("timeEnd" to timeEnd)
+        collections.events().document(eventId).updateFields {
+            "timeEnd" to timeEnd
+        }
     }
 
     override suspend fun setNewEventStatus(
@@ -54,16 +56,18 @@ class EventsRepositoryImpl(
         managerCommentary: String,
         managerId: String,
     ): Result<Unit> = runCatching {
-        collections.events().document(eventId).update(
-            "status" to newStatus.name,
-            "managerCommentary" to managerCommentary,
-            "managedById" to managerId,
-            "managedTime" to Clock.System.now().toEpochMilliseconds(),
-        )
+        collections.events().document(eventId).updateFields {
+            "status" to newStatus.name
+            "managerCommentary" to managerCommentary
+            "managedById" to managerId
+            "managedTime" to Clock.System.now().toEpochMilliseconds()
+        }
     }
 
     override suspend fun updateEvent(eventId: String, data: Map<String, Any?>): Result<Unit> = runCatching {
-        collections.events().document(eventId).update(*data.toList().toTypedArray())
+        collections.events().document(eventId).updateFields {
+            data.forEach { (key, value) -> key to value }
+        }
     }
 
     override suspend fun getEventById(eventId: String): Flow<Result<Event>> =

@@ -28,6 +28,6 @@ private val MONTH_SHORT_RU = listOf(
 
 fun formatDay(day: LocalDate): String {
     val dow = DAY_OF_WEEK_SHORT_RU[day.dayOfWeek.isoDayNumber - 1]
-    val month = MONTH_SHORT_RU[day.monthNumber - 1]
-    return "$dow, $month ${day.dayOfMonth}"
+    val month = MONTH_SHORT_RU[day.month.ordinal]
+    return "$dow, $month ${day.day}"
 }

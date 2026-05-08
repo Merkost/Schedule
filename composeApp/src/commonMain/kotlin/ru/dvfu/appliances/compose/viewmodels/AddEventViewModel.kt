@@ -235,7 +235,7 @@ class AddEventViewModel(
             SnackbarManager.showMessage(Res.string.past_day_error)
             return
         }
-        this.date.value = LocalDate(date.year, date.month, date.dayOfMonth)
+        this.date.value = LocalDate(date.year, date.month, date.day)
         if (date > today()) {
             timeStart.value = date.atTime(8, 0)
             timeEnd.value = timeStart.value.plusDuration(DEFAULT_EVENT_DURATION)

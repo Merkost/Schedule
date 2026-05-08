@@ -62,7 +62,7 @@ class FirebaseUsersRepositoryImpl(
                                 fallback
                             }
                         }
-                        .onEach { u -> log.d("currentUser emit uid=${u?.userId} role=${u?.role} name=${u?.userName}") }
+                        .onEach { u -> log.d("currentUser emit uid=${u.userId} role=${u.role} name=${u.userName}") }
                         .catch { e ->
                             log.e("currentUser snapshots failed for uid=${fbUser.uid}, falling back to auth user", e)
                             emit(fallback)
@@ -103,7 +103,9 @@ class FirebaseUsersRepositoryImpl(
         runCatching {
             val token = NotifierManager.getPushNotifier().getToken()
             if (!token.isNullOrBlank()) {
-                collections.users().document(userId).update("msgToken" to token)
+                collections.users().document(userId).updateFields {
+                    "msgToken" to token
+                }
             }
         }
     }
@@ -117,7 +119,9 @@ class FirebaseUsersRepositoryImpl(
         userId: String,
         data: Map<String, Any>,
     ): Result<Unit> = runCatching {
-        collections.users().document(userId).update(*data.toList().toTypedArray())
+        collections.users().document(userId).updateFields {
+            data.forEach { (key, value) -> key to value }
+        }
     }
 
     override suspend fun logoutCurrentUser(): Flow<Boolean> = flow {
@@ -131,13 +135,17 @@ class FirebaseUsersRepositoryImpl(
 
     override suspend fun updateUserField(userId: String, data: Map<String, Any>): Result<Unit> =
         runCatching {
-            collections.users().document(userId).update(*data.toList().toTypedArray())
+            collections.users().document(userId).updateFields {
+                data.forEach { (key, value) -> key to value }
+            }
         }
 
     override suspend fun updateCurrentUserField(data: Map<String, Any>) {
         val userId = userDatastore.getCurrentUser.first().userId
         runCatching {
-            collections.users().document(userId).update(*data.toList().toTypedArray())
+            collections.users().document(userId).updateFields {
+                data.forEach { (key, value) -> key to value }
+            }
         }
     }
 

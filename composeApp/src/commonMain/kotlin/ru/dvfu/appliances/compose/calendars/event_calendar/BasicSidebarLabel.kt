@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ru.dvfu.appliances.compose.calendars.event_calendar
 
 import androidx.compose.foundation.layout.fillMaxHeight

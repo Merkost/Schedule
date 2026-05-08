@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ru.dvfu.appliances.compose.home.profile
 
 import androidx.compose.foundation.background
@@ -16,6 +18,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -113,7 +116,7 @@ fun LogoutDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Default.Logout,
+                imageVector = Icons.AutoMirrored.Filled.Logout,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(32.dp),
@@ -236,7 +239,7 @@ fun ProfileTopBar(upPress: () -> Unit) {
         upPress,
         actions = {
             IconButton(onClick = { dialogOnLogout = true }) {
-                Icon(Icons.Default.Logout, "")
+                Icon(Icons.AutoMirrored.Filled.Logout, "")
             }
         }
     )
