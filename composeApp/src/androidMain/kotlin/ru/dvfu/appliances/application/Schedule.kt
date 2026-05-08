@@ -27,6 +27,7 @@ import ru.dvfu.appliances.di.mockRepositoryModule
 import ru.dvfu.appliances.di.networkModule
 import ru.dvfu.appliances.di.platformModule
 import ru.dvfu.appliances.di.repositoryModule
+import ru.dvfu.appliances.init
 import ru.dvfu.appliances.model.utils.Constants
 
 class Schedule : Application() {
