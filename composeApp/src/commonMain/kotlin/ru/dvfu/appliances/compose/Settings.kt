@@ -21,6 +21,7 @@ import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,24 +48,69 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
+import org.koin.compose.koinInject
+import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.model.datastore.ThemeMode
 import ru.dvfu.appliances.model.datastore.UserDatastore
+import ru.dvfu.appliances.platform.NotificationPermissionResult
 import ru.dvfu.appliances.platform.openAppNotificationSettings
+import ru.dvfu.appliances.platform.rememberNotificationPermissionController
 
 @Composable
 fun Settings(navController: NavController, upPress: () -> Unit) {
     val datastore: UserDatastore = koinInject()
+    val notificationManager: NotificationManager = koinInject()
+    val permissionController = rememberNotificationPermissionController()
     val scope = rememberCoroutineScope()
 
     var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
     var bookingUpdatesEnabled by rememberSaveable { mutableStateOf(true) }
     var remindersEnabled by rememberSaveable { mutableStateOf(true) }
+    var deniedAlwaysDialog by rememberSaveable { mutableStateOf(false) }
 
     val themeMode by datastore.getThemeMode.collectAsState(initial = ThemeMode.SYSTEM)
+
+    if (deniedAlwaysDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { deniedAlwaysDialog = false },
+            title = { Text(stringResource(Res.string.notifications)) },
+            text = { Text(stringResource(Res.string.notification_permission_denied)) },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    deniedAlwaysDialog = false
+                    permissionController.openSystemSettings()
+                }) { Text(stringResource(Res.string.open_system_settings)) }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { deniedAlwaysDialog = false }) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            },
+        )
+    }
+
+    fun sendTest() = scope.launch {
+        when (permissionController.request()) {
+            NotificationPermissionResult.Granted -> {
+                notificationManager.sendTestNotificationToCurrentDevice().fold(
+                    onSuccess = { SnackbarManager.showMessage(Res.string.test_notification_sent) },
+                    onFailure = { e ->
+                        val template = getString(Res.string.test_notification_failed)
+                        ru.dvfu.appliances.platform.showError(
+                            template.replace("%s", e.message ?: "unknown"),
+                        )
+                    },
+                )
+            }
+            NotificationPermissionResult.DeniedAlways -> deniedAlwaysDialog = true
+            NotificationPermissionResult.Denied -> Unit
+        }
+    }
 
     Scaffold(
         topBar = { ScheduleAppBar(stringResource(Res.string.settings), backClick = upPress) },
@@ -102,6 +148,13 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                     checked = remindersEnabled,
                     onCheckedChange = { remindersEnabled = it },
                     enabled = notificationsEnabled,
+                )
+                SettingsDivider()
+                SettingsLinkRow(
+                    icon = Icons.Outlined.Send,
+                    title = stringResource(Res.string.send_test_notification),
+                    subtitle = stringResource(Res.string.send_test_notification_subtitle),
+                    onClick = { sendTest() },
                 )
                 SettingsDivider()
                 SettingsLinkRow(

@@ -186,6 +186,22 @@ class NotificationManagerImpl(
         )
     }
 
+    override suspend fun sendTestNotificationToCurrentDevice(): Result<String> = runCatching {
+        val token = NotifierManager.getPushNotifier().getToken()
+        check(!token.isNullOrBlank()) { "FCM token unavailable on this device" }
+        notificationApi.postNotification(
+            PushNotification(
+                to = token,
+                notification = Notification(
+                    title = "Тестовое уведомление",
+                    body = "Уведомления настроены и работают.",
+                ),
+                data = NotificationData(NotificationType.DEFAULT.name),
+            ),
+        )
+        token
+    }
+
     private suspend fun sendMessage(pushNotification: PushNotification) {
         notificationApi.postNotification(pushNotification)
     }

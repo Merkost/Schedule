@@ -131,6 +131,9 @@ kotlin {
             implementation(libs.coil.network.ktor)
 
             implementation(libs.kizitonwose.calendar)
+
+            implementation(libs.moko.permissions.compose)
+            implementation(libs.moko.permissions.notifications)
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)

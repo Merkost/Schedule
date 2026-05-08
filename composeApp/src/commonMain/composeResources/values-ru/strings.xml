@@ -159,6 +159,11 @@
     <string name="notifications_reminders_subtitle">Напоминать о предстоящих событиях</string>
     <string name="open_system_settings">Системные настройки уведомлений</string>
     <string name="open_system_settings_subtitle">Настроить канал, звук и виброотклик</string>
+    <string name="send_test_notification">Отправить тестовое уведомление</string>
+    <string name="send_test_notification_subtitle">Прислать push на это устройство через FCM</string>
+    <string name="test_notification_sent">Тестовое уведомление отправлено</string>
+    <string name="test_notification_failed">Не удалось отправить уведомление: %s</string>
+    <string name="notification_permission_denied">Уведомления заблокированы. Разрешите их в системных настройках.</string>
     <string name="appearance">Внешний вид</string>
     <string name="dark_theme">Тема</string>
     <string name="dark_theme_subtitle">Выберите оформление приложения</string>

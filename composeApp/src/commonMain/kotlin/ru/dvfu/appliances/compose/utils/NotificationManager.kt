@@ -12,4 +12,5 @@ interface NotificationManager {
     suspend fun newEventStatus(event: CalendarEvent, newStatus: BookingStatus)
     suspend fun eventTimeChanged(event: CalendarEvent, eventDateAndTime: EventDateAndTime)
     suspend fun newUserRole(user: User, role: Roles)
+    suspend fun sendTestNotificationToCurrentDevice(): Result<String>
 }

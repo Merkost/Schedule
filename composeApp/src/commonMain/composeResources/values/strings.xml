@@ -159,6 +159,11 @@
     <string name="notifications_reminders_subtitle">Remind me about upcoming events</string>
     <string name="open_system_settings">System notification settings</string>
     <string name="open_system_settings_subtitle">Configure channel, sound, and vibration</string>
+    <string name="send_test_notification">Send test notification</string>
+    <string name="send_test_notification_subtitle">Push a notification to this device via FCM</string>
+    <string name="test_notification_sent">Test notification sent</string>
+    <string name="test_notification_failed">Couldn\'t send test notification: %s</string>
+    <string name="notification_permission_denied">Notifications are blocked. Enable them in system settings.</string>
     <string name="appearance">Appearance</string>
     <string name="dark_theme">Theme</string>
     <string name="dark_theme_subtitle">Choose how the app looks</string>
