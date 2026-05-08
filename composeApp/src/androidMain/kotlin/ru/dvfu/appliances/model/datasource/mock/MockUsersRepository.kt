@@ -48,6 +48,9 @@ class MockUsersRepository : UsersRepository {
         }
     }
 
+    override suspend fun uploadCurrentMessagingToken() {
+    }
+
     override suspend fun setUserListener(user: User) {
         currentUserStore.value = user
     }

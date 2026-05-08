@@ -99,6 +99,17 @@ class FirebaseUsersRepositoryImpl(
         return flow
     }
 
+    override suspend fun uploadCurrentMessagingToken() {
+        val uid = currentUser.first()?.userId?.takeIf { it.isNotBlank() && it != "0" } ?: return
+        runCatching {
+            val token = NotifierManager.getPushNotifier().getToken()
+            if (token.isNullOrBlank()) return@runCatching
+            collections.users().document(uid).updateFields {
+                "msgToken" to token
+            }
+        }
+    }
+
     private suspend fun uploadMessagingToken(userId: String) {
         runCatching {
             val token = NotifierManager.getPushNotifier().getToken()

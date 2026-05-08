@@ -31,160 +31,102 @@ class NotificationManagerImpl(
         val currentUser = userDatastore.getCurrentUser.first()
         val users = (appliance.userIds + appliance.superuserIds)
             .mapNotNull { getUserUseCase(it).first().getOrNull() }
-            .apply {
-                if (AppDebug.isDebug.not())
-                    filter { it.userId != currentUser.userId }
-            }
-            .map { it.msgToken }
-
-        users.forEach {
-            sendMessage(
-                PushNotification(
-                    to = it,
-                    notification = Notification(
-                        title = "Прибор \"${appliance.name}\" был удален",
-                        body = "Также были отменены все бронирования на нем"
-                    ),
-                    data = NotificationData(NotificationType.APPLIANCE.name)
-                )
-            )
-        }
+        val recipients = if (AppDebug.isDebug) users else users.filter { it.userId != currentUser.userId }
+        fanout(
+            tokens = recipients.map { it.msgToken },
+            title = "Прибор \"${appliance.name}\" был удален",
+            body = "Также были отменены все бронирования на нем",
+            type = NotificationType.APPLIANCE,
+        )
     }
 
     override suspend fun eventUpdated(event: CalendarEvent, data: Map<String, Any?>) {
-        if (userDatastore.getCurrentUser.first().userId != event.user.userId)
-            sendMessage(
-                PushNotification(
-                    to = event.user.msgToken,
-                    notification = Notification(
-                        title = "Изменено бронирование на прибор \"${event.appliance.name}\"",
-                        body = formattedDateTime(event.date, event.timeStart, event.timeEnd)
-                                + ", ${event.status.getName().uppercase()}"
-                    ),
-                    data = NotificationData(NotificationType.MY_EVENT.name)
-                )
-            )
+        if (userDatastore.getCurrentUser.first().userId == event.user.userId) return
+        fanout(
+            tokens = listOf(event.user.msgToken),
+            title = "Изменено бронирование на прибор \"${event.appliance.name}\"",
+            body = formattedDateTime(event.date, event.timeStart, event.timeEnd) +
+                ", ${event.status.getName().uppercase()}",
+            type = NotificationType.MY_EVENT,
+        )
     }
 
     override suspend fun eventDeleted(event: CalendarEvent) {
         val currentUser = userDatastore.getCurrentUser.first()
-
-        if (AppDebug.isDebug || currentUser.userId != event.user.userId) {
-            sendMessage(
-                PushNotification(
-                    to = event.user.msgToken,
-                    notification = Notification(
-                        title = "Отменено бронирование на прибор \"${event.appliance.name}\"",
-                        body = formattedDateTime(event.date, event.timeStart, event.timeEnd)
-                    ),
-                    data = NotificationData(NotificationType.MY_EVENT.name)
-                )
-            )
-        }
+        if (!AppDebug.isDebug && currentUser.userId == event.user.userId) return
+        fanout(
+            tokens = listOf(event.user.msgToken),
+            title = "Отменено бронирование на прибор \"${event.appliance.name}\"",
+            body = formattedDateTime(event.date, event.timeStart, event.timeEnd),
+            type = NotificationType.MY_EVENT,
+        )
     }
 
     override suspend fun newEvent(newEvent: Event) {
         val users = usersRepository.getUsers().first()
         val currentUser = userDatastore.getCurrentUser.first()
-        getApplianceUseCase(newEvent.applianceId).first().getOrNull()?.let { appliance ->
-            users.filter { appliance.superuserIds.contains(it.userId) }
-                .apply { if (AppDebug.isDebug.not()) filter { it.userId != currentUser.userId } }
-                .map { it.msgToken }
-                .forEach {
-                    sendMessage(
-                        PushNotification(
-                            to = it,
-                            notification = Notification(
-                                title = "Новое бронирование",
-                                body = formattedApplianceDateTime(
-                                    appliance.name,
-                                    newEvent.date.toLocalDate(),
-                                    newEvent.timeStart.toLocalDateTime(),
-                                    newEvent.timeEnd.toLocalDateTime()
-                                )
-                            ),
-                            data = NotificationData(NotificationType.NEW_EVENT.name)
-                        )
-                    )
-                }
-        }
-    }
-
-    override suspend fun newEventStatus(event: CalendarEvent, newStatus: BookingStatus) {
-        sendMessage(
-            PushNotification(
-                to = event.user.msgToken,
-                notification = Notification(
-                    title = "Ваше бронирование ${newStatus.getName().uppercase()}",
-                    body = formattedApplianceDateTimeStatus(
-                        event.appliance.name,
-                        date = event.date,
-                        event.timeStart,
-                        event.timeEnd,
-                        status = newStatus
-                    ),
-                ),
-                data = NotificationData(NotificationType.MY_EVENT.name)
-            )
+        val appliance = getApplianceUseCase(newEvent.applianceId).first().getOrNull() ?: return
+        val superusers = users.filter { appliance.superuserIds.contains(it.userId) }
+        val recipients = if (AppDebug.isDebug) superusers else superusers.filter { it.userId != currentUser.userId }
+        fanout(
+            tokens = recipients.map { it.msgToken },
+            title = "Новое бронирование",
+            body = formattedApplianceDateTime(
+                appliance.name,
+                newEvent.date.toLocalDate(),
+                newEvent.timeStart.toLocalDateTime(),
+                newEvent.timeEnd.toLocalDateTime(),
+            ),
+            type = NotificationType.NEW_EVENT,
         )
     }
 
-    override suspend fun eventTimeChanged(
-        event: CalendarEvent,
-        eventDateAndTime: EventDateAndTime
-    ) {
+    override suspend fun newEventStatus(event: CalendarEvent, newStatus: BookingStatus) {
+        fanout(
+            tokens = listOf(event.user.msgToken),
+            title = "Ваше бронирование ${newStatus.getName().uppercase()}",
+            body = formattedApplianceDateTimeStatus(
+                event.appliance.name,
+                date = event.date,
+                event.timeStart,
+                event.timeEnd,
+                status = newStatus,
+            ),
+            type = NotificationType.MY_EVENT,
+        )
+    }
+
+    override suspend fun eventTimeChanged(event: CalendarEvent, eventDateAndTime: EventDateAndTime) {
         val currentUser = userDatastore.getCurrentUser.first()
-        val sendTo = mutableListOf<String>()
-
-        if (AppDebug.isDebug) {
-            sendTo.add(event.user.msgToken)
-            event.managedUser?.msgToken?.let { sendTo.add(it) }
-        } else {
-            if (currentUser.userId != event.user.userId) {
-                sendTo.add(event.user.msgToken)
-            }
-            event.managedUser?.let {
-                if (currentUser.userId != it.userId) {
-                    sendTo.add(it.msgToken)
-                }
-            }
-        }
-
-        sendTo.forEach {
-            sendMessage(
-                PushNotification(
-                    to = it,
-                    notification = Notification(
-                        title = "Изменено время бронирования",
-                        body = formattedAppliance(event.appliance.name) + ", " +
-                                formattedDateTimeStatus(
-                                    event.date,
-                                    event.timeStart,
-                                    event.timeEnd,
-                                    event.status
-                                )
-                    ),
-                    data = NotificationData(
-                        when (it) {
-                            event.user.msgToken -> NotificationType.MY_EVENT.name
-                            else -> NotificationType.EVENT.name
-                        }
-                    )
-                )
-            )
-        }
+        val ownerTokens = if (AppDebug.isDebug || currentUser.userId != event.user.userId) {
+            listOf(event.user.msgToken)
+        } else emptyList()
+        val managerTokens = event.managedUser
+            ?.takeIf { AppDebug.isDebug || currentUser.userId != it.userId }
+            ?.let { listOf(it.msgToken) }
+            ?: emptyList()
+        val body = formattedAppliance(event.appliance.name) + ", " +
+            formattedDateTimeStatus(event.date, event.timeStart, event.timeEnd, event.status)
+        fanout(
+            tokens = ownerTokens,
+            title = "Изменено время бронирования",
+            body = body,
+            type = NotificationType.MY_EVENT,
+        )
+        fanout(
+            tokens = managerTokens,
+            title = "Изменено время бронирования",
+            body = body,
+            type = NotificationType.EVENT,
+        )
     }
 
     override suspend fun newUserRole(user: User, role: Roles) {
-        sendMessage(
-            PushNotification(
-                to = user.msgToken,
-                notification = Notification(
-                    title = "Ваша роль изменена",
-                    body = "Теперь вы \"${org.jetbrains.compose.resources.getString(role.stringRes)}\""
-                ),
-                data = NotificationData(NotificationType.DEFAULT.name)
-            )
+        fanout(
+            tokens = listOf(user.msgToken),
+            title = "Ваша роль изменена",
+            body = "Теперь вы \"${org.jetbrains.compose.resources.getString(role.stringRes)}\"",
+            type = NotificationType.DEFAULT,
         )
     }
 
@@ -208,14 +150,23 @@ class NotificationManagerImpl(
         token
     }
 
-    private suspend fun sendMessage(pushNotification: PushNotification) {
-        runCatching { notificationApi.postNotification(pushNotification) }
+    private suspend fun fanout(tokens: List<String>, title: String, body: String, type: NotificationType) {
+        tokens.filter { it.isNotBlank() }.distinct().forEach { token ->
+            runCatching {
+                notificationApi.postNotification(
+                    PushNotification(
+                        to = token,
+                        notification = Notification(title, body),
+                        data = NotificationData(type.name),
+                    ),
+                )
+            }
+        }
     }
 
     suspend fun subscribeCurrentUser() {
         val currentUser = userDatastore.getCurrentUser.single()
         if (currentUser.isAnonymousOrGuest) return
-
         runCatching { NotifierManager.getPushNotifier().subscribeToTopic("weather") }
     }
 }

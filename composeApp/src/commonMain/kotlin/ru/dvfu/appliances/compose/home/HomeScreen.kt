@@ -44,11 +44,15 @@ fun HomeScreen(
     val viewModel: WeekCalendarViewModel = koinViewModel()
     val currentUser by viewModel.currentUser.collectAsState()
     val calendarType by viewModel.calendarType.collectAsState()
+    val usersRepository = org.koin.compose.koinInject<ru.dvfu.appliances.model.repository.UsersRepository>()
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
 
     NotificationPermissionRequest()
+    LaunchedEffect(Unit) {
+        runCatching { usersRepository.uploadCurrentMessagingToken() }
+    }
 
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
     if (eventOptionDialogOpened) EventOptionDialog(
