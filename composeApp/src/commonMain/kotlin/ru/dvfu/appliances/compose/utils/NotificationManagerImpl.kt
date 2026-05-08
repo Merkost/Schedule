@@ -206,7 +206,7 @@ class NotificationManagerImpl(
     }
 
     private suspend fun sendMessage(pushNotification: PushNotification) {
-        notificationApi.postNotification(pushNotification)
+        runCatching { notificationApi.postNotification(pushNotification) }
     }
 
     suspend fun subscribeCurrentUser() {

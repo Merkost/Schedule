@@ -18,7 +18,6 @@ class OfflineRepositoryImpl(
             collections.users().document(userId).get().data<User>()
         }.fold(
             onSuccess = {
-                log.d("getUser ok uid=$userId role=${it.role}")
                 emit(Result.success(it))
             },
             onFailure = {
@@ -33,7 +32,6 @@ class OfflineRepositoryImpl(
             collections.appliances().get().documents.map { it.data<Appliance>() }
         }.fold(
             onSuccess = { list ->
-                log.d("getAppliances offline count=${list.size}")
                 if (list.isEmpty()) emit(Result.failure(Throwable())) else emit(Result.success(list))
             },
             onFailure = {
@@ -48,7 +46,6 @@ class OfflineRepositoryImpl(
             collections.appliances().document(applianceId).get().data<Appliance>()
         }.fold(
             onSuccess = {
-                log.d("getApplianceById ok id=$applianceId")
                 emit(Result.success(it))
             },
             onFailure = {

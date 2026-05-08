@@ -11,10 +11,11 @@ class NotificationApi {
     private val functions by lazy { Firebase.functions("asia-northeast1") }
 
     suspend fun postNotification(payload: PushNotification) {
-        runCatching {
+        try {
             functions.httpsCallable("sendNotification").invoke(payload)
-        }.onFailure { e ->
-            log.e("sendNotification failed", e)
+        } catch (e: Throwable) {
+            log.e("sendNotification failed: ${e::class.simpleName}: ${e.message}", e)
+            throw e
         }
     }
 }
