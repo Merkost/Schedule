@@ -1,6 +1,8 @@
 package ru.dvfu.appliances.compose.utils
 
 import com.mmk.kmpnotifier.notification.NotifierManager
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.single
 import ru.dvfu.appliances.AppDebug
@@ -189,7 +191,8 @@ class NotificationManagerImpl(
     override suspend fun sendTestNotificationToCurrentDevice(): Result<String> = runCatching {
         val log = org.kimplify.cedar.Cedar.tag("FCM")
         val token = NotifierManager.getPushNotifier().getToken()
-        log.d("test push: token=${token?.take(12)}…(len=${token?.length})")
+        val authUser = Firebase.auth.currentUser
+        log.d("test push: token=${token?.take(12)}…(len=${token?.length}) authUid=${authUser?.uid} anon=${authUser?.isAnonymous}")
         check(!token.isNullOrBlank()) { "FCM token unavailable on this device" }
         notificationApi.postNotification(
             PushNotification(
