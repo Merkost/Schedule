@@ -27,7 +27,9 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
-import java.time.YearMonth
+import kotlinx.datetime.Month
+import kotlinx.datetime.number
+import kotlinx.datetime.daysUntil
 
 
 class WeekCalendarViewModel(
@@ -157,14 +159,14 @@ class WeekCalendarViewModel(
         }
     }
 
-    fun onMonthChanged(currentMonth: YearMonth) {
-        getEventsForMonth(currentMonth)
+    fun onMonthChanged(year: Int, monthNumber: Int) {
+        getEventsForMonth(year, monthNumber)
     }
 
-    private fun getEventsForMonth(currentMonth: YearMonth) {
+    private fun getEventsForMonth(year: Int, monthNumber: Int) {
         viewModelScope.launch {
             _uiState.value = UiState.InProgress
-            val dates = currentMonth.getDates()
+            val dates = monthDates(year, monthNumber)
             _dayEvents = _dayEvents.apply {
                 dates.forEach { date ->
                     if (get(date) !is EventsState.Loaded) {
@@ -220,8 +222,13 @@ class WeekCalendarViewModel(
 
 }
 
-private fun YearMonth.getDates(): List<LocalDate> =
-    (1..lengthOfMonth()).map { LocalDate(year, monthValue, it) }
+private fun monthDates(year: Int, monthNumber: Int): List<LocalDate> {
+    val firstOfMonth = LocalDate(year, monthNumber, 1)
+    val firstOfNext = if (monthNumber == 12) LocalDate(year + 1, 1, 1)
+        else LocalDate(year, monthNumber + 1, 1)
+    val len = firstOfMonth.daysUntil(firstOfNext)
+    return (1..len).map { LocalDate(year, monthNumber, it) }
+}
 
 sealed class EventsState() {
     object Loading : EventsState()

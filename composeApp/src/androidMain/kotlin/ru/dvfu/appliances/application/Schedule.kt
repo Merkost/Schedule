@@ -34,6 +34,7 @@ class Schedule : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppContextHolder.context = applicationContext
         AppDebug.init(this)
         Cedar.plant(ConsoleTree)
 

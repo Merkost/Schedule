@@ -60,7 +60,7 @@ private fun java.time.LocalDate.toKx(): LocalDate = LocalDate(year, monthValue, 
 private fun LocalDate.toJava(): java.time.LocalDate = java.time.LocalDate.of(year, monthNumber, dayOfMonth)
 
 @Composable
-fun MonthWeekCalendar(
+actual fun MonthWeekCalendar(
     viewModel: WeekCalendarViewModel,
     navController: NavController,
     onEventClick: (CalendarEvent) -> Unit,
@@ -95,7 +95,8 @@ fun MonthWeekCalendar(
     }
 
     LaunchedEffect(calendarState.monthState.currentMonth) {
-        viewModel.onMonthChanged(calendarState.monthState.currentMonth)
+        val ym = calendarState.monthState.currentMonth
+        viewModel.onMonthChanged(ym.year, ym.monthValue)
     }
 
     if (managingUiState is UiState.InProgress) {
@@ -110,7 +111,10 @@ fun MonthWeekCalendar(
                     navController.navigate(BookingListRoute)
                 },
                 onCalendarSelected = viewModel::setCalendarType,
-                onRetry = { viewModel.onMonthChanged(calendarState.monthState.currentMonth) }
+                onRetry = {
+                    val ym = calendarState.monthState.currentMonth
+                    viewModel.onMonthChanged(ym.year, ym.monthValue)
+                }
             )
         },
         floatingActionButtonPosition = FabPosition.End,

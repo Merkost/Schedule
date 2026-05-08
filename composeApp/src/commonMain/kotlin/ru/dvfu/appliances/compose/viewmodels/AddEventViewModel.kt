@@ -25,7 +25,6 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlinx.datetime.*
 import ru.dvfu.appliances.model.utils.TimeConstants
-import java.util.*
 
 private val ZONE = TimeConstants.ZONE
 
@@ -90,9 +89,7 @@ class AddEventViewModel(
             val totalMinutes = dur.inWholeMinutes.coerceAtLeast(0)
             val hours = totalMinutes / 60
             val minutes = totalMinutes % 60
-            val period = String.format(
-                Locale.getDefault(), "%02d:%02d", hours, minutes,
-            )
+            val period = "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}"
             return MutableStateFlow(period)
         }
 
