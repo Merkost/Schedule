@@ -24,10 +24,10 @@ actual class GoogleAuthLauncher(private val context: Context) {
         )
     }
 
-    actual suspend fun signIn(): Result<String> {
+    actual suspend fun signIn(): Result<GoogleSignInTokens> {
         val launcher = ActivityHolder.googleSignInLauncher
             ?: return Result.failure(IllegalStateException("Activity launcher not registered"))
-        val deferred = CompletableDeferred<Result<String>>()
+        val deferred = CompletableDeferred<Result<GoogleSignInTokens>>()
         ActivityHolder.pendingSignIn = deferred
         runCatching { launcher.launch(client.signInIntent) }
             .onFailure {
@@ -52,7 +52,9 @@ actual class GoogleAuthLauncher(private val context: Context) {
                 if (idToken.isNullOrEmpty()) {
                     deferred.complete(Result.failure(IllegalStateException("Google sign-in returned no id token")))
                 } else {
-                    deferred.complete(Result.success(idToken))
+                    deferred.complete(
+                        Result.success(GoogleSignInTokens(idToken = idToken, accessToken = null)),
+                    )
                 }
             } catch (e: Throwable) {
                 deferred.complete(Result.failure(e))

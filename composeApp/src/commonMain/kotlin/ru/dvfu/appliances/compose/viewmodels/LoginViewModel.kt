@@ -36,12 +36,12 @@ class LoginViewModel(
         }
     }
 
-    fun signInWithGoogleIdToken(idToken: String) {
+    fun signInWithGoogleTokens(idToken: String, accessToken: String?) {
         viewModelScope.launch {
             mutableStateFlow.value = BaseViewState.Loading(null)
             runCatching {
                 Firebase.auth.signInWithCredential(
-                    GoogleAuthProvider.credential(idToken, null)
+                    GoogleAuthProvider.credential(idToken, accessToken)
                 )
             }.onFailure { handleError(it) }
         }

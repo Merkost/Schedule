@@ -79,7 +79,9 @@ fun LoginScreen() {
             scope.launch {
                 val result = launcher.signIn()
                 result.fold(
-                    onSuccess = { idToken -> viewModel.signInWithGoogleIdToken(idToken) },
+                    onSuccess = { tokens ->
+                        viewModel.signInWithGoogleTokens(tokens.idToken, tokens.accessToken)
+                    },
                     onFailure = { err -> viewModel.setError(err) },
                 )
             }

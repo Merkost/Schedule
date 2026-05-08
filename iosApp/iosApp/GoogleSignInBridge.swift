@@ -10,19 +10,20 @@ enum GoogleSignInBridge {
             signIn: { onResult in
                 DispatchQueue.main.async {
                     guard let presenter = topViewController() else {
-                        onResult(nil, "no presenter")
+                        onResult(nil, nil, "no presenter")
                         return
                     }
                     GIDSignIn.sharedInstance.signIn(withPresenting: presenter) { result, error in
                         if let error = error {
-                            onResult(nil, error.localizedDescription)
+                            onResult(nil, nil, error.localizedDescription)
                             return
                         }
                         guard let idToken = result?.user.idToken?.tokenString else {
-                            onResult(nil, "no idToken")
+                            onResult(nil, nil, "no idToken")
                             return
                         }
-                        onResult(idToken, nil)
+                        let accessToken = result?.user.accessToken.tokenString
+                        onResult(idToken, accessToken, nil)
                     }
                 }
             },
