@@ -28,3 +28,4 @@ keystore/
 app/release/
 output-metadata.json
 .idea/kotlinc.xml
+firebase-debug.log
