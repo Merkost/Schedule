@@ -157,16 +157,14 @@ private fun initTabs(
     val result = mutableListOf<BookingTabItem>()
 
     if (currentUser.isAdmin || bookings.find { it.appliance.isUserSuperuserOrAdmin(currentUser) } != null) {
+        val pending = bookings.filter {
+            it.status == BookingStatus.NONE
+                    && it.timeEnd > nowDateTime()
+                    && (currentUser.isAdmin || it.appliance.isUserSuperuserOrAdmin(currentUser))
+        }
         result.add(
             BookingTabItem.PendingBookingsTabItem(
-                bookings = if (currentUser.isAdmin) {
-                    bookings.filter { it.timeEnd > nowDateTime() }
-                } else {
-                    bookings.filter {
-                        it.appliance.isUserSuperuserOrAdmin(currentUser)
-                                && it.timeEnd > nowDateTime()
-                    }
-                },
+                bookings = pending,
                 viewModel = viewModel,
                 navController = navController
             )

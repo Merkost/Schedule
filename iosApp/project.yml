@@ -38,6 +38,10 @@ targets:
         excludes:
           - "Info.plist"
           - "iosApp.entitlements"
+      - path: iosApp/Info.plist
+        buildPhase: none
+      - path: iosApp/iosApp.entitlements
+        buildPhase: none
 
     entitlements:
       path: iosApp/iosApp.entitlements

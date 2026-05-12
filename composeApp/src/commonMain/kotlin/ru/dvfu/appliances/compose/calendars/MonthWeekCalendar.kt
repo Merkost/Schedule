@@ -161,7 +161,8 @@ fun MonthWeekCalendar(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets.safeDrawing,
+        contentWindowInsets = WindowInsets.safeDrawing
+            .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
         topBar = {
             HomeTopBar(
                 uiState = uiState,
