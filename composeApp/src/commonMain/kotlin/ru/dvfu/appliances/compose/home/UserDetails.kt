@@ -6,6 +6,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -13,6 +15,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.window.DialogProperties
+import coil3.compose.AsyncImage
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.AlternateEmail
@@ -122,6 +130,9 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
 
 @Composable
 private fun UserHeroCard(user: User) {
+    var fullscreenAvatarOpen by remember { mutableStateOf(false) }
+    val hasPic = user.userPic.isNotBlank()
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -139,15 +150,28 @@ private fun UserHeroCard(user: User) {
                 modifier = Modifier
                     .size(96.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .then(
+                        if (hasPic) Modifier.clickable { fullscreenAvatarOpen = true }
+                        else Modifier,
+                    ),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Person,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(48.dp),
-                )
+                if (hasPic) {
+                    AsyncImage(
+                        model = user.userPic,
+                        contentDescription = stringResource(Res.string.user_photo),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.Person,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(48.dp),
+                    )
+                }
             }
             Text(
                 text = user.userName.ifBlank { stringResource(Res.string.anonymous_user) },
@@ -158,6 +182,73 @@ private fun UserHeroCard(user: User) {
                 overflow = TextOverflow.Ellipsis,
             )
             RoleBadge(role = getRole(user.role))
+        }
+    }
+
+    if (fullscreenAvatarOpen && hasPic) {
+        ZoomableImageDialog(
+            model = user.userPic,
+            contentDescription = stringResource(Res.string.user_photo),
+            onDismiss = { fullscreenAvatarOpen = false },
+        )
+    }
+}
+
+@Composable
+private fun ZoomableImageDialog(
+    model: Any?,
+    contentDescription: String?,
+    onDismiss: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        var scale by remember { mutableStateOf(1f) }
+        var offsetX by remember { mutableStateOf(0f) }
+        var offsetY by remember { mutableStateOf(0f) }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = { onDismiss() },
+                        onDoubleTap = {
+                            scale = 1f
+                            offsetX = 0f
+                            offsetY = 0f
+                        },
+                    )
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            AsyncImage(
+                model = model,
+                contentDescription = contentDescription,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offsetX,
+                        translationY = offsetY,
+                    )
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            if (scale > 1f) {
+                                offsetX += pan.x
+                                offsetY += pan.y
+                            } else {
+                                offsetX = 0f
+                                offsetY = 0f
+                            }
+                        }
+                    },
+            )
         }
     }
 }

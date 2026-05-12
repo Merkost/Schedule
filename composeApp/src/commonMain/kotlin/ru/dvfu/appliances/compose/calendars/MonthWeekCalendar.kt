@@ -1,7 +1,6 @@
 package ru.dvfu.appliances.compose.calendars
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
@@ -426,14 +425,7 @@ private fun ColumnScope.EventsPanel(
     val monthLabel = MONTH_NAMES_RU_FULL[currentMonth.month.ordinal]
         .replaceFirstChar { it.uppercase() }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -465,7 +457,7 @@ private fun ColumnScope.EventsPanel(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
-                    .padding(bottom = 100.dp),
+                    .padding(bottom = 96.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 when {
