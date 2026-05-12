@@ -71,12 +71,13 @@ export const sendNotification = onCall(async (req) => {
     return { ok: true, messageId }
   } catch (e: any) {
     const code = e?.errorInfo?.code ?? e?.code ?? "unknown"
+    const msg = e?.errorInfo?.message ?? e?.message ?? String(e)
+    console.error("FCM send failed:", { code, msg, tokenPrefix: token.slice(0, 12) })
     if (code === "messaging/registration-token-not-registered" ||
         code === "messaging/invalid-registration-token") {
-      // Token is dead. Surface as failed-precondition so the client can drop it.
       throw new HttpsError("failed-precondition", `dead token: ${code}`)
     }
-    throw new HttpsError("internal", `send failed: ${code}: ${e?.message ?? e}`)
+    throw new HttpsError("internal", `send failed: ${code}: ${msg}`)
   }
 })
 
