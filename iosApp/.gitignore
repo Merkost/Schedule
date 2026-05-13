@@ -1,0 +1,8 @@
+Schedule.xcodeproj/
+Schedule.xcworkspace/
+.build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+.swiftpm/
+GoogleService-Info.plist

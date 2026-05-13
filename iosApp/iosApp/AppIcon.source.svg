@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#EEF0F6"/>
+      <stop offset="1" stop-color="#DEE2EE"/>
+    </linearGradient>
+    <linearGradient id="header" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5E70EC"/>
+      <stop offset="1" stop-color="#3F4FCC"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F5F7FB"/>
+    </linearGradient>
+    <linearGradient id="ringHead" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#D1D6E3"/>
+    </linearGradient>
+  </defs>
+
+  <!-- background field (the icon canvas) -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- card body -->
+  <rect x="158" y="230" width="708" height="668" rx="100" fill="url(#card)"/>
+
+  <!-- subtle right-edge paper shadow -->
+  <rect x="860" y="230" width="6" height="668" fill="#000000" opacity="0.05"/>
+
+  <!-- header tab -->
+  <path d="M158 330 Q158 230 258 230 L766 230 Q866 230 866 330 L866 432 L158 432 Z" fill="url(#header)"/>
+
+  <!-- header top specular -->
+  <path d="M158 330 Q158 230 258 230 L766 230 Q866 230 866 330 L866 270 L158 270 Z" fill="#FFFFFF" opacity="0.10"/>
+
+  <!-- under-header shadow -->
+  <rect x="158" y="432" width="708" height="6" fill="#000000" opacity="0.08"/>
+
+  <!-- card top specular -->
+  <rect x="160" y="230" width="704" height="4" fill="#FFFFFF" opacity="0.55"/>
+
+  <!-- ring binder posts -->
+  <g>
+    <rect x="324" y="184" width="42" height="138" rx="21" fill="#1F2B7A"/>
+    <circle cx="345" cy="184" r="34" fill="url(#ringHead)" stroke="#B4BAD3" stroke-width="3"/>
+    <rect x="660" y="184" width="42" height="138" rx="21" fill="#1F2B7A"/>
+    <circle cx="681" cy="184" r="34" fill="url(#ringHead)" stroke="#B4BAD3" stroke-width="3"/>
+  </g>
+
+  <!-- 5 × 4 dot grid (today gap on row 3 col 3) -->
+  <g fill="#C9CFE0">
+    <circle cx="262" cy="540" r="22"/><circle cx="386" cy="540" r="22"/><circle cx="512" cy="540" r="22"/><circle cx="638" cy="540" r="22"/><circle cx="762" cy="540" r="22"/>
+    <circle cx="262" cy="640" r="22"/><circle cx="386" cy="640" r="22"/><circle cx="512" cy="640" r="22"/><circle cx="638" cy="640" r="22"/><circle cx="762" cy="640" r="22"/>
+    <circle cx="262" cy="740" r="22"/><circle cx="386" cy="740" r="22"/>                                              <circle cx="638" cy="740" r="22"/><circle cx="762" cy="740" r="22"/>
+    <circle cx="262" cy="840" r="22"/><circle cx="386" cy="840" r="22"/><circle cx="512" cy="840" r="22"/><circle cx="638" cy="840" r="22"/><circle cx="762" cy="840" r="22"/>
+  </g>
+
+  <!-- accent: today -->
+  <circle cx="512" cy="740" r="40" fill="#F26A4F"/>
+</svg>

@@ -22,4 +22,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Schedule"
-include(":app")
+include(":composeApp", ":androidApp")
