@@ -47,6 +47,8 @@ targets:
       path: iosApp/iosApp.entitlements
       properties:
         aps-environment: development
+        com.apple.developer.applesignin:
+          - Default
 
     settings:
       base:

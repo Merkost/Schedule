@@ -139,6 +139,12 @@
     <string name="isunactive">Inactive</string>
     <string name="refuse_successfull">Booking refused</string>
     <string name="sign_in_with_google">Continue with Google</string>
+    <string name="sign_in_with_apple">Continue with Apple</string>
+    <string name="qa_sign_in_title">QA sign-in</string>
+    <string name="qa_email_label">Email</string>
+    <string name="qa_password_label">Password</string>
+    <string name="qa_sign_in_action">Sign in</string>
+    <string name="qa_cancel">Cancel</string>
     <string name="continue_as_a_guest">Continue as guest</string>
     <string name="new_appliance_title">New appliance</string>
     <string name="appliance_basics">Basics</string>

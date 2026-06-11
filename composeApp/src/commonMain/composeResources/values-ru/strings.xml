@@ -139,6 +139,12 @@
     <string name="isunactive">Неактивные</string>
     <string name="refuse_successfull">Вы отказались от бронирования</string>
     <string name="sign_in_with_google">Продолжить с Google</string>
+    <string name="sign_in_with_apple">Продолжить с Apple</string>
+    <string name="qa_sign_in_title">QA-вход</string>
+    <string name="qa_email_label">Электронная почта</string>
+    <string name="qa_password_label">Пароль</string>
+    <string name="qa_sign_in_action">Войти</string>
+    <string name="qa_cancel">Отмена</string>
     <string name="continue_as_a_guest">Войти как гость</string>
     <string name="new_appliance_title">Новое устройство</string>
     <string name="appliance_basics">Основное</string>
