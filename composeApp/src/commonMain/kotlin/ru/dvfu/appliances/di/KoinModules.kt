@@ -1,5 +1,8 @@
 package ru.dvfu.appliances.di
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.application.SnackbarManager
@@ -52,6 +55,7 @@ import ru.dvfu.appliances.notifications.AppNotifierListener
 import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
 
 val repositoryModule = module {
+    single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
     single<FirestoreCollections> { FirestoreCollections() }
     single<OfflineRepository> { OfflineRepositoryImpl(collections = get()) }
 
@@ -64,7 +68,7 @@ val repositoryModule = module {
     }
     single<AppliancesRepository> { AppliancesRepositoryImpl(collections = get()) }
     single<UsersRepository> {
-        FirebaseUsersRepositoryImpl(collections = get(), userDatastore = get())
+        FirebaseUsersRepositoryImpl(collections = get(), userDatastore = get(), appScope = get())
     }
 }
 

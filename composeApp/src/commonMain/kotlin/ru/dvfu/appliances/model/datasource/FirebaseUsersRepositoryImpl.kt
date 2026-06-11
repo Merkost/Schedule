@@ -5,17 +5,20 @@ import com.mmk.kmpnotifier.notification.NotifierManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Roles
@@ -26,9 +29,34 @@ import ru.dvfu.appliances.ui.Progress
 class FirebaseUsersRepositoryImpl(
     private val collections: FirestoreCollections,
     private val userDatastore: UserDatastore,
+    private val appScope: CoroutineScope,
 ) : UsersRepository {
 
     private val log = Cedar.tag("UsersRepo")
+
+    private val userDocumentInitializer = UserDocumentInitializer(
+        appScope = appScope,
+        docExists = { uid -> collections.users().document(uid).get().exists },
+        createDoc = { user ->
+            log.d("ensureUserDocument creating uid=${user.userId}")
+            collections.users().document(user.userId).set(user)
+            userDatastore.saveUser(user)
+            uploadMessagingToken(user.userId)
+        },
+        onError = { e -> log.e("ensureUserDocument failed", e) },
+    )
+
+    init {
+        appScope.launch {
+            Firebase.auth.authStateChanged
+                .distinctUntilChanged { old, new -> old?.uid == new?.uid }
+                .collect { fbUser ->
+                    if (fbUser != null && !fbUser.isAnonymous) {
+                        userDocumentInitializer.ensure(mapFirebaseUserToUser(fbUser))
+                    }
+                }
+        }
+    }
 
     override suspend fun getUsers(): Flow<List<User>> =
         collections.users().snapshots
