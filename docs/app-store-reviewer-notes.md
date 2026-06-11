@@ -1,5 +1,16 @@
 # App Review — sign-in instructions
 
+## Short version (paste into App Review notes)
+
+```
+To access all features, sign in as admin:
+1. On the login screen, tap the app logo 5 times quickly.
+2. Enter  Email: appstore.review@dvfu.ru   Password: appstore.review.dvfu
+3. Tap "Sign in".
+```
+
+---
+
 Paste this into **App Store Connect → App Review Information → Notes**, and put
 the email/password in the **Sign-In Information** fields of the same section.
 
