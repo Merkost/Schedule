@@ -1,10 +1,28 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https"
 import { setGlobalOptions } from "firebase-functions/v2"
+import { user as authUser } from "firebase-functions/v1/auth"
 import { initializeApp } from "firebase-admin/app"
+import { getFirestore } from "firebase-admin/firestore"
 import { getMessaging, Message } from "firebase-admin/messaging"
+import { buildUserDoc, UserRecordLike } from "./userDoc"
 
 initializeApp()
 setGlobalOptions({ region: "asia-northeast1" })
+
+/**
+ * Server-side guarantee that every non-anonymous auth user has a users/{uid}
+ * document. Fires on user creation for every provider (Google, Apple, email)
+ * regardless of platform, app state, or client build. Idempotent: skips if the
+ * doc already exists, so it never clobbers an admin-elevated role.
+ */
+export const createUserDocument = authUser().onCreate(async (u) => {
+  const data = buildUserDoc(u as UserRecordLike)
+  if (!data) return
+  const ref = getFirestore().collection("users").doc(u.uid)
+  if ((await ref.get()).exists) return
+  await ref.set(data)
+  console.log("createUserDocument wrote users/" + u.uid)
+})
 
 /**
  * Maps the legacy NotificationType enum (sent in payload.data.notificationType)
