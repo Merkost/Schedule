@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose
 import ru.dvfu.appliances.navigation.ApplianceRoute
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,11 +26,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.AlternateEmail
 import androidx.compose.material.icons.outlined.Badge
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.DevicesOther
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,13 +51,14 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import kotlinx.coroutines.InternalCoroutinesApi
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.AppDebug
@@ -78,9 +83,13 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
     }
 
     var isChangeRoleDialogOpen by remember { mutableStateOf(false) }
+    var isDeleteAccountDialogOpen by remember { mutableStateOf(false) }
     val currentUser by viewModel.currentUser.collectAsState()
     val detailsUser by viewModel.detailsUser.collectAsState()
     val userRoleState by viewModel.userRoleState.collectAsState()
+    val accountDeletionState by viewModel.accountDeletionState.collectAsState()
+    val isOwnAccount = currentUser.userId != "0" && currentUser.userId == detailsUser.userId
+    val deletingAccount = accountDeletionState is UiState.InProgress
 
     Scaffold(
         topBar = { ScheduleAppBar(stringResource(Res.string.user), upPress) },
@@ -93,6 +102,18 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
                 viewModel.updateUserRole(detailsUser, newRole)
                 isChangeRoleDialogOpen = false
             }
+        }
+
+        if (isDeleteAccountDialogOpen) {
+            DeleteAccountDialog(
+                deleting = deletingAccount,
+                onDismiss = { if (!deletingAccount) isDeleteAccountDialogOpen = false },
+                onConfirm = {
+                    viewModel.deleteCurrentAccount {
+                        isDeleteAccountDialogOpen = false
+                    }
+                },
+            )
         }
 
         Column(
@@ -123,6 +144,13 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
                 Roles.USER.ordinal, Roles.ADMIN.ordinal -> {
                     SuperUserAppliancesList(viewModel, navController)
                 }
+            }
+
+            if (isOwnAccount) {
+                DeleteAccountCard(
+                    deleting = deletingAccount,
+                    onClick = { isDeleteAccountDialogOpen = true },
+                )
             }
         }
     }
@@ -370,6 +398,137 @@ private fun UserRoleCard(
 }
 
 @Composable
+private fun DeleteAccountCard(
+    modifier: Modifier = Modifier,
+    deleting: Boolean,
+    onClick: () -> Unit,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.DeleteForever,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(28.dp),
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = stringResource(Res.string.delete_account),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                    Text(
+                        text = stringResource(Res.string.delete_account_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
+            }
+            OutlinedButton(
+                onClick = onClick,
+                enabled = !deleting,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error,
+                    disabledContentColor = MaterialTheme.colorScheme.error.copy(alpha = 0.38f),
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+            ) {
+                if (deleting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                }
+                Text(stringResource(Res.string.delete_account))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeleteAccountDialog(
+    deleting: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = { if (!deleting) onDismiss() },
+        icon = {
+            Icon(
+                imageVector = Icons.Outlined.DeleteForever,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(32.dp),
+            )
+        },
+        title = {
+            Text(
+                text = stringResource(Res.string.delete_account_title),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(Res.string.delete_account_message),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = !deleting,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                    disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.38f),
+                    disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = 0.38f),
+                ),
+            ) {
+                if (deleting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onError,
+                    )
+                } else {
+                    Text(stringResource(Res.string.delete_account_confirm))
+                }
+            }
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                enabled = !deleting,
+            ) {
+                Text(stringResource(Res.string.cancel))
+            }
+        },
+    )
+}
+
+@Composable
 fun RolesWithSelectionDialog(
     currentUser: User,
     onDismiss: () -> Unit,
@@ -406,7 +565,7 @@ fun RolesWithSelectionDialog(
             }
         },
         confirmButton = {
-            androidx.compose.material3.Button(
+            Button(
                 onClick = {
                     onSelectedValue(selectedRole)
                     onDismiss()
@@ -450,6 +609,31 @@ private fun RoleOption(role: Roles, selected: Boolean, onSelect: () -> Unit) {
             fontWeight = FontWeight.Medium,
             color = titleColor,
             modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun DeleteAccountCardPreview() {
+    MaterialTheme {
+        Column(Modifier.padding(16.dp)) {
+            DeleteAccountCard(
+                deleting = false,
+                onClick = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun DeleteAccountDialogPreview() {
+    MaterialTheme {
+        DeleteAccountDialog(
+            deleting = false,
+            onDismiss = {},
+            onConfirm = {},
         )
     }
 }

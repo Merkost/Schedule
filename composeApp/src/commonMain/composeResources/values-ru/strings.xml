@@ -25,6 +25,13 @@
     <string name="no_users_in_appliance">У этого прибора ещё нет пользователей</string>
     <string name="no_appliances">Нет приборов</string>
     <string name="user_info">Данные пользователя</string>
+    <string name="account_details">Данные аккаунта</string>
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="delete_account_description">Навсегда удалить аккаунт, профиль, push-токен и данные бронирований.</string>
+    <string name="delete_account_title">Удалить аккаунт?</string>
+    <string name="delete_account_message">Аккаунт и связанные данные бронирований будут удалены без возможности восстановления.</string>
+    <string name="delete_account_confirm">Удалить аккаунт</string>
+    <string name="delete_account_failed">Не удалось удалить аккаунт. Попробуйте ещё раз.</string>
     <string name="superuser_appliances">Приборы суперпользователя</string>
     <string name="name">Имя</string>
     <string name="role">Роль</string>

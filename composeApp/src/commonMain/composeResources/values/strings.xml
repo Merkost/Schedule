@@ -25,6 +25,13 @@
     <string name="no_users_in_appliance">This appliance has no users yet</string>
     <string name="no_appliances">No appliances</string>
     <string name="user_info">User info</string>
+    <string name="account_details">Account details</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete_account_description">Permanently delete your sign-in account, profile, push token, and booking data.</string>
+    <string name="delete_account_title">Delete account?</string>
+    <string name="delete_account_message">This permanently deletes your account and associated booking data. This action cannot be undone.</string>
+    <string name="delete_account_confirm">Delete account</string>
+    <string name="delete_account_failed">Couldn\'t delete account. Please try again.</string>
     <string name="superuser_appliances">Superuser appliances</string>
     <string name="name">Name</string>
     <string name="role">Role</string>
