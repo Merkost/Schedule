@@ -46,7 +46,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import kotlinx.datetime.Clock
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -182,7 +181,7 @@ fun LoginScreenContent(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            val now = Clock.System.now().toEpochMilliseconds()
+                            val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
                             tapCount = if (now - lastTapAt > 2_000L) 1 else tapCount + 1
                             lastTapAt = now
                             if (tapCount >= 5) {
