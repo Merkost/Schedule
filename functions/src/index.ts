@@ -4,6 +4,7 @@ import { user as authUser } from "firebase-functions/v1/auth"
 import { initializeApp } from "firebase-admin/app"
 import { getFirestore } from "firebase-admin/firestore"
 import { getMessaging, Message } from "firebase-admin/messaging"
+import { createFirestoreAccountDeletionStore, deleteAccountData } from "./accountDeletion"
 import { buildUserDoc, UserRecordLike } from "./userDoc"
 
 initializeApp()
@@ -99,3 +100,15 @@ export const sendNotification = onCall(async (req) => {
   }
 })
 
+export const deleteCurrentAccount = onCall(async (req) => {
+  if (!req.auth) throw new HttpsError("unauthenticated", "sign in first")
+
+  try {
+    await deleteAccountData(req.auth.uid, createFirestoreAccountDeletionStore(getFirestore()))
+    return { ok: true }
+  } catch (e: any) {
+    const msg = e?.message ?? String(e)
+    console.error("deleteCurrentAccount failed:", { uid: req.auth.uid, msg })
+    throw new HttpsError("internal", "account deletion failed")
+  }
+})
