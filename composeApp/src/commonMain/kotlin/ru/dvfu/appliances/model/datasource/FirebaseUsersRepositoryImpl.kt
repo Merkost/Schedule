@@ -5,6 +5,7 @@ import com.mmk.kmpnotifier.notification.NotifierManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.functions.functions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +34,8 @@ class FirebaseUsersRepositoryImpl(
 ) : UsersRepository {
 
     private val log = Cedar.tag("UsersRepo")
+
+    private val functions by lazy { Firebase.functions("asia-northeast1") }
 
     private val userDocumentInitializer = UserDocumentInitializer(
         appScope = appScope,
@@ -172,6 +175,16 @@ class FirebaseUsersRepositoryImpl(
     override suspend fun logoutCurrentUser(): Flow<Boolean> = flow {
         Firebase.auth.signOut()
         emit(true)
+    }
+
+    override suspend fun deleteCurrentAccount(): Result<Unit> = runCatching {
+        Firebase.auth.currentUser?.getIdToken(true) ?: error("No signed-in user")
+        functions.httpsCallable("deleteCurrentAccount").invoke()
+        try {
+            userDatastore.saveUser(User())
+        } finally {
+            Firebase.auth.signOut()
+        }
     }
 
     override suspend fun getUser(userId: String): Result<User> = runCatching {

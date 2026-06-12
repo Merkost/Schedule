@@ -26,6 +26,12 @@ class MockUsersRepository : UsersRepository {
         return MutableStateFlow(true)
     }
 
+    override suspend fun deleteCurrentAccount(): Result<Unit> = runCatching {
+        val current = currentUserStore.value ?: error("No signed-in user")
+        usersStore.update { users -> users.filter { it.userId != current.userId } }
+        currentUserStore.value = null
+    }
+
     override suspend fun addNewUser(user: User): StateFlow<Progress> {
         usersStore.update { it + user }
         return MutableStateFlow(Progress.Complete)
