@@ -10,14 +10,20 @@ enum AppleSignInBridge {
         IosAppleAuthBridgeKt.installAppleSignInBridge(
             signIn: { onResult in
                 DispatchQueue.main.async {
-                    Coordinator.shared.start(mode: .signIn, onResult: onResult)
+                    let completion: (String?) -> Void = { error in
+                        _ = onResult(error)
+                    }
+                    Coordinator.shared.start(mode: .signIn, onResult: completion)
                 }
             }
         )
         IosAppleAuthBridgeKt.installAppleLinkBridge(
             link: { onResult in
                 DispatchQueue.main.async {
-                    Coordinator.shared.start(mode: .link, onResult: onResult)
+                    let completion: (String?) -> Void = { error in
+                        _ = onResult(error)
+                    }
+                    Coordinator.shared.start(mode: .link, onResult: completion)
                 }
             }
         )
