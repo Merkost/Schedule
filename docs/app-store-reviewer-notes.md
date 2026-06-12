@@ -8,8 +8,9 @@ To access all features, sign in as admin:
 2. Enter  Email: appstore.review@dvfu.ru   Password: appstore.review.dvfu
 3. Tap "Sign in".
 
-Account deletion: Profile → Account details → Delete account. Guest:
-Profile → Delete account.
+Account deletion: please test with a guest session or disposable standard
+account, not the shared admin demo account. Guest path: Profile → Delete
+account. Standard account path: Profile → Account details → Delete account.
 ```
 
 ---
@@ -49,7 +50,10 @@ admin/management options).
 
 ## Account Deletion
 
-The demo account can verify in-app account deletion from:
+Please verify account deletion with a guest session or a disposable standard
+Apple/Google account, not the shared admin demo account.
+
+For a standard account, use:
 
 Profile → Account details → Delete account
 

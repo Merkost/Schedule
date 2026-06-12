@@ -233,8 +233,10 @@ can manually elevate a test account to a "Super-user" role if needed —
 please reply on this thread and we will whitelist whichever account you
 sign in with.
 
-Account deletion path for review: Profile → Account details → Delete account.
-Guest path: Profile → Delete account.
+Account deletion path for review: please test with a guest session or a
+disposable standard account, not the shared admin demo account. Guest path:
+Profile → Delete account. Standard account path: Profile → Account details →
+Delete account.
 Deletion removes the Firebase Auth account, Firestore profile when present,
 push token, appliance membership references, and associated booking data.
 
