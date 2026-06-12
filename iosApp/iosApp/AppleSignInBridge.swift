@@ -10,19 +10,33 @@ enum AppleSignInBridge {
         IosAppleAuthBridgeKt.installAppleSignInBridge(
             signIn: { onResult in
                 DispatchQueue.main.async {
-                    Coordinator.shared.start(onResult: onResult)
+                    Coordinator.shared.start(mode: .signIn, onResult: onResult)
+                }
+            }
+        )
+        IosAppleAuthBridgeKt.installAppleLinkBridge(
+            link: { onResult in
+                DispatchQueue.main.async {
+                    Coordinator.shared.start(mode: .link, onResult: onResult)
                 }
             }
         )
     }
 
     private final class Coordinator: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+        enum Mode {
+            case signIn
+            case link
+        }
+
         static let shared = Coordinator()
 
         private var currentNonce: String?
+        private var mode: Mode?
         private var onResult: ((String?) -> Void)?
 
-        func start(onResult: @escaping (String?) -> Void) {
+        func start(mode: Mode, onResult: @escaping (String?) -> Void) {
+            self.mode = mode
             self.onResult = onResult
 
             let nonce = Self.randomNonceString()
@@ -58,12 +72,29 @@ enum AppleSignInBridge {
                 fullName: credential.fullName
             )
 
-            Auth.auth().signIn(with: firebaseCredential) { [weak self] _, error in
-                if let error = error {
-                    self?.finish(error: error.localizedDescription)
-                } else {
-                    self?.finish(error: nil)
+            switch mode {
+            case .some(.signIn):
+                Auth.auth().signIn(with: firebaseCredential) { [weak self] _, error in
+                    if let error = error {
+                        self?.finish(error: error.localizedDescription)
+                    } else {
+                        self?.finish(error: nil)
+                    }
                 }
+            case .some(.link):
+                guard let currentUser = Auth.auth().currentUser else {
+                    finish(error: "No authenticated user")
+                    return
+                }
+                currentUser.link(with: firebaseCredential) { [weak self] _, error in
+                    if let error = error {
+                        self?.finish(error: error.localizedDescription)
+                    } else {
+                        self?.finish(error: nil)
+                    }
+                }
+            case .none:
+                finish(error: "Apple authorization mode missing")
             }
         }
 
@@ -93,6 +124,7 @@ enum AppleSignInBridge {
             let callback = onResult
             onResult = nil
             currentNonce = nil
+            mode = nil
             callback?(error)
         }
 

@@ -195,4 +195,11 @@
     <string name="appliance_activate_description">The appliance will become available for booking again.</string>
     <string name="deactivate">Deactivate</string>
     <string name="activate">Activate</string>
+    <string name="linked_accounts">Linked accounts</string>
+    <string name="save_account">Save account</string>
+    <string name="save_account_subtitle">Link a sign-in method to keep your data permanently.</string>
+    <string name="link_provider">Link</string>
+    <string name="provider_linked">Linked</string>
+    <string name="link_error_already_in_use">This account is already linked to another user.</string>
+    <string name="link_error_generic">Something went wrong. Please try again.</string>
 </resources>

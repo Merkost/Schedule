@@ -70,6 +70,12 @@ class FirebaseUsersRepositoryImpl(
                 emit(emptyList())
             }
 
+    override fun ensureCurrentUserDocument() {
+        Firebase.auth.currentUser
+            ?.let(::mapFirebaseUserToUser)
+            ?.let(userDocumentInitializer::ensure)
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override val currentUser: Flow<User?>
         get() = Firebase.auth.authStateChanged

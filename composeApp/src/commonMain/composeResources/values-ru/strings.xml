@@ -195,4 +195,11 @@
     <string name="appliance_activate_description">Устройство снова станет доступным для бронирования.</string>
     <string name="deactivate">Деактивировать</string>
     <string name="activate">Активировать</string>
+    <string name="linked_accounts">Связанные аккаунты</string>
+    <string name="save_account">Сохранить аккаунт</string>
+    <string name="save_account_subtitle">Привяжите способ входа, чтобы сохранить данные навсегда.</string>
+    <string name="link_provider">Привязать</string>
+    <string name="provider_linked">Привязан</string>
+    <string name="link_error_already_in_use">Этот аккаунт уже привязан к другому пользователю.</string>
+    <string name="link_error_generic">Что-то пошло не так. Попробуйте ещё раз.</string>
 </resources>

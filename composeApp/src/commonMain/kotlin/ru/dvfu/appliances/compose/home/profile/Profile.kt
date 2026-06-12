@@ -41,6 +41,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.navigation.EditProfileRoute
+import ru.dvfu.appliances.navigation.LinkedAccountsRoute
 import ru.dvfu.appliances.navigation.SettingsRoute
 import ru.dvfu.appliances.navigation.UsersRoute
 import ru.dvfu.appliances.compose.ScheduleAppBar
@@ -78,7 +79,13 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                 ProfileUserInfo(currentUser)
             }
             Spacer(Modifier.height(24.dp))
-            if (!currentUser.anonymous) UserButtons(navController, currentUser)
+            if (currentUser.anonymous) {
+                ColumnButton(Icons.Default.Link, stringResource(Res.string.save_account)) {
+                    navController.navigate(LinkedAccountsRoute)
+                }
+            } else {
+                UserButtons(navController, currentUser)
+            }
         }
     }
 }
@@ -93,6 +100,9 @@ fun UserButtons(navController: NavController, currentUser: User) {
     ) {
         ColumnButton(Icons.Default.Edit, "Редактировать профиль") {
             navController.navigate(EditProfileRoute)
+        }
+        ColumnButton(Icons.Default.Link, stringResource(Res.string.linked_accounts)) {
+            navController.navigate(LinkedAccountsRoute)
         }
         ColumnButton(Icons.Default.Notifications, "Настройка уведомлений") {
             navController.navigate(SettingsRoute)
@@ -244,4 +254,3 @@ fun ProfileTopBar(upPress: () -> Unit) {
         }
     )
 }
-

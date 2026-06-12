@@ -15,6 +15,9 @@ data class EventInfoRoute(val eventId: String)
 object EditProfileRoute
 
 @Serializable
+object LinkedAccountsRoute
+
+@Serializable
 data class ApplianceRoute(val applianceId: String)
 
 @Serializable

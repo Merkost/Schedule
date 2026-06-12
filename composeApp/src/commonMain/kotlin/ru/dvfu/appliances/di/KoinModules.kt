@@ -31,6 +31,7 @@ import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.viewmodels.EditProfileViewModel
 import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
+import ru.dvfu.appliances.compose.viewmodels.LinkedAccountsViewModel
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
 import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
@@ -165,6 +166,7 @@ val mainActivity = module {
     }
 
     viewModel { ProfileViewModel(get(), get()) }
+    viewModel { LinkedAccountsViewModel(get(), get(), get()) }
 
     viewModel { ApplianceDetailsViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { NewApplianceViewModel(get(), get()) }

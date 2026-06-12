@@ -16,6 +16,9 @@ class MockUsersRepository : UsersRepository {
 
     override val currentUser: Flow<User?> = currentUserStore
 
+    override fun ensureCurrentUserDocument() {
+    }
+
     override suspend fun getUsers(): Flow<List<User>> = usersStore
 
     override suspend fun logoutCurrentUser(): Flow<Boolean> {

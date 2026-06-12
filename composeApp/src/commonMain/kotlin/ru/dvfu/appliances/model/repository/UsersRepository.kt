@@ -8,6 +8,8 @@ import ru.dvfu.appliances.ui.Progress
 interface UsersRepository {
     val currentUser: Flow<User?>
 
+    fun ensureCurrentUserDocument()
+
     suspend fun getUsers(): Flow<List<User>>
 
     suspend fun logoutCurrentUser(): Flow<Boolean>

@@ -22,4 +22,19 @@ actual class AppleAuthLauncher {
             }
         }
     }
+
+    actual suspend fun link(): Result<Unit> {
+        val impl = IosAppleAuthBridge.linkImpl
+            ?: return Result.failure(IllegalStateException("Apple link bridge not installed"))
+        return suspendCancellableCoroutine { cont ->
+            impl { error ->
+                if (!cont.isActive) return@impl
+                when (error) {
+                    null -> cont.resume(Result.success(Unit))
+                    "canceled" -> cont.resume(Result.failure(CancellationException("Apple link canceled")))
+                    else -> cont.resume(Result.failure(IllegalStateException(error)))
+                }
+            }
+        }
+    }
 }
