@@ -7,6 +7,9 @@ To access all features, sign in as admin:
 1. On the login screen, tap the app logo 5 times quickly.
 2. Enter  Email: appstore.review@dvfu.ru   Password: appstore.review.dvfu
 3. Tap "Sign in".
+
+Account deletion: Profile → Account details → Delete account. Guest:
+Profile → Delete account.
 ```
 
 ---
@@ -41,6 +44,24 @@ sign-in:
 You are signed in as an administrator. All admin-only screens, actions, and
 management features are now accessible (Calendar, Appliances, Profile, and the
 admin/management options).
+
+---
+
+## Account Deletion
+
+The demo account can verify in-app account deletion from:
+
+Profile → Account details → Delete account
+
+For guest sessions, use:
+
+Profile → Delete account
+
+The delete action is shown only on the signed-in user's own details screen, or
+directly in Profile for anonymous guests because guest sessions do not have a
+Firestore profile document. It removes the Firebase Auth account, Firestore
+profile when present, push token, appliance membership references, and
+associated booking data.
 
 ---
 

@@ -233,11 +233,17 @@ can manually elevate a test account to a "Super-user" role if needed —
 please reply on this thread and we will whitelist whichever account you
 sign in with.
 
+Account deletion path for review: Profile → Account details → Delete account.
+Guest path: Profile → Delete account.
+Deletion removes the Firebase Auth account, Firestore profile when present,
+push token, appliance membership references, and associated booking data.
+
 WHAT TO EXERCISE
 1. Calendar tab — tap any day to see its bookings; tap a booking to open
    details (Home screen).
 2. Appliances tab — list of equipment; tap an item to see super-users.
-3. Profile tab — your account info; sign-out lives here.
+3. Profile tab — your account info, account details, account deletion, and
+   sign-out live here.
 4. "+" floating button — create a new booking (signed-in users only).
 
 PERMISSIONS
