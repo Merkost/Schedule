@@ -84,6 +84,7 @@ val application = module {
             getUserUseCase = get(),
             getApplianceUseCase = get(),
             notificationApi = get(),
+            appScope = get(),
         )
     }
 
