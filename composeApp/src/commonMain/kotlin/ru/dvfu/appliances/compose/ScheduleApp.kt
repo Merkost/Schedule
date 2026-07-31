@@ -54,6 +54,7 @@ import ru.dvfu.appliances.navigation.BookingListRoute
 import ru.dvfu.appliances.navigation.EditProfileRoute
 import ru.dvfu.appliances.navigation.EventInfoRoute
 import ru.dvfu.appliances.navigation.HomeRoute
+import ru.dvfu.appliances.navigation.LinkedAccountsRoute
 import ru.dvfu.appliances.navigation.LoginRoute
 import ru.dvfu.appliances.navigation.MainDestinations
 import ru.dvfu.appliances.navigation.NewApplianceRoute
@@ -64,6 +65,7 @@ import ru.dvfu.appliances.notifications.AppNotifierListener
 import ru.dvfu.appliances.notifications.NavControllerNotificationRouter
 import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
 import ru.dvfu.appliances.ui.LoginScreen
+import ru.dvfu.appliances.ui.LinkedAccountsScreenRoute
 import kotlinx.datetime.LocalDate
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
@@ -196,6 +198,9 @@ private fun NavGraphBuilder.NavGraph(
     }
     composable<EditProfileRoute> {
         EditProfile { navController.popBackStack() }
+    }
+    composable<LinkedAccountsRoute> {
+        LinkedAccountsScreenRoute(upPress = { navController.popBackStack() })
     }
     composable<ApplianceRoute> { entry ->
         val r = entry.toRoute<ApplianceRoute>()

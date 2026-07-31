@@ -5,17 +5,21 @@ import com.mmk.kmpnotifier.notification.NotifierManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.functions.functions
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Roles
@@ -26,9 +30,36 @@ import ru.dvfu.appliances.ui.Progress
 class FirebaseUsersRepositoryImpl(
     private val collections: FirestoreCollections,
     private val userDatastore: UserDatastore,
+    private val appScope: CoroutineScope,
 ) : UsersRepository {
 
     private val log = Cedar.tag("UsersRepo")
+
+    private val functions by lazy { Firebase.functions("asia-northeast1") }
+
+    private val userDocumentInitializer = UserDocumentInitializer(
+        appScope = appScope,
+        docExists = { uid -> collections.users().document(uid).get().exists },
+        createDoc = { user ->
+            log.d("ensureUserDocument creating uid=${user.userId}")
+            collections.users().document(user.userId).set(user)
+            userDatastore.saveUser(user)
+            uploadMessagingToken(user.userId)
+        },
+        onError = { e -> log.e("ensureUserDocument failed", e) },
+    )
+
+    init {
+        appScope.launch {
+            Firebase.auth.authStateChanged
+                .distinctUntilChanged { old, new -> old?.uid == new?.uid }
+                .collect { fbUser ->
+                    if (fbUser != null && !fbUser.isAnonymous) {
+                        userDocumentInitializer.ensure(mapFirebaseUserToUser(fbUser))
+                    }
+                }
+        }
+    }
 
     override suspend fun getUsers(): Flow<List<User>> =
         collections.users().snapshots
@@ -41,6 +72,12 @@ class FirebaseUsersRepositoryImpl(
                 log.e("getUsers failed", e)
                 emit(emptyList())
             }
+
+    override fun ensureCurrentUserDocument() {
+        Firebase.auth.currentUser
+            ?.let(::mapFirebaseUserToUser)
+            ?.let(userDocumentInitializer::ensure)
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val currentUser: Flow<User?>
@@ -138,6 +175,16 @@ class FirebaseUsersRepositoryImpl(
     override suspend fun logoutCurrentUser(): Flow<Boolean> = flow {
         Firebase.auth.signOut()
         emit(true)
+    }
+
+    override suspend fun deleteCurrentAccount(): Result<Unit> = runCatching {
+        Firebase.auth.currentUser?.getIdToken(true) ?: error("No signed-in user")
+        functions.httpsCallable("deleteCurrentAccount").invoke()
+        try {
+            userDatastore.saveUser(User())
+        } finally {
+            Firebase.auth.signOut()
+        }
     }
 
     override suspend fun getUser(userId: String): Result<User> = runCatching {

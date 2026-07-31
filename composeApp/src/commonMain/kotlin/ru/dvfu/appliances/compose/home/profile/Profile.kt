@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,15 +42,19 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.navigation.EditProfileRoute
+import ru.dvfu.appliances.navigation.LinkedAccountsRoute
 import ru.dvfu.appliances.navigation.SettingsRoute
 import ru.dvfu.appliances.navigation.UsersRoute
 import ru.dvfu.appliances.compose.ScheduleAppBar
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.isAdmin
 import org.koin.compose.koinInject
 import ru.dvfu.appliances.platform.GoogleAuthLauncher
+import ru.dvfu.appliances.navigation.UserDetailsRoute
 
 @InternalCoroutinesApi
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +63,33 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
 
     val viewModel = koinViewModel<ProfileViewModel>()
     val currentUser by viewModel.currentUser.collectAsState()
+    val accountDeletionState by viewModel.accountDeletionState.collectAsState()
+    var isDeleteAccountDialogOpen by rememberSaveable { mutableStateOf(false) }
+    val deletingAccount = accountDeletionState is UiState.InProgress
+    val isRegisteredUser = currentUser.userId != "0" && !currentUser.anonymous
+
+    if (isDeleteAccountDialogOpen) {
+        DefaultDialog(
+            primaryText = stringResource(Res.string.delete_account_title),
+            secondaryText = stringResource(Res.string.delete_account_message),
+            negativeButtonText = stringResource(Res.string.cancel),
+            onNegativeClick = { if (!deletingAccount) isDeleteAccountDialogOpen = false },
+            positiveButtonText = stringResource(Res.string.delete_account_confirm),
+            positiveButtonColor = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError,
+            ),
+            onPositiveClick = {
+                viewModel.deleteCurrentAccount {
+                    isDeleteAccountDialogOpen = false
+                }
+            },
+            onDismiss = { if (!deletingAccount) isDeleteAccountDialogOpen = false },
+        )
+    }
+    if (deletingAccount) {
+        ModalLoadingDialog()
+    }
 
     Scaffold(
         topBar = { ProfileTopBar(upPress = backPress) },
@@ -78,7 +110,21 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                 ProfileUserInfo(currentUser)
             }
             Spacer(Modifier.height(24.dp))
-            if (!currentUser.anonymous) UserButtons(navController, currentUser)
+            when {
+                currentUser.anonymous -> {
+                    ColumnButton(Icons.Default.Link, stringResource(Res.string.save_account)) {
+                        navController.navigate(LinkedAccountsRoute)
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    ColumnButton(Icons.Default.DeleteForever, stringResource(Res.string.delete_account)) {
+                        isDeleteAccountDialogOpen = true
+                    }
+                }
+
+                isRegisteredUser -> {
+                    UserButtons(navController, currentUser)
+                }
+            }
         }
     }
 }
@@ -91,8 +137,14 @@ fun UserButtons(navController: NavController, currentUser: User) {
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        ColumnButton(Icons.Default.AccountCircle, stringResource(Res.string.account_details)) {
+            navController.navigate(UserDetailsRoute(userId = currentUser.userId))
+        }
         ColumnButton(Icons.Default.Edit, "Редактировать профиль") {
             navController.navigate(EditProfileRoute)
+        }
+        ColumnButton(Icons.Default.Link, stringResource(Res.string.linked_accounts)) {
+            navController.navigate(LinkedAccountsRoute)
         }
         ColumnButton(Icons.Default.Notifications, "Настройка уведомлений") {
             navController.navigate(SettingsRoute)
@@ -244,4 +296,3 @@ fun ProfileTopBar(upPress: () -> Unit) {
         }
     )
 }
-

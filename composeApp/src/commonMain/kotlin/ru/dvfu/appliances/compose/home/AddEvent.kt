@@ -63,6 +63,7 @@ fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
     if (uiState is UiState.InProgress) ModalLoadingDialog()
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             ScheduleAppBar(
                 title = stringResource(Res.string.new_event),
@@ -71,7 +72,9 @@ fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { if (uiState != UiState.Success) viewModel.addEvent() },
+                onClick = {
+                    if (uiState !is UiState.InProgress && uiState != UiState.Success) viewModel.addEvent()
+                },
                 containerColor = MaterialTheme.colorScheme.primary,
             ) {
                 Icon(Icons.Default.Check, contentDescription = null)

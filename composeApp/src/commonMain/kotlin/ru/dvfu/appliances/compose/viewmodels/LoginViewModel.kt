@@ -47,6 +47,19 @@ class LoginViewModel(
         }
     }
 
+    fun beginExternalSignIn() {
+        mutableStateFlow.value = BaseViewState.Loading(null)
+    }
+
+    fun signInWithEmailPassword(email: String, password: String) {
+        viewModelScope.launch {
+            mutableStateFlow.value = BaseViewState.Loading(null)
+            runCatching {
+                Firebase.auth.signInWithEmailAndPassword(email.trim(), password)
+            }.onFailure { handleError(it) }
+        }
+    }
+
     fun signInAnonymously() {
         viewModelScope.launch {
             mutableStateFlow.value = BaseViewState.Loading(null)

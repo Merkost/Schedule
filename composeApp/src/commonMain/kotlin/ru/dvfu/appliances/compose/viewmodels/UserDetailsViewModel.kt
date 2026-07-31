@@ -32,6 +32,9 @@ class UserDetailsViewModel(
     private val _userRoleState = MutableStateFlow<UiState>(UiState.Success)
     val userRoleState = _userRoleState.asStateFlow()
 
+    private val _accountDeletionState = MutableStateFlow<UiState>(UiState.Success)
+    val accountDeletionState = _accountDeletionState.asStateFlow()
+
     init {
         getCurrentUser()
         setDetailsUser(detUser)
@@ -89,5 +92,26 @@ class UserDetailsViewModel(
         }
     }
 
+    fun deleteCurrentAccount(onDeleted: () -> Unit) {
+        viewModelScope.launch {
+            if (_accountDeletionState.value is UiState.InProgress) return@launch
+
+            val current = currentUser.value
+            val details = detailsUser.value
+            if (current.userId == "0" || current.userId != details.userId) return@launch
+
+            _accountDeletionState.value = UiState.InProgress
+            usersRepository.deleteCurrentAccount().fold(
+                onSuccess = {
+                    _accountDeletionState.value = UiState.Success
+                    onDeleted()
+                },
+                onFailure = {
+                    _accountDeletionState.value = UiState.Error
+                    SnackbarManager.showMessage(Res.string.delete_account_failed)
+                },
+            )
+        }
+    }
 
 }

@@ -25,6 +25,13 @@
     <string name="no_users_in_appliance">This appliance has no users yet</string>
     <string name="no_appliances">No appliances</string>
     <string name="user_info">User info</string>
+    <string name="account_details">Account details</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete_account_description">Permanently delete your sign-in account, profile, push token, and booking data.</string>
+    <string name="delete_account_title">Delete account?</string>
+    <string name="delete_account_message">This permanently deletes your account and associated booking data. This action cannot be undone.</string>
+    <string name="delete_account_confirm">Delete account</string>
+    <string name="delete_account_failed">Couldn\'t delete account. Please try again.</string>
     <string name="superuser_appliances">Superuser appliances</string>
     <string name="name">Name</string>
     <string name="role">Role</string>
@@ -139,6 +146,12 @@
     <string name="isunactive">Inactive</string>
     <string name="refuse_successfull">Booking refused</string>
     <string name="sign_in_with_google">Continue with Google</string>
+    <string name="sign_in_with_apple">Continue with Apple</string>
+    <string name="qa_sign_in_title">QA sign-in</string>
+    <string name="qa_email_label">Email</string>
+    <string name="qa_password_label">Password</string>
+    <string name="qa_sign_in_action">Sign in</string>
+    <string name="qa_cancel">Cancel</string>
     <string name="continue_as_a_guest">Continue as guest</string>
     <string name="new_appliance_title">New appliance</string>
     <string name="appliance_basics">Basics</string>
@@ -189,4 +202,11 @@
     <string name="appliance_activate_description">The appliance will become available for booking again.</string>
     <string name="deactivate">Deactivate</string>
     <string name="activate">Activate</string>
+    <string name="linked_accounts">Linked accounts</string>
+    <string name="save_account">Save account</string>
+    <string name="save_account_subtitle">Link a sign-in method to keep your data permanently.</string>
+    <string name="link_provider">Link</string>
+    <string name="provider_linked">Linked</string>
+    <string name="link_error_already_in_use">This account is already linked to another user.</string>
+    <string name="link_error_generic">Something went wrong. Please try again.</string>
 </resources>

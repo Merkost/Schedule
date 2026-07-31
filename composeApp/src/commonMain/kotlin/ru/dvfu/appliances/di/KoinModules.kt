@@ -1,5 +1,8 @@
 package ru.dvfu.appliances.di
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.application.SnackbarManager
@@ -28,6 +31,7 @@ import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.viewmodels.EditProfileViewModel
 import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
+import ru.dvfu.appliances.compose.viewmodels.LinkedAccountsViewModel
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
 import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
@@ -52,6 +56,7 @@ import ru.dvfu.appliances.notifications.AppNotifierListener
 import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
 
 val repositoryModule = module {
+    single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
     single<FirestoreCollections> { FirestoreCollections() }
     single<OfflineRepository> { OfflineRepositoryImpl(collections = get()) }
 
@@ -64,7 +69,7 @@ val repositoryModule = module {
     }
     single<AppliancesRepository> { AppliancesRepositoryImpl(collections = get()) }
     single<UsersRepository> {
-        FirebaseUsersRepositoryImpl(collections = get(), userDatastore = get())
+        FirebaseUsersRepositoryImpl(collections = get(), userDatastore = get(), appScope = get())
     }
 }
 
@@ -79,6 +84,7 @@ val application = module {
             getUserUseCase = get(),
             getApplianceUseCase = get(),
             notificationApi = get(),
+            appScope = get(),
         )
     }
 
@@ -161,6 +167,7 @@ val mainActivity = module {
     }
 
     viewModel { ProfileViewModel(get(), get()) }
+    viewModel { LinkedAccountsViewModel(get(), get(), get()) }
 
     viewModel { ApplianceDetailsViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { NewApplianceViewModel(get(), get()) }

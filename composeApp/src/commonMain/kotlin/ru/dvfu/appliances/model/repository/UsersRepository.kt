@@ -8,9 +8,12 @@ import ru.dvfu.appliances.ui.Progress
 interface UsersRepository {
     val currentUser: Flow<User?>
 
+    fun ensureCurrentUserDocument()
+
     suspend fun getUsers(): Flow<List<User>>
 
     suspend fun logoutCurrentUser(): Flow<Boolean>
+    suspend fun deleteCurrentAccount(): Result<Unit>
     suspend fun addNewUser(user: User): StateFlow<Progress>
     suspend fun getUser(userId: String): Result<User>
     suspend fun updateUserField(userId: String, data: Map<String, Any>): Result<Unit>

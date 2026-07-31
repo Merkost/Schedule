@@ -11,6 +11,8 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/runConfigurations/
+/.idea/xcode.xml
 .DS_Store
 /build
 /captures
@@ -29,3 +31,6 @@ app/release/
 output-metadata.json
 .idea/kotlinc.xml
 firebase-debug.log
+
+# Local secrets — App Store QA reviewer account, never commit
+docs/*.local.md

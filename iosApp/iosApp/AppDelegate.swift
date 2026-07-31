@@ -35,6 +35,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
             )
         )
         GoogleSignInBridge.install()
+        AppleSignInBridge.install()
         UNUserNotificationCenter.current().delegate = self
         application.registerForRemoteNotifications()
         return true
