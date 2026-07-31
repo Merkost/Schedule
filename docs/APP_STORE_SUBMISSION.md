@@ -1,4 +1,4 @@
-# App Store submission — Schedule 1.1.3
+# App Store submission — Schedule 1.1.4
 
 Everything to paste into App Store Connect, with privacy nutrition + age
 rating answers, in submission order.
@@ -32,7 +32,7 @@ Resulting URLs (replace `Merkost/Schedule` if the repo moves again):
 
 | Field                              | Value                                          |
 | ---------------------------------- | ---------------------------------------------- |
-| **Name**                           | Schedule                                       |
+| **Name**                           | Приборы ДВФУ                                   |
 | **Subtitle** (max 30 chars)        | Расписание приборов ДВФУ                       |
 | **Bundle ID**                      | `ru.dvfu.appliances`                           |
 | **SKU**                            | `schedule-fefu-001` (any unique slug)          |
@@ -204,10 +204,11 @@ Result: **4+**.
 
 ### 6.2 Demo Account
 
-Skip this field. Reviewer can use **"Continue as guest"** on the login
-screen (no credentials needed) for the bulk of the review. If they need a
-real Google account for write actions, they can use any personal Google
-account and we'll elevate it on request — explain this in **Notes**.
+Enter the dedicated App Review account in App Store Connect. Retrieve its
+email and password from the secure local credential source; never store the
+password in this repository. Confirm that the account has `role = 2` in
+Firestore before submission. Reviewers can still use **"Continue as guest"**
+for the basic read-only flow.
 
 ### 6.3 Notes
 
@@ -226,12 +227,13 @@ the login screen. No credentials required. As a guest you can:
 - Open any booking and see its details
 - Open the appliance list and view each appliance + its super-users
 
-To exercise the full feature set (creating a booking, leaving comments,
-approving/declining), tap "Sign in with Google" and use any personal
-Google account. New accounts join with the "Guest" role by default; we
-can manually elevate a test account to a "Super-user" role if needed —
-please reply on this thread and we will whitelist whichever account you
-sign in with.
+To exercise the full administrator feature set, use the Demo Account
+credentials supplied in App Store Connect:
+1. On the login screen, tap the app logo 5 times within 2 seconds.
+2. Enter the supplied email and password in the "QA sign-in" dialog.
+
+Standard end-user sign-in is also available through "Continue with Apple"
+and "Continue with Google". New accounts join with the Guest role by default.
 
 Account deletion path for review: please test with a guest session or a
 disposable standard account, not the shared admin demo account. Guest path:
@@ -275,9 +277,10 @@ Schedule — приложение для ведения расписания р�
 
 КАК ПРОТЕСТИРОВАТЬ БЕЗ АККАУНТА
 Кнопка «Продолжить как гость» на экране входа — доступ без учётной записи.
-Для полного функционала войдите через Google любой учётной записью;
-напишите нам в ответе на это сообщение, и мы повысим её роль до
-суперпользователя.
+Для проверки функций администратора используйте Demo Account из App Store
+Connect: пять раз нажмите на логотип приложения в течение двух секунд и
+введите выданные email и пароль в окне «QA sign-in». Обычный пользователь
+также может войти через Apple или Google.
 
 Konstantin Merenkov — konstantin.merenkov@kttipay.com
 ```
@@ -292,18 +295,28 @@ Optional. Skip unless the reviewer asks.
 
 | Field                                  | Value                                            |
 | -------------------------------------- | ------------------------------------------------ |
-| **Version**                            | 1.1.3                                            |
-| **What's New in This Version** (RU)    | См. ниже                                         |
+| **App Store version**                  | 1.1.4                                            |
+| **iOS build**                          | 4                                                |
+| **Android version**                    | 1.1.4 (`versionCode` 11)                         |
+| **What's New in This Version**         | См. ниже                                         |
 | **Manual release after approval**      | Recommended (so you can announce on your own schedule) |
 
-**What's New** copy:
+**What's New — Russian:**
 
 ```
-• Новая иконка приложения
-• Исправлен счётчик заявок «На рассмотрении» (раньше показывал лишние)
-• Исправлен сбой при входе без подключения к интернету
-• Push-уведомления на iOS теперь работают
-• Логотип в форме открытого календаря на экране входа
+• Обновлены экраны профиля и настроек
+• Добавлен вход через Apple на iOS
+• Улучшены управление уведомлениями и диагностика push-уведомлений
+• Улучшены удаление аккаунта, стабильность и безопасность
+```
+
+**What's New — English:**
+
+```
+• Redesigned Profile and Settings
+• Added Sign in with Apple on iOS
+• Improved notification controls and push diagnostics
+• Improved account deletion, stability, and security
 ```
 
 ---
@@ -312,9 +325,8 @@ Optional. Skip unless the reviewer asks.
 
 - **Required:** 6.9" iPhone display (1320×2868 px). Apple auto-scales for
   smaller iPhones.
-- **Also required** (because `TARGETED_DEVICE_FAMILY=1,2`): 13" iPad Pro
-  (2064×2752 px). If you want to skip iPad: change `TARGETED_DEVICE_FAMILY`
-  to `"1"` in `iosApp/project.yml`, run `xcodegen`, rebuild.
+- **iPad screenshots are not required:** `TARGETED_DEVICE_FAMILY` is `"1"`
+  in `iosApp/project.yml`.
 - 3–6 screenshots is the sweet spot. Recommended set:
   1. **Home (calendar)** with a day pinned and several events visible
   2. **Booking detail** for an approved or pending event
@@ -332,10 +344,12 @@ status bar at 9:41.
 
 - [ ] `dev` (or `master`) pushed with `docs/` content
 - [ ] GitHub Pages enabled — Privacy + Support URLs return HTTP 200
+- [ ] Dedicated reviewer credential rotated and stored outside the repository
+- [ ] Demo Account credentials entered in App Store Connect and verified
 - [ ] iOS build archived (Xcode → Product → Archive) and uploaded via Organizer
-- [ ] In App Store Connect the new build (1.1.3 / 10) appears under the version
+- [ ] In App Store Connect the new build (1.1.4 / 4) appears under the version
 - [ ] All fields above filled
-- [ ] Screenshots (6.9" + 13" if iPad supported) uploaded
+- [ ] 6.9" iPhone screenshots uploaded
 - [ ] Age rating saved (= 4+)
 - [ ] Privacy nutrition label saved
 - [ ] Reviewer notes pasted into App Review Information → Notes

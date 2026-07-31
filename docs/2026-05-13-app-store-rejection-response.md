@@ -50,12 +50,12 @@ Review device: iPad Air 11-inch (M3). Review date: 2026-05-13.
 
 ---
 
-## 3. Code changes (1.1.4 build 2)
+## 3. Code changes (1.1.4 build 4)
 
 ### Version bump
 
 - `iosApp/iosApp/Info.plist` → `CFBundleShortVersionString = 1.1.4`,
-  `CFBundleVersion = 2`.
+  `CFBundleVersion = 4`.
 
 ### Display name (2.3.8)
 
@@ -157,7 +157,7 @@ Project: same one referenced by `iosApp/iosApp/GoogleService-Info.plist`.
 2. Authentication → Sign-in method → **Email/Password** → Enable.
 3. Authentication → Users → Add user:
    - Email: `appstore.review@dvfu.ru`
-   - Password: `appstore.review.dvfu`
+   - Password: `<retrieve from secure local credentials>`
    - Save. Copy the resulting **User UID**.
 
 ### 4.3 Firestore admin elevation
@@ -168,7 +168,7 @@ The user document is auto-created on first sign-in with `role = 0` (guest),
 so:
 
 1. On a local debug build, tap the logo 5 times on the login screen.
-2. Sign in as `appstore.review@dvfu.ru` / `appstore.review.dvfu`.
+2. Sign in as `appstore.review@dvfu.ru` / `<retrieve from secure local credentials>`.
 3. Firestore Console → `users` collection → find the doc with id =
    the UID from step 4.2 → edit field `role` (Int) → set to `2` → Save.
 4. Sign out and back in — admin screens should now be visible.
@@ -188,7 +188,7 @@ cd iosApp && xcodegen generate
 | Field    | Value                       |
 | -------- | --------------------------- |
 | Email    | `appstore.review@dvfu.ru`   |
-| Password | `appstore.review.dvfu`      |
+| Password | `<retrieve from secure local credentials>` |
 
 This is a dedicated reviewer-only account. Rotate the password after the
 app is approved; the account itself can stay so future submissions don't
@@ -229,7 +229,7 @@ Hello App Review team,
 
 Thank you for the detailed feedback on submission
 58a13140-3260-4f18-9951-35638c853888. We have addressed all three issues
-in version 1.1.4 (build 2).
+in version 1.1.4 (build 4).
 
 ---
 
@@ -304,12 +304,11 @@ Smoke tests on a debug build:
 
 Upload:
 
-- [ ] Build 1.1.4 (build 2) archived in Xcode and uploaded
+- [ ] Build 1.1.4 (build 4) archived in Xcode and uploaded
 - [ ] Build selected for the resubmission in App Store Connect
 - [ ] Reply pasted into App Review thread
 
 Post-approval:
 
 - [ ] Rotate the QA account password
-- [ ] Update this doc with the new password (or remove and reference a
-      secure store)
+- [ ] Keep the replacement password in the secure credential store only
