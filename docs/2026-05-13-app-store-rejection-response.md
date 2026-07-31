@@ -255,7 +255,7 @@ QA sign-in built into the app:
 2. A "QA sign-in" dialog will appear.
 3. Enter the following credentials:
      Email:    appstore.review@dvfu.ru
-     Password: appstore.review.dvfu
+      password: <retrieve from secure local credentials>
 
 This account has the administrator role configured in our backend, so all
 admin-only screens, actions, and management features are accessible.
