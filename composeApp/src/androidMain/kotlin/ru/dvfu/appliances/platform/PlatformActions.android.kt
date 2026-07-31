@@ -26,6 +26,25 @@ actual fun openAppNotificationSettings() {
     ctx.startActivity(intent)
 }
 
+actual fun openExternalUrl(url: String) {
+    val ctx = AppContextHolder.context
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    ctx.startActivity(intent)
+}
+
+actual fun shareText(text: String) {
+    val ctx = AppContextHolder.context
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, text)
+    }
+    ctx.startActivity(Intent.createChooser(intent, null).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    })
+}
+
 actual fun finishApp() {
     AppContextHolder.finishCallback?.invoke()
 }
