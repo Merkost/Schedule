@@ -3,6 +3,7 @@
 package ru.dvfu.appliances.compose.home.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.safeDrawing
@@ -19,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.Icons
@@ -33,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,6 +58,7 @@ import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.isAdmin
+import ru.dvfu.appliances.model.repository.entity.isAnonymousOrGuest
 import org.koin.compose.koinInject
 import ru.dvfu.appliances.platform.GoogleAuthLauncher
 import ru.dvfu.appliances.navigation.UserDetailsRoute
@@ -125,7 +129,10 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                         )
                     }
                     Spacer(Modifier.height(16.dp))
-                    ProfileActionGroup(title = stringResource(Res.string.profile_danger_zone)) {
+                    ProfileActionGroup(
+                        title = stringResource(Res.string.profile_danger_zone),
+                        danger = true,
+                    ) {
                         ProfileActionRow(
                             icon = Icons.Default.DeleteForever,
                             title = stringResource(Res.string.delete_account),
@@ -192,7 +199,17 @@ fun UserButtons(navController: NavController, currentUser: User) {
 }
 
 @Composable
-private fun ProfileActionGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
+private fun ProfileActionGroup(
+    title: String,
+    danger: Boolean = false,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val titleColor = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+    val containerColor = if (danger) {
+        MaterialTheme.colorScheme.errorContainer
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -200,13 +217,13 @@ private fun ProfileActionGroup(title: String, content: @Composable ColumnScope.(
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = titleColor,
             modifier = Modifier.padding(horizontal = 4.dp),
         )
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            colors = CardDefaults.cardColors(containerColor = containerColor),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column { content() }
@@ -227,20 +244,30 @@ private fun ProfileActionRow(
     } else {
         MaterialTheme.colorScheme.primary
     }
+    val iconContainerColor = contentColor.copy(alpha = 0.12f)
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = 72.dp)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = contentColor,
-            modifier = Modifier.size(24.dp),
-        )
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(iconContainerColor),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(22.dp),
+            )
+        }
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -263,7 +290,11 @@ private fun ProfileActionRow(
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = if (destructive) {
+                MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
         )
     }
 }
@@ -346,6 +377,7 @@ fun ProfileUserInfo(user: User) {
                     .size(80.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     .padding(16.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
@@ -355,7 +387,8 @@ fun ProfileUserInfo(user: User) {
                 contentDescription = stringResource(Res.string.user_photo),
                 modifier = Modifier
                     .size(80.dp)
-                    .clip(CircleShape),
+                    .clip(CircleShape)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
             )
         }
         Text(
@@ -368,6 +401,35 @@ fun ProfileUserInfo(user: User) {
                 text = user.email,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        val statusLabel = stringResource(
+            when {
+                user.isAdmin -> Res.string.admin
+                user.isAnonymousOrGuest -> Res.string.guest
+                else -> Res.string.user
+            },
+        )
+        val statusContainerColor = when {
+            user.isAdmin -> MaterialTheme.colorScheme.tertiaryContainer
+            user.isAnonymousOrGuest -> MaterialTheme.colorScheme.secondaryContainer
+            else -> MaterialTheme.colorScheme.primaryContainer
+        }
+        val statusContentColor = when {
+            user.isAdmin -> MaterialTheme.colorScheme.onTertiaryContainer
+            user.isAnonymousOrGuest -> MaterialTheme.colorScheme.onSecondaryContainer
+            else -> MaterialTheme.colorScheme.onPrimaryContainer
+        }
+        Surface(
+            shape = CircleShape,
+            color = statusContainerColor,
+            contentColor = statusContentColor,
+        ) {
+            Text(
+                text = statusLabel,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             )
         }
     }

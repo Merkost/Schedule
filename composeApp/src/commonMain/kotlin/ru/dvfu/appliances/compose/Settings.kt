@@ -1,5 +1,9 @@
 package ru.dvfu.appliances.compose
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,13 +23,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -117,7 +121,7 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
     }
 
     val themeMode by datastore.getThemeMode.collectAsState(initial = ThemeMode.SYSTEM)
-    val iosPromotionDismissed by datastore.getIosAppPromotionDismissed.collectAsState(initial = false)
+    val iosPromotionDismissed by datastore.getIosAppPromotionDismissed.collectAsState(initial = null)
     val iosShareMessage = buildIosAppShareMessage(stringResource(Res.string.ios_app_promotion_share_message))
 
     if (deniedAlwaysDialog) {
@@ -196,7 +200,11 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            if (!iosPromotionDismissed) {
+            AnimatedVisibility(
+                visible = iosPromotionDismissed == false,
+                enter = EnterTransition.None,
+                exit = fadeOut() + shrinkVertically(),
+            ) {
                 IosAppPromotionBanner(
                     onOpen = { openExternalUrl(IOS_APP_STORE_URL) },
                     onShare = { shareText(iosShareMessage) },
@@ -220,13 +228,14 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                     title = stringResource(Res.string.notifications_enable),
                     subtitle = stringResource(Res.string.notifications_enable_subtitle),
                     checked = permissionState == NotificationPermissionResult.Granted,
+                    enabled = permissionState != null,
                     onCheckedChange = { enabled ->
                         if (enabled) requestPermission() else openAppNotificationSettings()
                     },
                 )
                 SettingsDivider()
                 SettingsLinkRow(
-                    icon = Icons.Outlined.Send,
+                    icon = Icons.AutoMirrored.Outlined.Send,
                     title = stringResource(Res.string.send_test_notification),
                     subtitle = stringResource(Res.string.send_test_notification_subtitle),
                     onClick = { sendTest() },
