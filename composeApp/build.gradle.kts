@@ -65,7 +65,7 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
             binaryOption("bundleId", "ru.dvfu.appliances.composeApp")
-            export(libs.kmpnotifier)
+            export(libs.kmpnotifier.push.firebase)
         }
     }
 
@@ -96,7 +96,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-            api(libs.kmpnotifier)
+            api(libs.kmpnotifier.push.firebase)
 
             implementation(libs.gitlive.firebase.auth)
             implementation(libs.gitlive.firebase.firestore)
@@ -157,7 +157,6 @@ kotlin {
             implementation(libs.accompanist.permissions)
 
             implementation(dependencies.platform(libs.firebase.bom))
-            implementation(libs.firebase.messaging)
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics)
             implementation(libs.firebase.perf)

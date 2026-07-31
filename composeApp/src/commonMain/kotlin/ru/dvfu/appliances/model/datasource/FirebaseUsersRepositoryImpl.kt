@@ -1,7 +1,8 @@
 package ru.dvfu.appliances.model.datasource
 
 import org.kimplify.cedar.Cedar
-import com.mmk.kmpnotifier.notification.NotifierManager
+import com.mmk.kmpnotifier.KMPNotifier
+import com.mmk.kmpnotifier.push.firebase.firebasePushNotifier
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
@@ -139,7 +140,7 @@ class FirebaseUsersRepositoryImpl(
     override suspend fun uploadCurrentMessagingToken() {
         val uid = currentUser.first()?.userId?.takeIf { it.isNotBlank() && it != "0" } ?: return
         runCatching {
-            val token = NotifierManager.getPushNotifier().getToken()
+            val token = KMPNotifier.firebasePushNotifier.getToken()
             if (token.isNullOrBlank()) return@runCatching
             collections.users().document(uid).updateFields {
                 "msgToken" to token
@@ -149,7 +150,7 @@ class FirebaseUsersRepositoryImpl(
 
     private suspend fun uploadMessagingToken(userId: String) {
         runCatching {
-            val token = NotifierManager.getPushNotifier().getToken()
+            val token = KMPNotifier.firebasePushNotifier.getToken()
             if (!token.isNullOrBlank()) {
                 collections.users().document(userId).updateFields {
                     "msgToken" to token

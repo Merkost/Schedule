@@ -1,47 +1,47 @@
 [versions]
-agp = "9.2.1"
+agp = "9.3.1"
 kotlin = "2.4.10"
-googleServices = "4.4.4"
+googleServices = "4.5.0"
 crashlyticsPlugin = "3.0.7"
 firebasePerfPlugin = "2.0.2"
 
 compileSdk = "37"
 minSdk = "26"
 targetSdk = "37"
-versionCode = "11"
-versionName = "1.1.4"
+versionCode = "12"
+versionName = "1.2.0"
 jvmTarget = "21"
 javaVersion = "VERSION_21"
 composeMultiplatform = "1.11.1"
 kotlinxDatetime = "0.8.0"
 kotlinxSerializationJson = "1.11.0"
 jetbrainsNavigation = "2.9.2"
-jetbrainsLifecycle = "2.10.0"
+jetbrainsLifecycle = "2.11.0"
 constraintlayoutMultiplatform = "0.8.0"
 
 coreKtx = "1.19.0"
 appcompat = "1.7.1"
 material = "1.14.0"
-constraintlayoutView = "2.2.1"
+constraintlayoutView = "2.2.2"
 preference = "1.2.1"
 splashScreen = "1.2.0"
 activityCompose = "1.13.0"
-lifecycle = "2.10.0"
+lifecycle = "2.11.0"
 datastore = "1.2.1"
-ktor = "3.5.0"
-composeBom = "2026.05.01"
-constraintlayoutCompose = "1.1.1"
+ktor = "3.5.1"
+composeBom = "2026.06.01"
+constraintlayoutCompose = "1.1.2"
 navigationCompose = "2.9.8"
 coroutines = "1.11.0"
-firebaseBom = "34.16.0"
+firebaseBom = "34.17.0"
 playServicesAuth = "21.6.0"
-gitliveFirebase = "2.4.0"
-koin = "4.2.1"
+gitliveFirebase = "2.5.0"
+koin = "4.2.2"
 accompanist = "0.37.3"
 kizitonwoseCalendar = "2.10.1"
 mokoPermissions = "0.20.1"
-coil = "3.4.0"
-kmpnotifier = "1.6.1"
+coil = "3.5.0"
+kmpnotifier = "2.0.0"
 junit = "4.13.2"
 androidxTestCore = "1.7.0"
 androidxTestRunner = "1.7.0"
@@ -87,7 +87,6 @@ kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-cor
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
-firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
@@ -132,7 +131,7 @@ moko-permissions-notifications = { module = "dev.icerock.moko:permissions-notifi
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
-kmpnotifier = { module = "io.github.mirzemehdi:kmpnotifier", version.ref = "kmpnotifier" }
+kmpnotifier-push-firebase = { module = "io.github.mirzemehdi:kmpnotifier-push-firebase", version.ref = "kmpnotifier" }
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }

@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.compose.utils
 
-import com.mmk.kmpnotifier.notification.NotifierManager
+import com.mmk.kmpnotifier.KMPNotifier
+import com.mmk.kmpnotifier.push.firebase.firebasePushNotifier
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.CoroutineScope
@@ -149,7 +150,7 @@ class NotificationManagerImpl(
 
     override suspend fun sendTestNotificationToCurrentDevice(): Result<String> = runCatching {
         val log = org.kimplify.cedar.Cedar.tag("FCM")
-        val token = NotifierManager.getPushNotifier().getToken()
+        val token = KMPNotifier.firebasePushNotifier.getToken()
         val authUser = Firebase.auth.currentUser
         log.d("test push: token=${token?.take(12)}…(len=${token?.length}) authUid=${authUser?.uid} anon=${authUser?.isAnonymous}")
         check(!token.isNullOrBlank()) { "FCM token unavailable on this device" }
@@ -184,6 +185,6 @@ class NotificationManagerImpl(
     suspend fun subscribeCurrentUser() {
         val currentUser = userDatastore.getCurrentUser.single()
         if (currentUser.isAnonymousOrGuest) return
-        runCatching { NotifierManager.getPushNotifier().subscribeToTopic("weather") }
+        runCatching { KMPNotifier.firebasePushNotifier.subscribeToTopic("weather") }
     }
 }

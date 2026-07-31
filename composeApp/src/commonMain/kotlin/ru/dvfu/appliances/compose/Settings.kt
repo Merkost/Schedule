@@ -63,7 +63,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
-import com.mmk.kmpnotifier.notification.NotifierManager
+import com.mmk.kmpnotifier.KMPNotifier
+import com.mmk.kmpnotifier.push.firebase.firebasePushNotifier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
@@ -115,7 +116,7 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
     }
 
     LaunchedEffect(fcmRefresh) {
-        fcmToken = runCatching { NotifierManager.getPushNotifier().getToken() }.getOrNull()
+        fcmToken = runCatching { KMPNotifier.firebasePushNotifier.getToken() }.getOrNull()
         val uid = usersRepository.currentUser.first()?.userId
         serverToken = uid?.let { usersRepository.getUser(it).getOrNull()?.msgToken }?.takeIf { it.isNotBlank() }
     }
@@ -172,7 +173,7 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
     fun syncFcmToken() = scope.launch {
         fcmSyncing = true
         runCatching {
-            val token = NotifierManager.getPushNotifier().getToken()
+            val token = KMPNotifier.firebasePushNotifier.getToken()
             if (!token.isNullOrBlank()) usersRepository.setNewMessagingToken(token)
             fcmToken = token
             val uid = usersRepository.currentUser.first()?.userId

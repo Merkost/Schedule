@@ -1,5 +1,4 @@
 import UIKit
-import UserNotifications
 import FirebaseCore
 import FirebaseMessaging
 import GoogleSignIn
@@ -27,16 +26,16 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         let isDebug = false
 #endif
         MainViewControllerKt.doInitKoinIos(isDebug: isDebug)
-        NotifierManager.shared.initialize(
+        KMPNotifier.shared.initialize(
             configuration: NotificationPlatformConfigurationIos(
                 showPushNotification: true,
                 askNotificationPermissionOnStart: false,
                 notificationSoundName: nil
-            )
+            ),
+            extensions: [FirebasePush.shared]
         )
         GoogleSignInBridge.install()
         AppleSignInBridge.install()
-        UNUserNotificationCenter.current().delegate = self
         application.registerForRemoteNotifications()
         return true
     }
@@ -69,7 +68,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
     ) {
-        NotifierManager.shared.onApplicationDidReceiveRemoteNotification(userInfo: userInfo)
+        KMPNotifier.shared.onApplicationDidReceiveRemoteNotification(userInfo: userInfo)
         completionHandler(.newData)
     }
 }

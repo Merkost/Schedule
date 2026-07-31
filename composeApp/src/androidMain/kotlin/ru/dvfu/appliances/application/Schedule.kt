@@ -6,12 +6,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Color
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.mmk.kmpnotifier.notification.NotifierManager
+import com.mmk.kmpnotifier.KMPNotifier
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import com.mmk.kmpnotifier.push.firebase.FirebasePush
 import org.kimplify.cedar.Cedar
 import org.kimplify.cedar.ConsoleTree
 import org.koin.android.ext.koin.androidContext
@@ -46,14 +43,13 @@ class Schedule : Application() {
         if (AppDebug.isDebug) { FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false) }
         createNotificationChannels()
 
-        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
-            NotifierManager.initialize(
-                NotificationPlatformConfiguration.Android(
-                    notificationIconResId = R.mipmap.ic_launcher,
-                    showPushNotification = true,
-                )
-            )
-        }
+        KMPNotifier.initialize(
+            NotificationPlatformConfiguration.Android(
+                notificationIconResId = R.mipmap.ic_launcher,
+                showPushNotification = true,
+            ),
+            FirebasePush,
+        )
     }
 
     private fun createNotificationChannels() {

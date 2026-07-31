@@ -52,7 +52,8 @@ import ru.dvfu.appliances.model.repository.OfflineRepository
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.utils.FirestoreCollections
-import ru.dvfu.appliances.notifications.AppNotifierListener
+import ru.dvfu.appliances.notifications.AppNotificationListener
+import ru.dvfu.appliances.notifications.AppPushListener
 import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
 
 val repositoryModule = module {
@@ -88,7 +89,14 @@ val application = module {
         )
     }
 
-    single { AppNotifierListener(usersRepository = get(), router = NotificationNavRouterDelegate) }
+    single { AppNotificationListener(router = NotificationNavRouterDelegate) }
+    single {
+        val usersRepository: UsersRepository = get()
+        AppPushListener(
+            updateToken = usersRepository::setNewMessagingToken,
+            scope = get(),
+        )
+    }
 
     single { SnackbarManager }
 

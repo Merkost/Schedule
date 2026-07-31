@@ -25,7 +25,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.mmk.kmpnotifier.notification.NotifierManager
+import com.mmk.kmpnotifier.KMPNotifier
+import com.mmk.kmpnotifier.push.firebase.addPushListener
+import com.mmk.kmpnotifier.push.firebase.removePushListener
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -61,7 +63,8 @@ import ru.dvfu.appliances.navigation.NewApplianceRoute
 import ru.dvfu.appliances.navigation.SettingsRoute
 import ru.dvfu.appliances.navigation.UserDetailsRoute
 import ru.dvfu.appliances.navigation.UsersRoute
-import ru.dvfu.appliances.notifications.AppNotifierListener
+import ru.dvfu.appliances.notifications.AppNotificationListener
+import ru.dvfu.appliances.notifications.AppPushListener
 import ru.dvfu.appliances.notifications.NavControllerNotificationRouter
 import ru.dvfu.appliances.notifications.NotificationNavRouterDelegate
 import ru.dvfu.appliances.ui.LoginScreen
@@ -77,10 +80,16 @@ import kotlinx.datetime.LocalDate
 @Composable
 fun ScheduleApp() {
     val appStateHolder = rememberAppStateHolder()
-    val notifierListener: AppNotifierListener = koinInject()
+    val notificationListener: AppNotificationListener = koinInject()
+    val pushListener: AppPushListener = koinInject()
 
-    LaunchedEffect(notifierListener) {
-        NotifierManager.addListener(notifierListener)
+    DisposableEffect(notificationListener, pushListener) {
+        KMPNotifier.addListener(notificationListener)
+        KMPNotifier.addPushListener(pushListener)
+        onDispose {
+            KMPNotifier.removeListener(notificationListener)
+            KMPNotifier.removePushListener(pushListener)
+        }
     }
     DisposableEffect(appStateHolder.navController) {
         NotificationNavRouterDelegate.attach(
