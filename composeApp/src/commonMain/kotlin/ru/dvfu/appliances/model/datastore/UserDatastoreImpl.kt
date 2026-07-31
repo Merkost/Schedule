@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -24,6 +25,7 @@ class UserDatastoreImpl : UserDatastore {
         val USER = stringPreferencesKey("USER")
         val CALENDAR_TYPE = stringPreferencesKey("CALENDAR")
         val THEME_MODE = stringPreferencesKey("THEME_MODE")
+        val IOS_APP_PROMOTION_DISMISSED = booleanPreferencesKey("IOS_APP_PROMOTION_DISMISSED")
     }
 
     override val getCurrentUser: Flow<User> = dataStore.data.map { prefs ->
@@ -50,5 +52,13 @@ class UserDatastoreImpl : UserDatastore {
 
     override suspend fun saveThemeMode(mode: ThemeMode) {
         dataStore.edit { prefs -> prefs[THEME_MODE] = mode.name }
+    }
+
+    override val getIosAppPromotionDismissed: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[IOS_APP_PROMOTION_DISMISSED] ?: false
+    }
+
+    override suspend fun saveIosAppPromotionDismissed(dismissed: Boolean) {
+        dataStore.edit { prefs -> prefs[IOS_APP_PROMOTION_DISMISSED] = dismissed }
     }
 }

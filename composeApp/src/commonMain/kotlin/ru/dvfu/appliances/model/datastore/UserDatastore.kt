@@ -14,4 +14,7 @@ interface UserDatastore {
 
     val getThemeMode: Flow<ThemeMode>
     suspend fun saveThemeMode(mode: ThemeMode)
+
+    val getIosAppPromotionDismissed: Flow<Boolean>
+    suspend fun saveIosAppPromotionDismissed(dismissed: Boolean)
 }
