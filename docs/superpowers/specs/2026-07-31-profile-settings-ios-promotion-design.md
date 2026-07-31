@@ -4,7 +4,7 @@
 
 ## Goal
 
-Improve the Profile and Settings experience, promote the Schedule iOS app from Settings with a clickable and shareable App Store link, update the stable dependency baseline, and append every change to PR #12 targeting `dev`.
+Improve the Profile and Settings experience, promote the Schedule iOS app from Settings with a clickable and shareable App Store link, update the stable dependency baseline, and deliver every remaining change through PR #14 targeting `dev`. PR #12 was merged while implementation was in progress, so the completed follow-up is necessarily carried by PR #14.
 
 ## Current context
 
@@ -62,7 +62,33 @@ Keep AGP `9.2.1`, Gradle `9.4.1`, Compose Multiplatform `1.11.1`, and API 37. Th
 
 ### Security remediation
 
-Sanitize the credential-bearing App Store review document and rewrite only the current feature branch commits after `origin/dev`, preserving the target branch. The rewritten document contains instructions to obtain credentials from a secure local source, never a password. The branch is force-pushed with lease protection, and GitGuardian is rechecked. Credential rotation remains an external operational action and is reported separately.
+Sanitize the credential-bearing App Store review document in the follow-up diff. The document contains instructions to obtain credentials from a secure local source, never a password. GitGuardian must pass on PR #14. Because PR #12 merged the earlier history into `dev`, credential rotation remains an external operational action and rewriting shared `dev` history is outside this change.
+
+## Approved follow-up polish
+
+The user approved a second focused UI/UX pass on 2026-07-31.
+
+### Promotion card
+
+- Avoid a dismissed-banner flash by treating the first DataStore value as unknown and rendering only after a real `false` value arrives.
+- Keep the first appearance static, then use a restrained fade-and-shrink exit after dismissal.
+- Give the close control a minimum 48 dp hit target.
+- Give Open App Store and Share equal responsive width, at least 48 dp height, and enough spacing for English and Russian labels.
+- Preserve Open App Store as the visually primary action and Share as the secondary action.
+
+### Notification state
+
+- Keep the permission switch disabled until the platform permission state has loaded.
+- Continue deriving the checked state exclusively from the platform permission result.
+- Preserve the existing request/open-settings behavior and separate Diagnostics section.
+
+### Profile hierarchy
+
+- Add a compact account-status chip for Guest, Admin, or User beneath the identity details.
+- Add a subtle semantic outline to the profile image.
+- Place action icons in 40 dp tonal containers for stronger scanning and optical balance.
+- Use an error-container surface for the guest danger group while preserving the existing deletion confirmation flow.
+- Keep row touch targets at least 48 dp and retain all existing navigation destinations.
 
 ## Verification
 
@@ -70,5 +96,5 @@ Sanitize the credential-bearing App Store review document and rewrite only the c
 - Gradle compilation covers Android and iOS simulator Kotlin targets.
 - Existing common and Android host tests are rerun.
 - Source scans confirm no password-like literal remains in tracked files or the PR diff.
-- GitHub PR #12 is checked for the new head, `dev` base, and security-check result.
+- GitHub PR #14 is checked for the new head, `dev` base, mergeability, and security-check result.
 - Worktree metadata and local branches are cleaned only after clean-status and reachability checks.

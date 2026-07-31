@@ -2,15 +2,15 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Append a secure dependency and Android SDK verification update, Profile/Settings UX refresh, and clickable/shareable iOS App Store promotion to PR #12 targeting `dev`.
+**Goal:** Deliver a secure dependency and Android SDK verification update, Profile/Settings UX refresh, clickable/shareable iOS App Store promotion, and approved follow-up polish through PR #14 targeting `dev`.
 
-**Architecture:** Keep the promotion UI in commonMain, keep URL opening and share-sheet presentation behind the existing `PlatformActions` expect/actual boundary, and store banner dismissal in the existing preferences-backed `UserDatastore`. Preserve the branch’s current KMP architecture and rewrite only the feature branch history needed to remove the leaked credential.
+**Architecture:** Keep the promotion UI in commonMain, keep URL opening and share-sheet presentation behind the existing `PlatformActions` expect/actual boundary, and store banner dismissal in the existing preferences-backed `UserDatastore`. The follow-up branch is based on the merged `dev`; security remediation is a source-level redaction in PR #14 and does not rewrite shared branch history.
 
 **Tech Stack:** Kotlin Multiplatform, Compose Multiplatform, Material 3, Compose Resources, Android intents, iOS UIKit interop, Preferences DataStore, Gradle 9.4.1, AGP 9.2.1.
 
 ## Global Constraints
 
-- [ ] Append all implementation commits to existing PR #12; no second PR.
+- [ ] Append all remaining implementation commits to PR #14; PR #12 is already merged.
 - [ ] Preserve current feature work and local untracked QA/config; never stage them unless task requires.
 - [ ] Keep dependency versions and Android SDK values in `gradle/libs.versions.toml`.
 - [ ] Keep compileSdk 37, targetSdk 37, minSdk 26, AGP 9.2.1, Gradle 9.4.1, and Compose 1.11.1.
@@ -74,7 +74,82 @@
 - [ ] Run `git diff --check origin/dev...HEAD`, tracked-secret scans, and final status checks.
 - [ ] Run Android debug assembly and the iOS simulator Kotlin compile target.
 - [ ] Push the rewritten feature branch with `git push --force-with-lease`.
-- [ ] Verify PR #12 still targets `dev`, contains the new head, and has current GitHub check results.
+- [ ] Record that PR #12 merged before the follow-up and verify PR #14 targets `dev`, contains the new head, and has current GitHub check results.
 - [ ] Prune stale worktree metadata after confirming the directories are absent and their commits are reachable.
 - [ ] Delete only the stale `worktree-agent-*` local branches; retain active development and repository-default branches.
 - [ ] Report the PR URL, App Store URL, verification results, cleaned targets, and the separate need for credential rotation.
+
+## Task 6: Apply the approved Profile and Settings polish pass
+
+**Files:** `IosAppPromotionBanner.kt`, `Settings.kt`, `Profile.kt`, and the approved design/plan docs.
+
+**Interfaces:**
+
+- Consumes: `UserDatastore.getIosAppPromotionDismissed: Flow<Boolean>`, `NotificationPermissionResult`, and the existing Profile navigation callbacks.
+- Produces: no new public API; this task refines rendering, semantics, and interaction feedback only.
+
+- [ ] Change Settings dismissal collection to nullable initial state so a previously dismissed banner never flashes:
+
+```kotlin
+val iosPromotionDismissed by datastore.getIosAppPromotionDismissed.collectAsState(initial = null)
+
+AnimatedVisibility(
+    visible = iosPromotionDismissed == false,
+    enter = EnterTransition.None,
+    exit = fadeOut() + shrinkVertically(),
+) {
+    IosAppPromotionBanner(
+        onOpen = { openExternalUrl(IOS_APP_STORE_URL) },
+        onShare = { shareText(iosShareMessage) },
+        onDismiss = {
+            scope.launch { datastore.saveIosAppPromotionDismissed(true) }
+        },
+    )
+}
+```
+
+- [ ] Disable the notification toggle until `permissionState` is loaded while retaining the platform-derived checked value:
+
+```kotlin
+SettingsToggleRow(
+    checked = permissionState == NotificationPermissionResult.Granted,
+    enabled = permissionState != null,
+    onCheckedChange = { enabled ->
+        if (enabled) requestPermission() else openAppNotificationSettings()
+    },
+)
+```
+
+- [ ] Give the banner close action a 48 dp target and make both actions share available width with a 48 dp minimum height:
+
+```kotlin
+IconButton(
+    onClick = onDismiss,
+    modifier = Modifier.size(48.dp),
+)
+
+Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    TextButton(
+        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+        onClick = onShare,
+    ) {
+        Icon(Icons.Default.Share, contentDescription = null)
+        Spacer(Modifier.width(6.dp))
+        Text(stringResource(Res.string.ios_app_promotion_share))
+    }
+    Button(
+        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+        onClick = onOpen,
+    ) {
+        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+        Spacer(Modifier.width(6.dp))
+        Text(stringResource(Res.string.ios_app_promotion_open))
+    }
+}
+```
+
+- [ ] Add a semantic account-status chip, outlined avatar, 40 dp tonal icon containers, and an error-container danger group to Profile without changing navigation or deletion behavior.
+
+- [ ] Run `git diff --check`, `:composeApp:testAndroidHostTest`, `:composeApp:compileKotlinIosSimulatorArm64`, and `:androidApp:assembleDebug`.
+
+- [ ] Commit with `feat: polish profile and settings interactions`, push the existing branch, and verify PR #14 remains mergeable with GitGuardian passing.
