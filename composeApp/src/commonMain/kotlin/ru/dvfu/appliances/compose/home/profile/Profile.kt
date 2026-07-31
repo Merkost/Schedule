@@ -3,7 +3,10 @@
 package ru.dvfu.appliances.compose.home.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,7 +20,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
@@ -30,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,6 +58,7 @@ import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.isAdmin
+import ru.dvfu.appliances.model.repository.entity.isAnonymousOrGuest
 import org.koin.compose.koinInject
 import ru.dvfu.appliances.platform.GoogleAuthLauncher
 import ru.dvfu.appliances.navigation.UserDetailsRoute
@@ -92,11 +99,12 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = { ProfileTopBar(upPress = backPress) },
     ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
@@ -112,12 +120,26 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
             Spacer(Modifier.height(24.dp))
             when {
                 currentUser.anonymous -> {
-                    ColumnButton(Icons.Default.Link, stringResource(Res.string.save_account)) {
-                        navController.navigate(LinkedAccountsRoute)
+                    ProfileActionGroup(title = stringResource(Res.string.profile_account_section)) {
+                        ProfileActionRow(
+                            icon = Icons.Default.Link,
+                            title = stringResource(Res.string.save_account),
+                            subtitle = stringResource(Res.string.save_account_subtitle),
+                            onClick = { navController.navigate(LinkedAccountsRoute) },
+                        )
                     }
-                    Spacer(Modifier.height(12.dp))
-                    ColumnButton(Icons.Default.DeleteForever, stringResource(Res.string.delete_account)) {
-                        isDeleteAccountDialogOpen = true
+                    Spacer(Modifier.height(16.dp))
+                    ProfileActionGroup(
+                        title = stringResource(Res.string.profile_danger_zone),
+                        danger = true,
+                    ) {
+                        ProfileActionRow(
+                            icon = Icons.Default.DeleteForever,
+                            title = stringResource(Res.string.delete_account),
+                            subtitle = stringResource(Res.string.profile_delete_account_subtitle),
+                            onClick = { isDeleteAccountDialogOpen = true },
+                            destructive = true,
+                        )
                     }
                 }
 
@@ -132,29 +154,157 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
 @InternalCoroutinesApi
 @Composable
 fun UserButtons(navController: NavController, currentUser: User) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        ColumnButton(Icons.Default.AccountCircle, stringResource(Res.string.account_details)) {
-            navController.navigate(UserDetailsRoute(userId = currentUser.userId))
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        ProfileActionGroup(title = stringResource(Res.string.profile_account_section)) {
+            ProfileActionRow(
+                icon = Icons.Default.AccountCircle,
+                title = stringResource(Res.string.account_details),
+                subtitle = stringResource(Res.string.profile_account_details_subtitle),
+                onClick = { navController.navigate(UserDetailsRoute(userId = currentUser.userId)) },
+            )
+            ProfileActionDivider()
+            ProfileActionRow(
+                icon = Icons.Default.Edit,
+                title = stringResource(Res.string.profile_edit),
+                subtitle = stringResource(Res.string.profile_edit_subtitle),
+                onClick = { navController.navigate(EditProfileRoute) },
+            )
+            ProfileActionDivider()
+            ProfileActionRow(
+                icon = Icons.Default.Link,
+                title = stringResource(Res.string.linked_accounts),
+                subtitle = stringResource(Res.string.profile_linked_accounts_subtitle),
+                onClick = { navController.navigate(LinkedAccountsRoute) },
+            )
         }
-        ColumnButton(Icons.Default.Edit, "Редактировать профиль") {
-            navController.navigate(EditProfileRoute)
-        }
-        ColumnButton(Icons.Default.Link, stringResource(Res.string.linked_accounts)) {
-            navController.navigate(LinkedAccountsRoute)
-        }
-        ColumnButton(Icons.Default.Notifications, "Настройка уведомлений") {
-            navController.navigate(SettingsRoute)
+        ProfileActionGroup(title = stringResource(Res.string.profile_preferences_section)) {
+            ProfileActionRow(
+                icon = Icons.Default.Notifications,
+                title = stringResource(Res.string.settings),
+                subtitle = stringResource(Res.string.profile_settings_subtitle),
+                onClick = { navController.navigate(SettingsRoute) },
+            )
         }
         if (currentUser.isAdmin) {
-            ColumnButton(Icons.Default.PersonSearch, "Список пользователей") {
-                navController.navigate(UsersRoute)
+            ProfileActionGroup(title = stringResource(Res.string.profile_management_section)) {
+                ProfileActionRow(
+                    icon = Icons.Default.PersonSearch,
+                    title = stringResource(Res.string.users),
+                    subtitle = stringResource(Res.string.profile_users_subtitle),
+                    onClick = { navController.navigate(UsersRoute) },
+                )
             }
         }
     }
+}
+
+@Composable
+private fun ProfileActionGroup(
+    title: String,
+    danger: Boolean = false,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val titleColor = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+    val containerColor = if (danger) {
+        MaterialTheme.colorScheme.errorContainer
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = titleColor,
+            modifier = Modifier.padding(horizontal = 4.dp),
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column { content() }
+        }
+    }
+}
+
+@Composable
+private fun ProfileActionRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+    destructive: Boolean = false,
+) {
+    val contentColor = if (destructive) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+    val iconContainerColor = contentColor.copy(alpha = 0.12f)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 72.dp)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(iconContainerColor),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(22.dp),
+            )
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (destructive) {
+                    MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
+        }
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = if (destructive) {
+                MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+        )
+    }
+}
+
+@Composable
+private fun ProfileActionDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+    )
 }
 
 @InternalCoroutinesApi
@@ -176,13 +326,13 @@ fun LogoutDialog(onDismiss: () -> Unit) {
         },
         title = {
             Text(
-                text = "Выход из аккаунта",
+                text = stringResource(Res.string.logout_dialog_title),
                 style = MaterialTheme.typography.headlineSmall,
             )
         },
         text = {
             Text(
-                text = "Вы уверены, что хотите выйти из своего аккаунта?",
+                text = stringResource(Res.string.logout_dialog_message),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -211,23 +361,6 @@ fun LogoutDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
-fun ColumnButton(image: ImageVector, name: String, click: () -> Unit) {
-    OutlinedButton(
-        onClick = click,
-        modifier = Modifier.fillMaxWidth(),
-        content = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(image, name, modifier = Modifier.size(25.dp))
-                Text(name, modifier = Modifier.padding(start = 10.dp))
-            }
-        })
-}
-
-@Composable
 fun ProfileUserInfo(user: User) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -244,6 +377,7 @@ fun ProfileUserInfo(user: User) {
                     .size(80.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     .padding(16.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
@@ -253,7 +387,8 @@ fun ProfileUserInfo(user: User) {
                 contentDescription = stringResource(Res.string.user_photo),
                 modifier = Modifier
                     .size(80.dp)
-                    .clip(CircleShape),
+                    .clip(CircleShape)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
             )
         }
         Text(
@@ -266,6 +401,35 @@ fun ProfileUserInfo(user: User) {
                 text = user.email,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        val statusLabel = stringResource(
+            when {
+                user.isAdmin -> Res.string.admin
+                user.isAnonymousOrGuest -> Res.string.guest
+                else -> Res.string.user
+            },
+        )
+        val statusContainerColor = when {
+            user.isAdmin -> MaterialTheme.colorScheme.tertiaryContainer
+            user.isAnonymousOrGuest -> MaterialTheme.colorScheme.secondaryContainer
+            else -> MaterialTheme.colorScheme.primaryContainer
+        }
+        val statusContentColor = when {
+            user.isAdmin -> MaterialTheme.colorScheme.onTertiaryContainer
+            user.isAnonymousOrGuest -> MaterialTheme.colorScheme.onSecondaryContainer
+            else -> MaterialTheme.colorScheme.onPrimaryContainer
+        }
+        Surface(
+            shape = CircleShape,
+            color = statusContainerColor,
+            contentColor = statusContentColor,
+        ) {
+            Text(
+                text = statusLabel,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             )
         }
     }
@@ -291,7 +455,7 @@ fun ProfileTopBar(upPress: () -> Unit) {
         upPress,
         actions = {
             IconButton(onClick = { dialogOnLogout = true }) {
-                Icon(Icons.AutoMirrored.Filled.Logout, "")
+                Icon(Icons.AutoMirrored.Filled.Logout, stringResource(Res.string.logout))
             }
         }
     )

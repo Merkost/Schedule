@@ -1,30 +1,35 @@
 package ru.dvfu.appliances.compose
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Key
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -52,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,15 +71,20 @@ import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.components.IosAppPromotionBanner
 import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.generated.resources.Res
 import ru.dvfu.appliances.generated.resources.*
 import ru.dvfu.appliances.model.datastore.ThemeMode
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.UsersRepository
+import ru.dvfu.appliances.platform.IOS_APP_STORE_URL
 import ru.dvfu.appliances.platform.NotificationPermissionResult
+import ru.dvfu.appliances.platform.buildIosAppShareMessage
 import ru.dvfu.appliances.platform.openAppNotificationSettings
+import ru.dvfu.appliances.platform.openExternalUrl
 import ru.dvfu.appliances.platform.rememberNotificationPermissionController
+import ru.dvfu.appliances.platform.shareText
 
 @Composable
 fun Settings(navController: NavController, upPress: () -> Unit) {
@@ -84,9 +95,6 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
     val clipboard = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
 
-    var notificationsEnabled by rememberSaveable { mutableStateOf(true) }
-    var bookingUpdatesEnabled by rememberSaveable { mutableStateOf(true) }
-    var remindersEnabled by rememberSaveable { mutableStateOf(true) }
     var deniedAlwaysDialog by rememberSaveable { mutableStateOf(false) }
 
     var permissionState by remember { mutableStateOf<NotificationPermissionResult?>(null) }
@@ -113,6 +121,8 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
     }
 
     val themeMode by datastore.getThemeMode.collectAsState(initial = ThemeMode.SYSTEM)
+    val iosPromotionDismissed by datastore.getIosAppPromotionDismissed.collectAsState(initial = null)
+    val iosShareMessage = buildIosAppShareMessage(stringResource(Res.string.ios_app_promotion_share_message))
 
     if (deniedAlwaysDialog) {
         androidx.compose.material3.AlertDialog(
@@ -179,6 +189,7 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = { ScheduleAppBar(stringResource(Res.string.settings), backClick = upPress) },
     ) { innerPadding ->
         Column(
@@ -189,6 +200,20 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            AnimatedVisibility(
+                visible = iosPromotionDismissed == false,
+                enter = EnterTransition.None,
+                exit = fadeOut() + shrinkVertically(),
+            ) {
+                IosAppPromotionBanner(
+                    onOpen = { openExternalUrl(IOS_APP_STORE_URL) },
+                    onShare = { shareText(iosShareMessage) },
+                    onDismiss = {
+                        scope.launch { datastore.saveIosAppPromotionDismissed(true) }
+                    },
+                )
+            }
+
             if (permissionState != null && permissionState != NotificationPermissionResult.Granted) {
                 NotificationPermissionBanner(
                     state = permissionState!!,
@@ -202,30 +227,15 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                     icon = Icons.Outlined.NotificationsActive,
                     title = stringResource(Res.string.notifications_enable),
                     subtitle = stringResource(Res.string.notifications_enable_subtitle),
-                    checked = notificationsEnabled,
-                    onCheckedChange = { notificationsEnabled = it },
-                )
-                SettingsDivider()
-                SettingsToggleRow(
-                    icon = Icons.Outlined.Event,
-                    title = stringResource(Res.string.notifications_booking_updates),
-                    subtitle = stringResource(Res.string.notifications_booking_updates_subtitle),
-                    checked = bookingUpdatesEnabled,
-                    onCheckedChange = { bookingUpdatesEnabled = it },
-                    enabled = notificationsEnabled,
-                )
-                SettingsDivider()
-                SettingsToggleRow(
-                    icon = Icons.Outlined.Notifications,
-                    title = stringResource(Res.string.notifications_reminders),
-                    subtitle = stringResource(Res.string.notifications_reminders_subtitle),
-                    checked = remindersEnabled,
-                    onCheckedChange = { remindersEnabled = it },
-                    enabled = notificationsEnabled,
+                    checked = permissionState == NotificationPermissionResult.Granted,
+                    enabled = permissionState != null,
+                    onCheckedChange = { enabled ->
+                        if (enabled) requestPermission() else openAppNotificationSettings()
+                    },
                 )
                 SettingsDivider()
                 SettingsLinkRow(
-                    icon = Icons.Outlined.Send,
+                    icon = Icons.AutoMirrored.Outlined.Send,
                     title = stringResource(Res.string.send_test_notification),
                     subtitle = stringResource(Res.string.send_test_notification_subtitle),
                     onClick = { sendTest() },
@@ -237,7 +247,9 @@ fun Settings(navController: NavController, upPress: () -> Unit) {
                     subtitle = stringResource(Res.string.open_system_settings_subtitle),
                     onClick = { openAppNotificationSettings() },
                 )
-                SettingsDivider()
+            }
+
+            SettingsSection(title = stringResource(Res.string.diagnostics)) {
                 FcmDiagnosticsRow(
                     deviceToken = fcmToken,
                     serverToken = serverToken,
@@ -300,7 +312,12 @@ private fun SettingsToggleRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = enabled) { onCheckedChange(!checked) }
+            .toggleable(
+                value = checked,
+                enabled = enabled,
+                role = Role.Switch,
+                onValueChange = onCheckedChange,
+            )
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -309,7 +326,7 @@ private fun SettingsToggleRow(
         SettingsTextColumn(title, subtitle, enabled, Modifier.weight(1f))
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange,
+            onCheckedChange = null,
             enabled = enabled,
         )
     }
@@ -538,4 +555,3 @@ private fun fcmDiagnosticsSubtitle(deviceToken: String?, serverToken: String?): 
     serverToken == deviceToken -> stringResource(Res.string.fcm_diagnostics_synced)
     else -> stringResource(Res.string.fcm_diagnostics_mismatch)
 }
-

@@ -254,12 +254,15 @@ class UserDetailsViewModelTest {
         override val getCalendarType: Flow<CalendarType> = flowOf(CalendarType.WEEK)
         override val getCurrentUser: Flow<User> = flowOf(currentUser)
         override val getThemeMode: Flow<ThemeMode> = flowOf(ThemeMode.SYSTEM)
+        override val getIosAppPromotionDismissed: Flow<Boolean> = flowOf(false)
 
         override suspend fun saveCalendarType(calendarType: CalendarType) = Unit
 
         override suspend fun saveUser(user: User) = Unit
 
         override suspend fun saveThemeMode(mode: ThemeMode) = Unit
+
+        override suspend fun saveIosAppPromotionDismissed(dismissed: Boolean) = Unit
     }
 
     private class FakeNotificationManager : NotificationManager {
